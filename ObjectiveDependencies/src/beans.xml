@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<beans xmlns="http://www.springframework.org/schema/beans"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://www.springframework.org/schema/beans
+        http://www.springframework.org/schema/beans/spring-beans.xsd">
+        
+<bean id = "demo" class = "com.objectivedependencies.MathCheat"></bean>        
+        
+<bean id = "Student" class = "com.objectivedependencies.Student">
+<property name="id" value = "1001"></property>
+<property name="cheating" ref = "demo"></property>
+</bean>     
+
+<bean id = "AnotherStudent" class = "com.objectivedependencies.AnotherStudent">
+<property name="id" value = "1005"></property>
+<property name="cheating" ref = "demo" />
+</bean>   
+ 
+</beans>

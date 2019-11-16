@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<beans xmlns="http://www.springframework.org/schema/beans"
+xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+xmlns:context="http://www.springframework.org/schema/context"
+xsi:schemaLocation="http://www.springframework.org/schema/beans
+		http://www.springframework.org/schema/beans/spring-beans.xsd
+		http://www.springframework.org/schema/context
+		http://www.springframework.org/schema/context/spring-context.xsd">
+
+<context:annotation-config />
+<context:property-placeholder location="classpath:studentinfo.properties"/>
+
+<!-- Taking dynamic Values for properties file -->
+<!-- <bean id = "stu" class = "com.springannotation.Student">
+<property name="name" value = "${student.name}"></property>
+<property name="intrest" value = "${student.intrest}"></property>
+<property name="hobbie" value = "${student.hobbie}"></property>
+</bean> -->
+
+<!-- Taking Values using @Value Annotation -->
+<bean id = "stu" class = "com.springannotation.Student"></bean>
+
+</beans>
