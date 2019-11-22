@@ -1,5 +1,6 @@
 package com.springannotation.classannotation;
 
+import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.PropertySource;
@@ -8,7 +9,7 @@ import org.springframework.context.annotation.PropertySource;
 @ComponentScan(basePackages = "com.springannotation.classannotation")
 @PropertySource("classpath:collegeinfo.properties")
 public class CollegeConfig {
-/*	
+
 	@Bean(name = "call")
 	public College collegeBean() {
 		
@@ -20,5 +21,5 @@ public class CollegeConfig {
 		
 		return new Principle();
 	}
-*/	
+
 }
