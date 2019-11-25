@@ -3,7 +3,9 @@ package com.bridgelabz.fundoonotes.service;
 import java.util.List;
 import java.util.Optional;
 
+import com.bridgelabz.fundoonotes.dto.LoginDTO;
 import com.bridgelabz.fundoonotes.dto.RegisterDTO;
+import com.bridgelabz.fundoonotes.dto.ResetDTO;
 import com.bridgelabz.fundoonotes.model.User;
 
 public interface RecordServiceI {
@@ -18,4 +20,11 @@ public interface RecordServiceI {
 	
 	String updateUser(User student, String id);
 
+	String login(LoginDTO logindto);
+	
+	String forgetPassword(RegisterDTO logindto);
+	
+	String resetPassword(ResetDTO reset, String token);
+	
+	String verify(String token);
 }

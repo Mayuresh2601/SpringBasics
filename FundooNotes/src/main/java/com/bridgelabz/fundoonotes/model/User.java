@@ -5,10 +5,7 @@ import javax.validation.constraints.NotBlank;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 
-import lombok.Data;
-
 @Document
-@Data
 public class User {
 
 	@Id
@@ -25,20 +22,15 @@ public class User {
 
 	@NotBlank(message = "Password is Mandatory")
 	private String password;
+	
+	@NotBlank(message = "Confirm Password is Mandatory")
+	private String confirmPassword;
 
 	@NotBlank(message = "MobileNumber is Mandatory")
 	private long mobileNumber;
 
 	@NotBlank(message = "Validation is Mandatory")
 	private boolean isValidate;
-
-	public String getId() {
-		return id;
-	}
-
-	public void setId(String id) {
-		this.id = id;
-	}
 
 	public String getFirstName() {
 		return firstName;
@@ -86,6 +78,14 @@ public class User {
 
 	public void setValidate(boolean isValidate) {
 		this.isValidate = isValidate;
+	}
+	
+	public String getConfirmPassword() {
+		return confirmPassword;
+	}
+
+	public void setConfirmPassword(String confirmPassword) {
+		this.confirmPassword = confirmPassword;
 	}
 
 }

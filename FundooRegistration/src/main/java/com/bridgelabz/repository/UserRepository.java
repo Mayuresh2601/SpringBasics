@@ -8,4 +8,5 @@ import com.bridgelabz.model.User;
 @Repository
 public interface UserRepository extends MongoRepository<User, String> {
 
+	public UserRepository findByEmailId(String email);
 }

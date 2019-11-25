@@ -5,15 +5,18 @@ import java.util.Optional;
 
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import com.bridgelabz.fundoonotes.dto.LoginDTO;
 import com.bridgelabz.fundoonotes.dto.RegisterDTO;
+import com.bridgelabz.fundoonotes.dto.ResetDTO;
 import com.bridgelabz.fundoonotes.model.User;
 import com.bridgelabz.fundoonotes.repository.UserRepositoryI;
-import com.bridgelabz.fundoonotes.utility.JMS;
-import com.bridgelabz.fundoonotes.utility.JWT;
+import com.bridgelabz.fundoonotes.utility.Jms;
+import com.bridgelabz.fundoonotes.utility.Jwt;
+
 
 @Service
 public class RecordService implements RecordServiceI{
@@ -22,10 +25,13 @@ public class RecordService implements RecordServiceI{
 	UserRepositoryI repository;
 	
 	@Autowired
-	JWT jwt;
+	JavaMailSender mailSender;
 	
 	@Autowired
-	JMS jms;
+	Jwt jwt;
+	
+	@Autowired
+	Jms jms;
 
 	@Autowired
 	BCryptPasswordEncoder bCryptPasswordEncoder;
@@ -40,10 +46,9 @@ public class RecordService implements RecordServiceI{
 		user.setEmail(regdto.getEmail());
 		user.setMobileNumber(regdto.getMobileNumber());
 		user.setPassword(bCryptPasswordEncoder.encode(regdto.getPassword()));
-		
 		String token = jwt.createToken(user.getEmail());
 		
-		jms.sendMail(user.getEmail(), token);
+		jms.sendMail(user.getEmail(),token);
 		repository.save(user);
 		return "User Added Successfully";
 	}
@@ -76,15 +81,76 @@ public class RecordService implements RecordServiceI{
 		return "User Updated Successfully";
 	}
 	
+	@Override
 	public String login(LoginDTO logindto) {
 		ModelMapper mapper = new ModelMapper();
 		User user = mapper.map(logindto, User.class);
+		User user1 = repository.findByEmail(user.getEmail());
 		
-		if(user != null) {
-			
+		boolean isValid = bCryptPasswordEncoder.matches(logindto.getPassword(), user1.getPassword());
+		
+		if(isValid ) {	
+			user1.setValidate(true);
+			repository.save(user1);
+			return "Login Successful";
 		}
-		return "";
+		else {
+			return "Login Unsuccessful";
+		}
+		
+	}
+	
+	@Override
+	public String forgetPassword(RegisterDTO logindto) {
+		
+		ModelMapper mapper = new ModelMapper();
+		User user = mapper.map(logindto, User.class);
+		String token = jwt.createToken(user.getEmail());
+		System.out.println("Recieved token:::::::  "+token);
+		jms.sendMail("demo.mayuresh@gmail.com", token);
+
+		return "Check Your Mail for Validation Link";
 	}
 
+	@Override
+	public String resetPassword(ResetDTO resetdto, String token) {
+	
+		String email=jwt.getToken(token);
+		
+		if(email!=null)
+		{
+				
+			User user = repository.findByEmail(email);
+			user.setPassword(resetdto.getNewPassword());
+		
+			if(resetdto.getNewPassword().contentEquals(resetdto.getConfirmPassword()))
+			{
+				
+				user.setPassword(bCryptPasswordEncoder.encode(resetdto.getNewPassword()));
+				repository.save(user);
+				return "Password Reset Successful";
+			}
+			
+		}
+		return "Password Reset Unsuccessful";
+		
+	}
 
+	@Override
+	public String verify(String token) {
+		String email=jwt.getToken(token);
+		
+		if(email!=null)
+		{
+			User user = repository.findByEmail(email);
+			if(user!=null)
+			{
+				user.setValidate(true);
+				repository.save(user);
+				return "Verified Successful";
+			}
+		}
+		return "Invalid UserName and Password";
+	}
 }
+

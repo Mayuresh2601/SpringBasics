@@ -6,6 +6,10 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 
 @Configuration
 public class Config {
+	
+	/**Method: To Encrypt the password at backend
+	 * @return Encrypting Password
+	 */
 	@Bean
 	public BCryptPasswordEncoder bcyBCryptPasswordEncoder() {
 		
