@@ -1,3 +1,10 @@
+/******************************************************************************
+*  
+*  Purpose: To Implement Fundoo Notes App
+*  @class To Encrypt the Password
+*  @author  Mayuresh Sunil Sonar
+*
+******************************************************************************/
 package com.bridgelabz.fundoonotes.config;
 
 import org.springframework.context.annotation.Bean;

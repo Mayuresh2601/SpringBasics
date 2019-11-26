@@ -1,3 +1,10 @@
+/******************************************************************************
+*  
+*  Purpose: To Implement Fundoo Notes App
+*  @class Record Service
+*  @author  Mayuresh Sunil Sonar
+*
+******************************************************************************/
 package com.bridgelabz.fundoonotes.service;
 
 import java.util.List;
@@ -12,11 +19,12 @@ import org.springframework.stereotype.Service;
 import com.bridgelabz.fundoonotes.dto.LoginDTO;
 import com.bridgelabz.fundoonotes.dto.RegisterDTO;
 import com.bridgelabz.fundoonotes.dto.ResetDTO;
+import com.bridgelabz.fundoonotes.exception.LoginException;
+import com.bridgelabz.fundoonotes.exception.RegisterException;
 import com.bridgelabz.fundoonotes.model.User;
 import com.bridgelabz.fundoonotes.repository.UserRepositoryI;
 import com.bridgelabz.fundoonotes.utility.Jms;
 import com.bridgelabz.fundoonotes.utility.Jwt;
-
 
 @Service
 public class RecordService implements RecordServiceI{
@@ -36,51 +44,79 @@ public class RecordService implements RecordServiceI{
 	@Autowired
 	BCryptPasswordEncoder bCryptPasswordEncoder;
 	
+	/**
+	 *Method: To Add New User into Database
+	 */
 	@Override
 	public String addNewUser(RegisterDTO regdto) {
 		ModelMapper mapper=new ModelMapper();
 		User user = mapper.map(regdto, User.class);
 		
-		user.setFirstName(regdto.getFirstName());
-		user.setLastName(regdto.getLastName());
-		user.setEmail(regdto.getEmail());
-		user.setMobileNumber(regdto.getMobileNumber());
-		user.setPassword(bCryptPasswordEncoder.encode(regdto.getPassword()));
-		String token = jwt.createToken(user.getEmail());
+		if(user != null) {
+			user.setFirstName(regdto.getFirstName());
+			user.setLastName(regdto.getLastName());
+			user.setEmail(regdto.getEmail());
+			user.setMobileNumber(regdto.getMobileNumber());
+			user.setPassword(bCryptPasswordEncoder.encode(regdto.getPassword()));
+			String token = jwt.createToken(user.getEmail());
 		
-		jms.sendMail(user.getEmail(),token);
-		repository.save(user);
-		return "User Added Successfully";
+			jms.sendMail(user.getEmail(),token);
+			repository.save(user);
+			return UserMessageReferance.ADD_USER;
+		}
+		throw new RegisterException(UserMessageReferance.USER_LOGIN_UNSUCCESSFUL);
 	}
 
+	/**
+	 *Method: To find User By Id in Database
+	 */
 	@Override
 	public Optional<User> findUserById(String id) {
 		
-		return repository.findById(id);
+		return repository.findById(id); 
 	}
 
+	/**
+	 *Method: Display All User Details Present in Database
+	 */
 	@Override
 	public List<User> show() {
 		
-		return repository.findAll();
+		return repository.findAll(); 
 	}
 
+	/**
+	 *Method: To Delete a User by its Id 
+	 */
 	@Override
 	public String deleteUserById(String id) {
 		
-		repository.findById(id);
-		return "User Deleted Successfully";
+		repository.deleteById(id);
+		return UserMessageReferance.DELETE_USER;
 	}
 
+	/**
+	 *Method: Update User By its Id
+	 */
 	@Override
-	public String updateUser(User user,String id) {
+	public String updateUser(RegisterDTO registerdto,String token) {
 		
-		User userupdate = repository.findById(id).get();
-		userupdate = user;
-		repository.save(userupdate);
-		return "User Updated Successfully";
+		String email = jwt.getToken(token);
+		if(email != null) {
+			User userupdate = repository.findByEmail(email);
+			userupdate.setFirstName(registerdto.getFirstName());
+			userupdate.setLastName(registerdto.getLastName());
+			userupdate.setMobileNumber(registerdto.getMobileNumber());
+			
+			repository.save(userupdate);
+			return UserMessageReferance.UPDATE_USER;
+		}
+		throw new LoginException(UserMessageReferance.UNAUTHORIZED_USER);
 	}
 	
+	/**
+	 *Method: Login User if password matches the existing user record
+	 */
 	@Override
 	public String login(LoginDTO logindto) {
 		ModelMapper mapper = new ModelMapper();
@@ -92,14 +128,15 @@ public class RecordService implements RecordServiceI{
 		if(isValid ) {	
 			user1.setValidate(true);
 			repository.save(user1);
-			return "Login Successful";
-		}
-		else {
-			return "Login Unsuccessful";
+			return UserMessageReferance.USER_LOGIN_SUCCESSFUL;
 		}
 		
+		throw new LoginException(UserMessageReferance.USER_LOGIN_UNSUCCESSFUL);
 	}
 	
+	/**
+	 *Method: To generate JWT token of emailId and send it on mail
+	 */
 	@Override
 	public String forgetPassword(RegisterDTO logindto) {
 		
@@ -109,9 +146,12 @@ public class RecordService implements RecordServiceI{
 		System.out.println("Recieved token:::::::  "+token);
 		jms.sendMail("demo.mayuresh@gmail.com", token);
 
-		return "Check Your Mail for Validation Link";
+		return UserMessageReferance.CHECK_YOUR_MAIL;
 	}
 
+	/**
+	 *Method: To Reset your password using the obtained token from email
+	 */
 	@Override
 	public String resetPassword(ResetDTO resetdto, String token) {
 	
@@ -119,23 +159,22 @@ public class RecordService implements RecordServiceI{
 		
 		if(email!=null)
 		{
-				
 			User user = repository.findByEmail(email);
 			user.setPassword(resetdto.getNewPassword());
 		
 			if(resetdto.getNewPassword().contentEquals(resetdto.getConfirmPassword()))
 			{
-				
 				user.setPassword(bCryptPasswordEncoder.encode(resetdto.getNewPassword()));
 				repository.save(user);
-				return "Password Reset Successful";
+				return UserMessageReferance.PASSWORD_UPDATED;
 			}
-			
 		}
-		return "Password Reset Unsuccessful";
-		
+		return UserMessageReferance.PASSWORD_NOT_MATCHED;
 	}
 
+	/**
+	 *Method: To Verify the EmailId and Password  
+	 */
 	@Override
 	public String verify(String token) {
 		String email=jwt.getToken(token);
@@ -147,10 +186,10 @@ public class RecordService implements RecordServiceI{
 			{
 				user.setValidate(true);
 				repository.save(user);
-				return "Verified Successful";
+				return UserMessageReferance.VERIFIED_EMAILID_PASSWORD;
 			}
 		}
-		return "Invalid UserName and Password";
+		throw new LoginException(UserMessageReferance.UNAUTHORIZED_USER);
 	}
 }
 

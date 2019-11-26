@@ -1,3 +1,10 @@
+/******************************************************************************
+*  
+*  Purpose: To Implement Fundoo Notes App
+*  @class Java Message Service
+*  @author  Mayuresh Sunil Sonar
+*
+******************************************************************************/
 package com.bridgelabz.fundoonotes.utility;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -11,6 +18,10 @@ public class Jms {
 	@Autowired
 	JavaMailSender javamailsender;
 	
+	/**Method: To send Token on EmailId
+	 * @param emailId
+	 * @param token
+	 */
 	public void sendMail(String emailId, String token)
 	{
 		SimpleMailMessage mail=new SimpleMailMessage();
@@ -20,7 +31,6 @@ public class Jms {
 		mail.setText(token);
 		
 		javamailsender.send(mail);
-		
 	}
 
 }

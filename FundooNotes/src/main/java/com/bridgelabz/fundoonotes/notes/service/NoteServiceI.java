@@ -7,18 +7,18 @@ import com.bridgelabz.fundoonotes.notes.model.Note;
 
 public interface NoteServiceI {
 	
-	public String createNote(NoteDTO notedto);
+	public String createNote(String token, NoteDTO notedto);
 	
-	public String updateNote(String token, NoteDTO notedto);
+	public String updateNote(String id, NoteDTO notedto);
 	
-	public String deleteNote(String token);
+	public String deleteNote(String id);
 	
-	public Optional<Note> findNoteByToken(String id);
+	public Optional<Note> findNoteById(String id);
 	
-	public boolean isPin(String token);
+	public boolean isPin(String id, String token);
 	
-	public boolean isTrash(String token);
+	public boolean isTrash(String id, String token);
 	
-	public boolean isArchieve(String token);
+	public boolean isArchieve(String id, String token);
 
 }

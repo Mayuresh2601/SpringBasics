@@ -18,7 +18,7 @@ public interface RecordServiceI {
 	
 	String deleteUserById(String id);
 	
-	String updateUser(User student, String id);
+	String updateUser(RegisterDTO registerdto, String token);
 
 	String login(LoginDTO logindto);
 	

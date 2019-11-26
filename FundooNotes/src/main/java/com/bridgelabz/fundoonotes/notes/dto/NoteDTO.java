@@ -6,9 +6,9 @@ import lombok.Data;
 public class NoteDTO {
 	
 	private String title;
-	private String emailId;
+	
 	private String description;
 	
-	
+	private String emailId;
 
 }
