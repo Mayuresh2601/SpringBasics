@@ -21,7 +21,7 @@ import org.springframework.web.bind.annotation.RestController;
 import com.bridgelabz.fundoonotes.note.dto.NoteDTO;
 import com.bridgelabz.fundoonotes.note.model.Note;
 import com.bridgelabz.fundoonotes.note.service.NoteService;
-import com.bridgelabz.fundoonotes.response.Response;
+import com.bridgelabz.fundoonotes.user.response.Response;
 
 @RestController
 public class NoteController {

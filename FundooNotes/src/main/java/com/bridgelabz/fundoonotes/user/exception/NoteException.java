@@ -1,4 +1,4 @@
-package com.bridgelabz.fundoonotes.exception;
+package com.bridgelabz.fundoonotes.user.exception;
 
 public class NoteException extends RuntimeException{
 

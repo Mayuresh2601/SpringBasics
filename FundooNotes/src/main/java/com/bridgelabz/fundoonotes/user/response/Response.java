@@ -1,4 +1,4 @@
-package com.bridgelabz.fundoonotes.response;
+package com.bridgelabz.fundoonotes.user.response;
 
 import lombok.Data;
 

@@ -18,11 +18,11 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.bridgelabz.fundoonotes.response.Response;
 import com.bridgelabz.fundoonotes.user.dto.LoginDTO;
 import com.bridgelabz.fundoonotes.user.dto.RegisterDTO;
 import com.bridgelabz.fundoonotes.user.dto.ResetDTO;
 import com.bridgelabz.fundoonotes.user.model.User;
+import com.bridgelabz.fundoonotes.user.response.Response;
 import com.bridgelabz.fundoonotes.user.service.UserService;
 
 @RestController

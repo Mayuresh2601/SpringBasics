@@ -16,12 +16,12 @@ import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import com.bridgelabz.fundoonotes.exception.NoteException;
 import com.bridgelabz.fundoonotes.label.model.Label;
 import com.bridgelabz.fundoonotes.label.repository.LabelRepositoryI;
 import com.bridgelabz.fundoonotes.note.dto.NoteDTO;
 import com.bridgelabz.fundoonotes.note.model.Note;
 import com.bridgelabz.fundoonotes.note.repository.NoteRepositoryI;
+import com.bridgelabz.fundoonotes.user.exception.NoteException;
 import com.bridgelabz.fundoonotes.user.utility.Jms;
 import com.bridgelabz.fundoonotes.user.utility.Jwt;
 

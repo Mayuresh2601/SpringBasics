@@ -11,7 +11,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.bridgelabz.fundoonotes.label.dto.LabelDTO;
 import com.bridgelabz.fundoonotes.label.service.LabelService;
-import com.bridgelabz.fundoonotes.response.Response;
+import com.bridgelabz.fundoonotes.user.response.Response;
 
 @RestController
 public class LabelController {
