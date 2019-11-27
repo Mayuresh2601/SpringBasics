@@ -44,6 +44,7 @@ public class RecordService implements RecordServiceI{
 	@Autowired
 	BCryptPasswordEncoder bCryptPasswordEncoder;
 	
+	
 	/**
 	 *Method: To Add New User into Database
 	 */
@@ -67,6 +68,7 @@ public class RecordService implements RecordServiceI{
 		throw new RegisterException(UserMessageReferance.USER_LOGIN_UNSUCCESSFUL);
 	}
 
+	
 	/**
 	 *Method: To find User By Id in Database
 	 */
@@ -76,6 +78,7 @@ public class RecordService implements RecordServiceI{
 		return repository.findById(id); 
 	}
 
+	
 	/**
 	 *Method: Display All User Details Present in Database
 	 */
@@ -85,6 +88,7 @@ public class RecordService implements RecordServiceI{
 		return repository.findAll(); 
 	}
 
+	
 	/**
 	 *Method: To Delete a User by its Id 
 	 */
@@ -95,6 +99,7 @@ public class RecordService implements RecordServiceI{
 		return UserMessageReferance.DELETE_USER;
 	}
 
+	
 	/**
 	 *Method: Update User By its Id
 	 */
@@ -114,6 +119,7 @@ public class RecordService implements RecordServiceI{
 		throw new LoginException(UserMessageReferance.UNAUTHORIZED_USER);
 	}
 	
+	
 	/**
 	 *Method: Login User if password matches the existing user record
 	 */
@@ -130,9 +136,9 @@ public class RecordService implements RecordServiceI{
 			repository.save(user1);
 			return UserMessageReferance.USER_LOGIN_SUCCESSFUL;
 		}
-		
 		throw new LoginException(UserMessageReferance.USER_LOGIN_UNSUCCESSFUL);
 	}
+	
 	
 	/**
 	 *Method: To generate JWT token of emailId and send it on mail
@@ -149,6 +155,7 @@ public class RecordService implements RecordServiceI{
 		return UserMessageReferance.CHECK_YOUR_MAIL;
 	}
 
+	
 	/**
 	 *Method: To Reset your password using the obtained token from email
 	 */
@@ -156,7 +163,6 @@ public class RecordService implements RecordServiceI{
 	public String resetPassword(ResetDTO resetdto, String token) {
 	
 		String email=jwt.getToken(token);
-		
 		if(email!=null)
 		{
 			User user = repository.findByEmail(email);
@@ -172,6 +178,7 @@ public class RecordService implements RecordServiceI{
 		return UserMessageReferance.PASSWORD_NOT_MATCHED;
 	}
 
+	
 	/**
 	 *Method: To Verify the EmailId and Password  
 	 */

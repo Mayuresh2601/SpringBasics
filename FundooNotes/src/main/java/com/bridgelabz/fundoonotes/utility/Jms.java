@@ -18,6 +18,7 @@ public class Jms {
 	@Autowired
 	JavaMailSender javamailsender;
 	
+	
 	/**Method: To send Token on EmailId
 	 * @param emailId
 	 * @param token

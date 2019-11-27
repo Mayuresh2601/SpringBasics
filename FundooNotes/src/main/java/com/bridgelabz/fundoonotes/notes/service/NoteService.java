@@ -35,6 +35,7 @@ public class NoteService implements NoteServiceI{
 	@Autowired
 	NoteRepositoryI repository;
 	
+	
 	/**
 	 *Method: To Create a Note for User
 	 */
@@ -45,9 +46,6 @@ public class NoteService implements NoteServiceI{
 		if(email != null) {
 			ModelMapper mapper = new ModelMapper();
 			Note note = mapper.map(notedto, Note.class);
-			note.setTitle(notedto.getTitle());
-			note.setDescription(notedto.getDescription());
-			note.setEmailId(notedto.getEmailId());
 		
 			LocalDateTime now = LocalDateTime.now();
 			DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm:ss");
@@ -60,6 +58,7 @@ public class NoteService implements NoteServiceI{
 		
 	}
 
+	
 	/**
 	 *Method: To Update a Note for User
 	 */
@@ -83,6 +82,7 @@ public class NoteService implements NoteServiceI{
 		return NoteMessageReference.ID_NOT_FOUND;
 	}
 
+	
 	/**
 	 *Method: To Delete a Note
 	 */
@@ -93,6 +93,7 @@ public class NoteService implements NoteServiceI{
 		return NoteMessageReference.DELETE_NOTE;
 	}
 
+	
 	/**
 	 *Method: Search a Note using Id
 	 */
@@ -103,6 +104,7 @@ public class NoteService implements NoteServiceI{
 		return note;
 	}
 
+	
 	/**
 	 *Method: To Pin/Unpin Note for User
 	 */
@@ -121,6 +123,7 @@ public class NoteService implements NoteServiceI{
 		throw new NoteException(NoteMessageReference.UNAUTHORIZED_USER);
 	}
 
+	
 	/**
 	 *Method: To Trash/Recover Note for User
 	 */
@@ -139,6 +142,7 @@ public class NoteService implements NoteServiceI{
 		throw new NoteException(NoteMessageReference.UNAUTHORIZED_USER);
 	}
 
+	
 	/**
 	 *Method: To Archieve/Unarchieve Note for User
 	 */

@@ -18,6 +18,7 @@ public class Jwt {
 	
 	private static final String SECRET_KEY="SECRET";
 	
+	
 	/**Method: To Generate token of the EmailId
 	 * @param email
 	 * @return JWT Token Created
@@ -27,6 +28,7 @@ public class Jwt {
 		Algorithm algorithm = Algorithm.HMAC256(SECRET_KEY);
 		return JWT.create().withClaim("emailId", email).sign(algorithm);
 	}
+	
 	
 	/**Method: To Generate EmailId from the given token
 	 * @param token

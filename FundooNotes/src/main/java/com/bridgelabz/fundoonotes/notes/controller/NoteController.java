@@ -29,6 +29,7 @@ public class NoteController {
 	@Autowired
 	NoteService noteService;
 	
+	
 	/**Method: To create a Note
 	 * @param token
 	 * @param notedto
@@ -41,6 +42,7 @@ public class NoteController {
 		return new Response(100, "Create Note", result);
 	}
 
+	
 	/**Method: To Update a Note
 	 * @param id
 	 * @param notedto
@@ -53,6 +55,7 @@ public class NoteController {
 		return new Response(105, "Update Note", result);
 	}
 
+	
 	/**Method: To Delete a Note
 	 * @param id
 	 * @return Delete Note Implementation Logic
@@ -64,6 +67,7 @@ public class NoteController {
 		return new Response(110, "Delete Note", result);
 	}
 
+	
 	/**Method: To Find Note by Token
 	 * @param id
 	 * @return Find Note By Id Implementation Logic 
@@ -75,6 +79,7 @@ public class NoteController {
 		return new Response(115, "Note By Id", note);
 	}
 
+	
 	/**Method: To Pin/Unpin a Note
 	 * @param id
 	 * @param token
@@ -87,6 +92,7 @@ public class NoteController {
 		return new Response(120, "Pin/Unpin Note", result);
 	}
 
+	
 	/**Method: To Trash/Recover a Note
 	 * @param id
 	 * @param token
@@ -99,6 +105,7 @@ public class NoteController {
 		return new Response(125, "Trash/Recover Note", result);
 	}
 
+	
 	/**Method: To Archieve/Unarchieve a Note 
 	 * @param id
 	 * @param token
