@@ -24,6 +24,13 @@ public interface NoteServiceI {
 	
 	public boolean isArchieve(String id, String token);
 	
-	public String addLabelToNote(String noteid, String labelid, String token);
+	public List<?> sortNoteByTitle();
+	
+	public List<?> sortNoteByDate();
+	
+	public String addCollaboratorDemo(String id, String token);
+	
+	public String addCollaborator(String id, String collaboratorEmailId);
 
+	public String removeCollaborator(String id, String collaboratorEmailId);
 }

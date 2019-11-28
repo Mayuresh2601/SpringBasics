@@ -130,17 +130,64 @@ public class NoteController {
 	}
 	
 	
-	/**Method: To Add Label to List and Vice-versa
-	 * @param noteid
-	 * @param labelid
-	 * @param token
-	 * @return All Ladel to Note and Vice-Versa Implementation Logic
+	/**Method: To Sort Notes By Title
+	 * @return Sorted Notes By Title Implementation Logic
 	 */
-	@PostMapping("/addlabel")
-	public Response addLabelToNote(@RequestHeader String noteid, @RequestHeader String labelid, @RequestHeader String token) {
+	@GetMapping("/sortbytitle")
+	public Response sortNoteByTitle() {
 		
-		String result = noteService.addLabelToNote(noteid, labelid, token);
-		return new Response(200, "Added Label to Note", result);
+		List<?> list = noteService.sortNoteByTitle();
+		return new Response(200, "Sorting Notes By Title", list);
+	}
+	
+	
+	/**Method: To Sort Notes By Note Creation Date
+	 * @return Sorted Notes By Note Creation Date Implementation Logic
+	 */
+	@GetMapping("/sortbydate")
+	public Response sortNoteByDate() {
+		
+		List<?> list = noteService.sortNoteByDate();
+		return new Response(200, "Sorting Notes By Date", list);
+	}
+	
+	
+	/**Method: To Add Collaborators using Users Authenticated Tokens
+	 * @param id
+	 * @param token
+	 * @return Adding Collaborator using token Implementation Logic
+	 */
+	@PostMapping("/addcollaboratordemo")
+	public Response addCollaboratorDemo(@RequestHeader String id,@RequestHeader String token) {
+		
+		String result = noteService.addCollaboratorDemo(id, token);
+		return new Response(200, "Adding Collaborator", result);
+	}
+	
+	
+	/**Method: To Add Collaborators using emailId
+	 * @param id
+	 * @param collaboratorEmail
+	 * @return Adding Collaborator using emailId Implementation Logic
+	 */
+	@PostMapping("/addcollaborator")
+	public Response addCollaborator(@RequestHeader String id,@RequestHeader String collaboratorEmail) {
+		
+		String result = noteService.addCollaborator(id, collaboratorEmail);
+		return new Response(200, "Adding Collaborator", result);
+	}
+	
+	
+	/**Method: To Remove Collaborators using emailId
+	 * @param id
+	 * @param collaboratorEmail
+	 * @return Removing Collaborator using emailId Implementation Logic
+	 */
+	@DeleteMapping("removecollaborator")
+	public Response removeCollaborator(@RequestHeader String id,@RequestHeader String collaboratorEmail) {
+		
+		String result = noteService.removeCollaborator(id, collaboratorEmail);
+		return new Response(200, "Removing Collaborator", result);
 	}
 
 }

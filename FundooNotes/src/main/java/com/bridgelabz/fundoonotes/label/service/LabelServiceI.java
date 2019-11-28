@@ -6,7 +6,7 @@ import com.bridgelabz.fundoonotes.label.model.Label;
 
 public interface LabelServiceI {
 	
-	String createLabel(String token, LabelDTO labeldto);
+	String createLabel(String id, String token, LabelDTO labeldto);
 	
 	String updateLabel(String id, LabelDTO labeldto);
 	

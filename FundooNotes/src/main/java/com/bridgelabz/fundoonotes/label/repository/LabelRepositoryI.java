@@ -7,7 +7,5 @@ import com.bridgelabz.fundoonotes.label.model.Label;
 
 @Repository
 public interface LabelRepositoryI extends MongoRepository<Label, String>{
-	
-//	Label findLabelByEmailId(String id);
 
 }

@@ -30,12 +30,6 @@ public class Label {
 	private String editDate;
 	
 	@DBRef
-	private List<Note> notelist = new ArrayList<>();
-
-	@Override
-	public String toString() {
-		return "Label [id=" + id + ", labelTitle=" + labelTitle + ", email=" + email + ", createDate=" + createDate
-				+ ", editDate=" + editDate + ", notelist=" + notelist + "]";
-	}
+	List<Note> notelist = new ArrayList<>();
 
 }

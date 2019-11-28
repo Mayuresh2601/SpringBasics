@@ -11,18 +11,19 @@ import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import com.bridgelabz.fundoonotes.label.model.Label;
 import com.bridgelabz.fundoonotes.label.repository.LabelRepositoryI;
 import com.bridgelabz.fundoonotes.note.dto.NoteDTO;
 import com.bridgelabz.fundoonotes.note.model.Note;
 import com.bridgelabz.fundoonotes.note.repository.NoteRepositoryI;
 import com.bridgelabz.fundoonotes.user.exception.NoteException;
-import com.bridgelabz.fundoonotes.user.utility.Jms;
+import com.bridgelabz.fundoonotes.user.exception.RegisterException;
+import com.bridgelabz.fundoonotes.user.repository.UserRepositoryI;
 import com.bridgelabz.fundoonotes.user.utility.Jwt;
 
 @Service
@@ -32,7 +33,7 @@ public class NoteService implements NoteServiceI{
 	Jwt jwt;
 	
 	@Autowired
-	Jms jms;
+	UserRepositoryI userrepository;
 	
 	@Autowired
 	NoteRepositoryI noterepository;
@@ -60,8 +61,13 @@ public class NoteService implements NoteServiceI{
 		
 			note.setCreateDate(date);
 			noterepository.save(note);
+			
+//			User user = userrepository.findByEmail(email);
+//			user.getUserlist().add(note);
+//			userrepository.save(user);
+			return NoteMessageReference.CREATE_NOTE;
 		}
-		return NoteMessageReference.CREATE_NOTE;
+		throw new NoteException(NoteMessageReference.UNAUTHORIZED_USER);
 	}
 
 	
@@ -110,11 +116,16 @@ public class NoteService implements NoteServiceI{
 		return note;
 	}
 
+	
+	/**
+	 *Method: To Display All Notes
+	 */
 	@Override
 	public List<Note> showNotes() {
 		
 		return noterepository.findAll();
 	}
+	
 	
 	/**
 	 *Method: To Pin/Unpin Note for User
@@ -174,26 +185,97 @@ public class NoteService implements NoteServiceI{
 
 
 	/**
-	 *Method: To Add Label to Note and Vice-versa
+	 *Method: To Sort Notes By Title
 	 */
 	@Override
-	public String addLabelToNote(String noteid, String labelid, String token) {
-		String email = jwt.getToken(token);
+	public List<?> sortNoteByTitle() {
 		
-		if(email != null) {
-			List<Note> notelist = noterepository.findByEmailId(email);
-			Note note = notelist.stream().filter(i -> i.getId().equals(noteid)).findAny().orElse(null);
-			Label label = labelrepository.findById(labelid).get();
+		List<Note> list=showNotes();
+        list= list.stream().sorted((list1,list2)->list1.getTitle().compareToIgnoreCase(list2.getTitle())).collect(Collectors.toList());
+        return list;
+	}
+
+
+	/**
+	 *Method: To Sort Notes By Date
+	 */
+	@Override
+	public List<?> sortNoteByDate() {
+		
+		 List<Note> list=showNotes();
+         list= list.stream().sorted((list1,list2)->list1.getCreateDate().compareToIgnoreCase(list2.getCreateDate())).collect(Collectors.toList());
+         return list;
+	}
+
+
+	/**
+	 *Method: To Add Collaborators using Token of User
+	 */
+	@Override
+	public String addCollaboratorDemo(String id, String token) {
+		
+		Note note = noterepository.findById(id).get();
+		if(note != null) {
 			
-			if(note != null && label != null) {
+			String email = jwt.getToken(token);
+			if(email != null) {
 				
-				note.getLabellist().add(label);
-				label.getNotelist().add(note);
+				boolean isValid = note.getCollaboratorList().contains(email);
+				System.out.println(isValid);
+				if(isValid) {
+					
+					return "Collaborator Already Exists";
+				}
+				note.getCollaboratorList().add(email);
 				noterepository.save(note);
-				labelrepository.save(label);
+				
+//				User user = userrepository.findByEmail(email);
+//				user.getUserlist().add(note);
+//				userrepository.save(user);
+				return NoteMessageReference.CREATE_COLLABORATOR;
 			}
-			return NoteMessageReference.CREATE_NOTE;
 		}
 		throw new NoteException(NoteMessageReference.UNAUTHORIZED_USER);
 	}
+
+	
+	/**
+	 *Method: To Add Collaborators using emailId
+	 */
+	@Override
+	public String addCollaborator(String id, String collaboratorEmailId) {
+		
+		Note note = noterepository.findById(id).get();
+		if(note != null) {
+			
+			boolean isValid = note.getCollaboratorList().contains(collaboratorEmailId);
+			if(isValid) {
+				
+				return NoteMessageReference.COLLABORATOR_EXISTS;
+			}
+			note.getCollaboratorList().add(collaboratorEmailId);
+			noterepository.save(note);
+			return NoteMessageReference.CREATE_COLLABORATOR;
+		}
+		throw new NoteException(NoteMessageReference.UNAUTHORIZED_USER);
+	}
+	
+	
+	/**
+	 *Method: To Remove Collaborators
+	 */
+	@Override
+	public String removeCollaborator(String id, String collaboratorEmailId) {
+		
+		Note note = noterepository.findById(id).get();
+		if(note != null) {	
+			
+			note.getCollaboratorList().remove(collaboratorEmailId);
+			noterepository.save(note);
+			return NoteMessageReference.CREATE_COLLABORATOR;
+		}
+		throw new NoteException(NoteMessageReference.UNAUTHORIZED_USER);
+	}
+	
+	
 }

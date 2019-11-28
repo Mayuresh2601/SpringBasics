@@ -40,7 +40,7 @@ public class UserController {
 	public Response createUser(@RequestBody RegisterDTO regdto) {
 		
 		String result = recordService.createUser(regdto); 
-		return new Response(200, "Adding New User", result);
+		return new Response(200, "Creating New User", result);
 	}
 	
 	
@@ -137,6 +137,6 @@ public class UserController {
 	public Response verifyUser(@RequestHeader String token) {
 		
 		String result = recordService.verify(token);
-		return new Response(200, "EmailId & Password Verified Successful", result);
+		return new Response(200, "EmailId & Password Verified Successfully", result);
 	}
 }

@@ -32,7 +32,7 @@ public class User {
 	@NotBlank(message = "MobileNumber is Mandatory")
 	private long mobileNumber;
 
-	@NotBlank(message = "Validation is Mandatory")
 	private boolean isValidate;
 
+	//List<Note> userlist = new ArrayList<>();
 }

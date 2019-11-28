@@ -30,7 +30,7 @@ import com.bridgelabz.fundoonotes.user.utility.Jwt;
 public class UserService implements UserServiceI{
 	
 	@Autowired
-	UserRepositoryI repository;
+	UserRepositoryI userrepository;
 	
 	@Autowired
 	JavaMailSender mailSender;
@@ -63,7 +63,7 @@ public class UserService implements UserServiceI{
 			String token = jwt.createToken(user.getEmail());
 		
 			jms.sendMail(user.getEmail(),token);
-			repository.save(user);
+			userrepository.save(user);
 			return UserMessageReferance.ADD_USER;
 		}
 		throw new RegisterException(UserMessageReferance.USER_LOGIN_UNSUCCESSFUL);
@@ -76,7 +76,7 @@ public class UserService implements UserServiceI{
 	@Override
 	public Optional<User> findUserById(String id) {
 		
-		return repository.findById(id); 
+		return userrepository.findById(id); 
 	}
 
 	
@@ -86,7 +86,7 @@ public class UserService implements UserServiceI{
 	@Override
 	public List<User> showUsers() {
 		
-		return repository.findAll(); 
+		return userrepository.findAll(); 
 	}
 
 	
@@ -96,7 +96,7 @@ public class UserService implements UserServiceI{
 	@Override
 	public String deleteUserById(String id) {
 		
-		repository.deleteById(id);
+		userrepository.deleteById(id);
 		return UserMessageReferance.DELETE_USER;
 	}
 
@@ -107,13 +107,13 @@ public class UserService implements UserServiceI{
 	@Override
 	public String updateUser(RegisterDTO registerdto,String id) {
 		
-		User userupdate = repository.findById(id).get();
+		User userupdate = userrepository.findById(id).get();
 		if(userupdate != null) {
 			userupdate.setFirstName(registerdto.getFirstName());
 			userupdate.setLastName(registerdto.getLastName());
 			userupdate.setMobileNumber(registerdto.getMobileNumber());
 			
-			repository.save(userupdate);
+			userrepository.save(userupdate);
 			return UserMessageReferance.UPDATE_USER;
 		}
 		throw new LoginException(UserMessageReferance.UNAUTHORIZED_USER);
@@ -128,13 +128,13 @@ public class UserService implements UserServiceI{
 		String email = jwt.getToken(token);
 		if(email != null) {
 			User user = mapper.map(logindto, User.class);
-			User user1 = repository.findByEmail(user.getEmail());
+			User user1 = userrepository.findByEmail(user.getEmail());
 			
 			boolean isValid = bCryptPasswordEncoder.matches(logindto.getPassword(), user1.getPassword());
 			
 			if(isValid ) {	
 				user1.setValidate(true);
-				repository.save(user1);
+				userrepository.save(user1);
 				return UserMessageReferance.USER_LOGIN_SUCCESSFUL;
 			}
 		}
@@ -166,13 +166,13 @@ public class UserService implements UserServiceI{
 		String email=jwt.getToken(token);
 		if(email!=null)
 		{
-			User user = repository.findByEmail(email);
+			User user = userrepository.findByEmail(email);
 			user.setPassword(resetdto.getNewPassword());
 		
 			if(resetdto.getNewPassword().contentEquals(resetdto.getConfirmPassword()))
 			{
 				user.setPassword(bCryptPasswordEncoder.encode(resetdto.getNewPassword()));
-				repository.save(user);
+				userrepository.save(user);
 				return UserMessageReferance.PASSWORD_UPDATED;
 			}
 		}
@@ -189,11 +189,11 @@ public class UserService implements UserServiceI{
 		
 		if(email!=null)
 		{
-			User user = repository.findByEmail(email);
+			User user = userrepository.findByEmail(email);
 			if(user!=null)
 			{
 				user.setValidate(true);
-				repository.save(user);
+				userrepository.save(user);
 				return email;
 			}
 		}

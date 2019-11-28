@@ -10,6 +10,7 @@ import org.springframework.data.mongodb.core.mapping.DBRef;
 import org.springframework.data.mongodb.core.mapping.Document;
 
 import com.bridgelabz.fundoonotes.label.model.Label;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import lombok.Data;
 
@@ -40,7 +41,10 @@ public class Note {
 	
 	private boolean isArchieve;
 	
-	@DBRef
-	private List<Label> labellist = new ArrayList<>();
+	@JsonIgnore
+	@DBRef(lazy = true)
+	List<Label> labellist = new ArrayList<>();
+	
+	List<String> collaboratorList = new ArrayList<>();
 
 }
