@@ -1,7 +1,7 @@
 /******************************************************************************
 *  
 *  Purpose: To Implement Fundoo Notes App
-*  @interface To connect Mongo Repository
+*  @interface To connect User Mongo Repository
 *  @author  Mayuresh Sunil Sonar
 *
 ******************************************************************************/

@@ -33,4 +33,10 @@ public interface NoteServiceI {
 	public String addCollaborator(String id, String collaboratorEmailId);
 
 	public String removeCollaborator(String id, String collaboratorEmailId);
+	
+	public String addReminder(String token,String id, int year, int month, int day, int hour, int minute, int second);
+	
+	public String removeReminder(String token, String id);
+	
+	public String editReminder(String token,String id, int year, int month, int day, int hour, int minute, int second);
 }

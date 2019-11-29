@@ -1,7 +1,10 @@
 package com.bridgelabz.fundoonotes.user.service;
 
+import java.io.IOException;
 import java.util.List;
 import java.util.Optional;
+
+import org.springframework.web.multipart.MultipartFile;
 
 import com.bridgelabz.fundoonotes.user.dto.LoginDTO;
 import com.bridgelabz.fundoonotes.user.dto.RegisterDTO;
@@ -10,21 +13,27 @@ import com.bridgelabz.fundoonotes.user.model.User;
 
 public interface UserServiceI {
 	
-	String createUser(RegisterDTO regdto);
+	public String createUser(RegisterDTO regdto);
 	
-	Optional<User> findUserById(String id);
+	public Optional<User> findUserById(String id);
 	
-	List<User> showUsers();
+	public List<User> showUsers();
 	
-	String deleteUserById(String id);
+	public String deleteUserById(String id);
 	
-	String updateUser(RegisterDTO registerdto, String id);
+	public String updateUser(RegisterDTO registerdto, String id);
 
-	String login(LoginDTO logindto, String token);
+	public String login(LoginDTO logindto, String token);
 	
-	String forgetPassword(RegisterDTO logindto);
+	public String forgetPassword(RegisterDTO logindto);
 	
-	String resetPassword(ResetDTO reset, String token);
+	public String resetPassword(ResetDTO reset, String token);
 	
-	String verify(String token);
+	public String verify(String token);
+	
+	public String uploadProfilePicture(String token, MultipartFile file) throws IOException;
+	
+	public String updateProfilePicture(String token, MultipartFile file) throws IOException;
+	
+	public String removeProfilePicture(String token);
 }

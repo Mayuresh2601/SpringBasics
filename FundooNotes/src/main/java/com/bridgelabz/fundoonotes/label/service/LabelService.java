@@ -12,7 +12,7 @@ import com.bridgelabz.fundoonotes.label.model.Label;
 import com.bridgelabz.fundoonotes.label.repository.LabelRepositoryI;
 import com.bridgelabz.fundoonotes.note.model.Note;
 import com.bridgelabz.fundoonotes.note.repository.NoteRepositoryI;
-import com.bridgelabz.fundoonotes.user.exception.RegisterException;
+import com.bridgelabz.fundoonotes.user.exception.LoginException;
 import com.bridgelabz.fundoonotes.user.repository.UserRepositoryI;
 import com.bridgelabz.fundoonotes.user.utility.Jwt;
 
@@ -65,7 +65,7 @@ public class LabelService implements LabelServiceI{
 			
 			return LabelMessageReference.CREATE_LABEL;
 		}
-		throw new RegisterException(LabelMessageReference.UNAUTHORIZED_USER);
+		throw new LoginException(LabelMessageReference.UNAUTHORIZED_USER);
 	}
 
 	

@@ -22,7 +22,6 @@ import com.bridgelabz.fundoonotes.note.dto.NoteDTO;
 import com.bridgelabz.fundoonotes.note.model.Note;
 import com.bridgelabz.fundoonotes.note.repository.NoteRepositoryI;
 import com.bridgelabz.fundoonotes.user.exception.NoteException;
-import com.bridgelabz.fundoonotes.user.exception.RegisterException;
 import com.bridgelabz.fundoonotes.user.repository.UserRepositoryI;
 import com.bridgelabz.fundoonotes.user.utility.Jwt;
 
@@ -91,7 +90,7 @@ public class NoteService implements NoteServiceI{
 			noterepository.save(noteupdate);
 			return NoteMessageReference.UPDATE_NOTE;
 		}
-		return NoteMessageReference.ID_NOT_FOUND;
+		throw new NoteException(NoteMessageReference.UNAUTHORIZED_USER);
 	}
 
 	
@@ -272,10 +271,94 @@ public class NoteService implements NoteServiceI{
 			
 			note.getCollaboratorList().remove(collaboratorEmailId);
 			noterepository.save(note);
-			return NoteMessageReference.CREATE_COLLABORATOR;
+			return NoteMessageReference.REMOVE_COLLABORATOR;
+		}
+		throw new NoteException(NoteMessageReference.UNAUTHORIZED_USER);
+	}
+
+
+	/**
+	 *Method: To Add Reminder
+	 */
+	@Override
+	public String addReminder(String token,String id, int year, int month, int day, int hour, int minute, int second) {
+		
+		String email = jwt.getToken(token);
+		
+		if(email != null) {
+			LocalDateTime now = LocalDateTime.now();
+			DateTimeFormatter formatter = DateTimeFormatter.ofPattern(day+"-"+month+"-"+year+"   "+hour+":"+minute+":"+second);
+			Note note = noterepository.findById(id).get();
+			String date = now.format(formatter);
+			
+			if(note.getReminder() == null) {
+				
+				note.setReminder(date);
+				noterepository.save(note);
+				return NoteMessageReference.ADD_REMINDER;
+			}
+			
+			if(note.getReminder().equals(date)) {
+				throw new NoteException(NoteMessageReference.REMINDER_EXISTS_EXCEPTION);
+			}
+			
+		}
+		throw new NoteException(NoteMessageReference.UNAUTHORIZED_USER);
+		
+	}
+
+	
+	/**
+	 *Method: To Edit Reminder
+	 */
+	@Override
+	public String editReminder(String token, String id, int year, int month, int day, int hour, int minute, int second) {
+		
+		String email = jwt.getToken(token);
+		
+		if(email != null) {
+			LocalDateTime now = LocalDateTime.now();
+			DateTimeFormatter formatter = DateTimeFormatter.ofPattern(day+"-"+month+"-"+year+"   "+hour+":"+minute+":"+second);
+			String date = now.format(formatter);
+			Note note = noterepository.findById(id).get();
+			String existingDate = note.getReminder();
+			
+			if(existingDate == null) {
+				throw new NoteException(NoteMessageReference.REMINDER_NOT_FOUND_EXCEPTION);
+			}
+			
+			if(note.getReminder().equals(date)) {
+				throw new NoteException(NoteMessageReference.REMINDER_EXISTS_EXCEPTION);
+			}
+			
+			note.setReminder(date);
+			noterepository.save(note);
+			return NoteMessageReference.EDIT_REMINDER;
 		}
 		throw new NoteException(NoteMessageReference.UNAUTHORIZED_USER);
 	}
 	
 	
+	/**
+	 *Method: To Remove Reminder
+	 */
+	@Override
+	public String removeReminder(String token, String id) {
+		
+		String email = jwt.getToken(token);
+		
+		if(email != null) {
+			Note note = noterepository.findById(id).get();
+			
+			if(note.getReminder() == null) {
+				throw new NoteException(NoteMessageReference.REMINDER_REMOVE_EXCEPTION);
+			}
+			
+			note.setReminder(null);
+			noterepository.save(note);
+			return NoteMessageReference.REMOVE_REMINDER;
+		}
+		throw new NoteException(NoteMessageReference.UNAUTHORIZED_USER);
+	}
+
 }

@@ -46,5 +46,7 @@ public class Note {
 	List<Label> labellist = new ArrayList<>();
 	
 	List<String> collaboratorList = new ArrayList<>();
+	
+	private String reminder;
 
 }

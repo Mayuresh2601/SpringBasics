@@ -7,6 +7,7 @@
 ******************************************************************************/
 package com.bridgelabz.fundoonotes.note.controller;
 
+import java.io.IOException;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -16,6 +17,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestHeader;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.bridgelabz.fundoonotes.note.dto.NoteDTO;
@@ -171,7 +173,7 @@ public class NoteController {
 	 * @return Adding Collaborator using emailId Implementation Logic
 	 */
 	@PostMapping("/addcollaborator")
-	public Response addCollaborator(@RequestHeader String id,@RequestHeader String collaboratorEmail) {
+	public Response addCollaborator(@RequestHeader String id, @RequestHeader String collaboratorEmail) {
 		
 		String result = noteService.addCollaborator(id, collaboratorEmail);
 		return new Response(200, "Adding Collaborator", result);
@@ -184,10 +186,64 @@ public class NoteController {
 	 * @return Removing Collaborator using emailId Implementation Logic
 	 */
 	@DeleteMapping("removecollaborator")
-	public Response removeCollaborator(@RequestHeader String id,@RequestHeader String collaboratorEmail) {
+	public Response removeCollaborator(@RequestHeader String id, @RequestHeader String collaboratorEmail) {
 		
 		String result = noteService.removeCollaborator(id, collaboratorEmail);
 		return new Response(200, "Removing Collaborator", result);
+	}
+	
+	
+	/**Method: To Add Reminder
+	 * @param token
+	 * @param id
+	 * @param year
+	 * @param month
+	 * @param day
+	 * @param hour
+	 * @param minute
+	 * @param second
+	 * @return Adding Reminder Implementation Logic
+	 * @throws IOException
+	 */
+	@PostMapping("/addreminder")
+	public Response addReminder(@RequestHeader String token, @RequestHeader String id, @RequestParam int year,@RequestParam int month,@RequestParam int day,@RequestParam int hour,@RequestParam int minute,@RequestParam int second) throws IOException {
+		
+		String result = noteService.addReminder(token, id, year, month, day, hour, minute, second);
+		return new Response(200, "Adding Reminder", result);
+	}
+	
+	
+	/**Method: To Edit Reminder
+	 * @param token
+	 * @param id
+	 * @param year
+	 * @param month
+	 * @param day
+	 * @param hour
+	 * @param minute
+	 * @param second
+	 * @return Editing Reminder Implementation Logic
+	 * @throws IOException
+	 */
+	@PutMapping("/editreminder")
+	public Response editReminder(@RequestHeader String token, @RequestHeader String id, @RequestParam int year,@RequestParam int month,@RequestParam int day,@RequestParam int hour,@RequestParam int minute,@RequestParam int second) throws IOException {
+		
+		String result = noteService.editReminder(token, id, year, month, day, hour, minute, second);
+		return new Response(200, "Editing Reminder", result);
+	}
+	
+	
+	/**Method: To Remove Reminder
+	 * @param token
+	 * @param id
+	 * @return Remove Reminder Implementation Logic
+	 * @throws IOException
+	 */
+	@DeleteMapping("/removereminder")
+	public Response removeReminder(@RequestHeader String token, @RequestHeader String id) throws IOException {
+		
+		String result = noteService.removeReminder(token, id);
+		return new Response(200, "Removing Reminder", result);
 	}
 
 }

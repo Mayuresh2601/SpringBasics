@@ -4,7 +4,6 @@ import javax.validation.constraints.NotBlank;
 
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
-
 import lombok.Data;
 
 @Document
@@ -35,4 +34,7 @@ public class User {
 	private boolean isValidate;
 
 	//List<Note> userlist = new ArrayList<>();
+	
+	private String profilePicture;
+	
 }

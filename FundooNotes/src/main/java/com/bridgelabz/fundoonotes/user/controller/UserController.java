@@ -7,6 +7,7 @@
 ******************************************************************************/
 package com.bridgelabz.fundoonotes.user.controller;
 
+import java.io.IOException;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -16,7 +17,9 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestHeader;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.multipart.MultipartFile;
 
 import com.bridgelabz.fundoonotes.user.dto.LoginDTO;
 import com.bridgelabz.fundoonotes.user.dto.RegisterDTO;
@@ -29,7 +32,7 @@ import com.bridgelabz.fundoonotes.user.service.UserService;
 public class UserController {
 	
 	@Autowired
-	private UserService recordService;
+	private UserService userService;
 	
 	
 	/**Method: To Create User in Database
@@ -39,7 +42,7 @@ public class UserController {
 	@PostMapping("/createuser")
 	public Response createUser(@RequestBody RegisterDTO regdto) {
 		
-		String result = recordService.createUser(regdto); 
+		String result = userService.createUser(regdto); 
 		return new Response(200, "Creating New User", result);
 	}
 	
@@ -51,7 +54,7 @@ public class UserController {
 	@GetMapping("/users")
 	public Response findUserById(@RequestHeader String id) {
 		
-		return new Response(200, "Finding User By ID", recordService.findUserById(id));
+		return new Response(200, "Finding User By ID", userService.findUserById(id));
 	}
 	
 	
@@ -63,7 +66,7 @@ public class UserController {
 	@PutMapping("/updateuser")
 	public Response updateUser(@RequestBody RegisterDTO regdto,@RequestHeader String id) {
 		
-		String result = recordService.updateUser(regdto, id);
+		String result = userService.updateUser(regdto, id);
 		return new Response(200, "Updating User", result);
 	}
 	
@@ -75,7 +78,7 @@ public class UserController {
 	@DeleteMapping("/deleteuser")
 	public Response deleteUser(@RequestHeader String id) {
 		
-		String result = recordService.deleteUserById(id);
+		String result = userService.deleteUserById(id);
 		return new Response(200, "Deleting User", result);
 	}
 	
@@ -86,7 +89,7 @@ public class UserController {
 	@GetMapping("/showusers")
 	public Response showUsers() {
 
-		List<User> list = recordService.showUsers();
+		List<User> list = userService.showUsers();
 
 		return new Response(200, "Showing All User", list);
 	}
@@ -99,7 +102,7 @@ public class UserController {
 	@PostMapping("/login")
 	public Response login(@RequestBody LoginDTO logindto,@RequestHeader String token) {
 		
-		String result =  recordService.login(logindto, token);
+		String result =  userService.login(logindto, token);
 		return new Response(200, "Login User ", result);
 	}
 	
@@ -111,7 +114,7 @@ public class UserController {
 	@PostMapping("/forget")
 	public Response forgetPassword(@RequestBody RegisterDTO registerdto) {
 		
-		String result = recordService.forgetPassword(registerdto);
+		String result = userService.forgetPassword(registerdto);
 		return new Response(200, "Forget Password", result);
 	}
 	
@@ -124,7 +127,7 @@ public class UserController {
 	@PostMapping("/reset")
 	public Response resetPassword(@RequestBody ResetDTO reset,@RequestHeader String token) {
 		
-		String result = recordService.resetPassword(reset, token);
+		String result = userService.resetPassword(reset, token);
 		return new Response(200, "Reset Password", result);
 	}
 	
@@ -136,7 +139,48 @@ public class UserController {
 	@PostMapping("/verify")
 	public Response verifyUser(@RequestHeader String token) {
 		
-		String result = recordService.verify(token);
+		String result = userService.verify(token);
 		return new Response(200, "EmailId & Password Verified Successfully", result);
 	}
+	
+	
+	/**Method: To Upload Profile Picture
+	 * @param token
+	 * @param file
+	 * @return Upload Profile Picture Implementation Logic
+	 * @throws IOException
+	 */
+	@PostMapping("/uploadpicture")
+	public Response uploadProfilePicture(@RequestHeader String token, @RequestParam MultipartFile file) throws IOException {
+		
+		String result = userService.uploadProfilePicture(token, file);
+		return new Response(200, "Profile Picture Uploading", result);
+	}
+	
+	
+	/**Method: To Remove Profile Picture
+	 * @param token
+	 * @return Remove Profile Picture Implementation Logic
+	 */
+	@DeleteMapping("/removepicture")
+	public Response removeProfilePicture(@RequestHeader String token) {
+		
+		String result = userService.removeProfilePicture(token);
+		return new Response(200, "Profile Picture Removing", result);
+	}
+	
+	
+	/**Method: To Update Profile Picture
+	 * @param token
+	 * @param file
+	 * @return Update Profile Picture Implementation Logic
+	 * @throws IOException
+	 */
+	@PutMapping("/updatepicture")
+	public Response updateProfilePicture(@RequestHeader String token, @RequestParam MultipartFile file) throws IOException {
+		
+		String result = userService.updateProfilePicture(token, file);
+		return new Response(200, "Profile Picture Updating", result);
+	}
+	
 }

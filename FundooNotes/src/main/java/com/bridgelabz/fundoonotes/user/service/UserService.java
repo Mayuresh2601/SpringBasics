@@ -7,6 +7,9 @@
 ******************************************************************************/
 package com.bridgelabz.fundoonotes.user.service;
 
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
 import java.util.List;
 import java.util.Optional;
 
@@ -15,12 +18,13 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
 import com.bridgelabz.fundoonotes.user.dto.LoginDTO;
 import com.bridgelabz.fundoonotes.user.dto.RegisterDTO;
 import com.bridgelabz.fundoonotes.user.dto.ResetDTO;
 import com.bridgelabz.fundoonotes.user.exception.LoginException;
-import com.bridgelabz.fundoonotes.user.exception.RegisterException;
+import com.bridgelabz.fundoonotes.user.exception.ProfilePictureException;
 import com.bridgelabz.fundoonotes.user.model.User;
 import com.bridgelabz.fundoonotes.user.repository.UserRepositoryI;
 import com.bridgelabz.fundoonotes.user.utility.Jms;
@@ -47,6 +51,7 @@ public class UserService implements UserServiceI{
 	@Autowired
 	ModelMapper mapper;
 	
+	
 	/**
 	 *Method: To Add New User into Database
 	 */
@@ -66,7 +71,7 @@ public class UserService implements UserServiceI{
 			userrepository.save(user);
 			return UserMessageReferance.ADD_USER;
 		}
-		throw new RegisterException(UserMessageReferance.USER_LOGIN_UNSUCCESSFUL);
+		throw new LoginException(UserMessageReferance.UNAUTHORIZED_USER);
 	}
 
 	
@@ -138,7 +143,7 @@ public class UserService implements UserServiceI{
 				return UserMessageReferance.USER_LOGIN_SUCCESSFUL;
 			}
 		}
-		throw new LoginException(UserMessageReferance.USER_LOGIN_UNSUCCESSFUL);
+		throw new LoginException(UserMessageReferance.UNAUTHORIZED_USER);
 	}
 	
 	
@@ -199,5 +204,102 @@ public class UserService implements UserServiceI{
 		}
 		throw new LoginException(UserMessageReferance.UNAUTHORIZED_USER);
 	}
+
+
+	/**
+	 *Method: To Upload Profile Picture
+	 */
+	@SuppressWarnings("resource")
+	@Override
+	public String uploadProfilePicture(String token, MultipartFile file) throws IOException {
+		
+		String email = jwt.getToken(token);
+		File convertFile = new File("/home/admin1/Documents/"+file.getOriginalFilename());
+		convertFile.createNewFile();
+		
+		if(!file.isEmpty() && email != null) {
+			
+			FileOutputStream fout = new FileOutputStream(convertFile);
+			String string = "/home/admin1/Documents/" + file.getOriginalFilename();
+			User user = userrepository.findByEmail(email);
+		
+			if(user.getProfilePicture() == null) {
+				user.setProfilePicture(string);
+				userrepository.save(user);
+	
+				fout.write(file.getBytes());
+				fout.close();
+				return UserMessageReferance.PROFILE_PICTURE_UPLOADED;
+			}
+			
+			if(user.getProfilePicture().equals(string)) {
+				throw new ProfilePictureException(UserMessageReferance.PROFILE_PICTURE_EXISTED_EXCEPTION) ;
+			}
+		}
+		throw new LoginException(UserMessageReferance.UNAUTHORIZED_USER);
+	}
+
+
+	/**
+	 *Method: To Update Profile Picture
+	 */
+	@SuppressWarnings("resource")
+	@Override
+	public String updateProfilePicture(String token, MultipartFile file) throws IOException {
+		
+		String email = jwt.getToken(token);
+		File convertFile = new File("/home/admin1/Documents/"+file.getOriginalFilename());
+		convertFile.createNewFile();
+		
+		if(email != null)
+		{
+			User user = userrepository.findByEmail(email);
+			String pic = user.getProfilePicture();
+			
+			if(!file.isEmpty()) {
+				FileOutputStream fout = new FileOutputStream(convertFile);
+				String string = "/home/admin1/Documents/" + file.getOriginalFilename();
+				
+				if(pic == null) {
+					throw new ProfilePictureException(UserMessageReferance.PROFILE_NOT_FOUND_EXCEPTION) ;
+				}
+				
+				if(user.getProfilePicture().equals(string)) {
+					throw new ProfilePictureException(UserMessageReferance.PROFILE_PICTURE_EXISTED_EXCEPTION);
+				}
+				
+				user.setProfilePicture(string);
+				userrepository.save(user);
+	
+				fout.write(file.getBytes());
+				fout.close();
+				return UserMessageReferance.PROFILE_PICTURE_UPLOADED;
+			}
+		}
+		throw new LoginException(UserMessageReferance.UNAUTHORIZED_USER);
+	}
+	
+	/**
+	 *Method: To Remove Profile Picture
+	 */
+	@Override
+	public String removeProfilePicture(String token) {
+		
+		String email = jwt.getToken(token);
+		User user = userrepository.findByEmail(email);
+		
+		if(email != null) {
+			
+			if(user.getProfilePicture() == null) {
+				throw new ProfilePictureException(UserMessageReferance.PROFILE_PICTURE_REMOVE_EXCEPTION) ;
+			}
+			
+			user.setProfilePicture(null);
+			userrepository.save(user);
+			return UserMessageReferance.PROFILE_PICTURE_DELETED;
+		}
+		throw new LoginException(UserMessageReferance.UNAUTHORIZED_USER);
+	}
+
 }
 

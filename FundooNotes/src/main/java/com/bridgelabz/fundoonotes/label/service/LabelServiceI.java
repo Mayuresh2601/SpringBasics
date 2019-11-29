@@ -6,14 +6,14 @@ import com.bridgelabz.fundoonotes.label.model.Label;
 
 public interface LabelServiceI {
 	
-	String createLabel(String id, String token, LabelDTO labeldto);
+	public String createLabel(String id, String token, LabelDTO labeldto);
 	
-	String updateLabel(String id, LabelDTO labeldto);
+	public String updateLabel(String id, LabelDTO labeldto);
 	
-	String deleteLabel(String id);
+	public String deleteLabel(String id);
 	
-	List<Label> showLabels();
+	public List<Label> showLabels();
 	
-	Label findLabelById(String id);
+	public Label findLabelById(String id);
 
 }

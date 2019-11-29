@@ -17,5 +17,11 @@ public class NoteMessageReference {
 	static final String COLLABORATOR_EXISTS = "Collaborator Already Exists";
 	static final String REMOVE_COLLABORATOR = "Collaborator Successfully Removed";
 	static final String UNAUTHORIZED_USER = "User is Not Authorized";
-
+	static final String ADD_REMINDER = "Reminder Added Successfully";
+	static final String EDIT_REMINDER = "Reminder Edited Successfully";
+	static final String REMOVE_REMINDER = "Reminder Removed Successfully";
+	static final String REMINDER_REMOVE_EXCEPTION = "No Note Reminder to Remove";
+	static final String REMINDER_EXISTS_EXCEPTION = "Note Reminder Already Exists";
+	static final String REMINDER_NOT_FOUND_EXCEPTION = "No Note Remainder to Update";
+	
 }
