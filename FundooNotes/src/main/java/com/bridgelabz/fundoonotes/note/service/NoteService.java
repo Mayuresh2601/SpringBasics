@@ -49,24 +49,25 @@ public class NoteService implements NoteServiceI{
 	 */
 	@Override
 	public String createNote(String token, NoteDTO notedto) {
-		
+
 		String email = jwt.getToken(token);
+		System.out.println(email);
 		if(email != null) {
 			Note note = mapper.map(notedto, Note.class);
-		
+			note.setEmailId(email);
 			LocalDateTime now = LocalDateTime.now();
 			DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm:ss");
 			String date = now.format(formatter);
-		
-			note.setCreateDate(date);
-			noterepository.save(note);
 			
+			note.setCreateDate(date);
+			
+			noterepository.save(note);
 //			User user = userrepository.findByEmail(email);
 //			user.getUserlist().add(note);
 //			userrepository.save(user);
 			return NoteMessageReference.CREATE_NOTE;
 		}
-		throw new NoteException(NoteMessageReference.UNAUTHORIZED_USER);
+		throw new NoteException(NoteMessageReference.UNAUTHORIZED_USER_EXCEPTION);
 	}
 
 	
@@ -74,23 +75,29 @@ public class NoteService implements NoteServiceI{
 	 *Method: To Update a Note for User
 	 */
 	@Override
-	public String updateNote(String id, NoteDTO notedto) {
+	public String updateNote(String id, String token, NoteDTO notedto) {
 		
-		Note noteupdate = noterepository.findById(id).get();
-
-		if(noteupdate != null) {
-			noteupdate.setTitle(notedto.getTitle());
-			noteupdate.setDescription(notedto.getDescription());
-			
-			LocalDateTime now = LocalDateTime.now();
-			DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm:ss");
-			String date = now.format(formatter);
-			
-			noteupdate.setEditDate(date);
-			noterepository.save(noteupdate);
-			return NoteMessageReference.UPDATE_NOTE;
+		String email = jwt.getToken(token);
+		if(email != null) {
+		
+			Note noteupdate = noterepository.findById(id).get();
+			if(noteupdate != null) {
+				noteupdate.setTitle(notedto.getTitle());
+				noteupdate.setDescription(notedto.getDescription());
+				
+				LocalDateTime now = LocalDateTime.now();
+				DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm:ss");
+				String date = now.format(formatter);
+				
+				noteupdate.setEditDate(date);
+				noterepository.save(noteupdate);
+//				User user = userrepository.findByEmail(email);
+//				user.getUserlist().add(noteupdate);
+//				userrepository.save(user);
+				return NoteMessageReference.UPDATE_NOTE;
+			}
 		}
-		throw new NoteException(NoteMessageReference.UNAUTHORIZED_USER);
+		throw new NoteException(NoteMessageReference.UNAUTHORIZED_USER_EXCEPTION);
 	}
 
 	
@@ -98,10 +105,13 @@ public class NoteService implements NoteServiceI{
 	 *Method: To Delete a Note
 	 */
 	@Override
-	public String deleteNote(String id) {
-		
-		noterepository.deleteById(id);
-		return NoteMessageReference.DELETE_NOTE;
+	public String deleteNote(String id, String token) {
+		String email = jwt.getToken(token);
+		if(email != null) {
+			noterepository.deleteById(id);
+			return NoteMessageReference.DELETE_NOTE;
+		}
+		throw new NoteException(NoteMessageReference.UNAUTHORIZED_USER_EXCEPTION);
 	}
 
 	
@@ -109,10 +119,13 @@ public class NoteService implements NoteServiceI{
 	 *Method: Search a Note using Id
 	 */
 	@Override
-	public Optional<Note> findNoteById(String id) {
-		
-		Optional<Note> note =  noterepository.findById(id);
-		return note;
+	public Optional<Note> findNoteById(String id, String token) {
+		String email = jwt.getToken(token);
+		if(email != null) {
+			Optional<Note> note =  noterepository.findById(id);
+			return note;
+		}
+		throw new NoteException(NoteMessageReference.UNAUTHORIZED_USER_EXCEPTION);
 	}
 
 	
@@ -141,7 +154,7 @@ public class NoteService implements NoteServiceI{
 			noterepository.save(note);
 			return note.isPin();
 		}
-		throw new NoteException(NoteMessageReference.UNAUTHORIZED_USER);
+		throw new NoteException(NoteMessageReference.UNAUTHORIZED_USER_EXCEPTION);
 	}
 
 	
@@ -160,7 +173,7 @@ public class NoteService implements NoteServiceI{
 			noterepository.save(note);
 			return note.isTrash();
 		}
-		throw new NoteException(NoteMessageReference.UNAUTHORIZED_USER);
+		throw new NoteException(NoteMessageReference.UNAUTHORIZED_USER_EXCEPTION);
 	}
 
 	
@@ -179,7 +192,7 @@ public class NoteService implements NoteServiceI{
 			noterepository.save(note);
 			return note.isArchieve();
 		}
-		throw new NoteException(NoteMessageReference.UNAUTHORIZED_USER);
+		throw new NoteException(NoteMessageReference.UNAUTHORIZED_USER_EXCEPTION);
 	}
 
 
@@ -213,28 +226,27 @@ public class NoteService implements NoteServiceI{
 	@Override
 	public String addCollaboratorDemo(String id, String token) {
 		
-		Note note = noterepository.findById(id).get();
-		if(note != null) {
+		String email = jwt.getToken(token);
+		if(email != null) {
 			
-			String email = jwt.getToken(token);
-			if(email != null) {
+			Note note = noterepository.findById(id).get();
+			if(note != null) {
 				
-				boolean isValid = note.getCollaboratorList().contains(email);
-				System.out.println(isValid);
-				if(isValid) {
-					
-					return "Collaborator Already Exists";
+				boolean checker = note.getCollaboratorList().contains(email);
+				if(checker) {
+					return NoteMessageReference.COLLABORATOR_EXISTS;
 				}
+				
 				note.getCollaboratorList().add(email);
 				noterepository.save(note);
-				
 //				User user = userrepository.findByEmail(email);
 //				user.getUserlist().add(note);
 //				userrepository.save(user);
 				return NoteMessageReference.CREATE_COLLABORATOR;
 			}
+			return NoteMessageReference.ID_NOT_FOUND;
 		}
-		throw new NoteException(NoteMessageReference.UNAUTHORIZED_USER);
+		throw new NoteException(NoteMessageReference.UNAUTHORIZED_USER_EXCEPTION);
 	}
 
 	
@@ -256,7 +268,7 @@ public class NoteService implements NoteServiceI{
 			noterepository.save(note);
 			return NoteMessageReference.CREATE_COLLABORATOR;
 		}
-		throw new NoteException(NoteMessageReference.UNAUTHORIZED_USER);
+		throw new NoteException(NoteMessageReference.UNAUTHORIZED_USER_EXCEPTION);
 	}
 	
 	
@@ -264,16 +276,19 @@ public class NoteService implements NoteServiceI{
 	 *Method: To Remove Collaborators
 	 */
 	@Override
-	public String removeCollaborator(String id, String collaboratorEmailId) {
-		
-		Note note = noterepository.findById(id).get();
-		if(note != null) {	
-			
-			note.getCollaboratorList().remove(collaboratorEmailId);
-			noterepository.save(note);
-			return NoteMessageReference.REMOVE_COLLABORATOR;
+	public String removeCollaborator(String id, String token, String collaboratorEmailId) {
+		String email = jwt.getToken(token);
+		if(email != null) {
+			Note note = noterepository.findById(id).get();
+			if(note != null) {	
+				
+				note.getCollaboratorList().remove(collaboratorEmailId);
+				noterepository.save(note);
+				return NoteMessageReference.REMOVE_COLLABORATOR;
+			}
+			return NoteMessageReference.ID_NOT_FOUND;
 		}
-		throw new NoteException(NoteMessageReference.UNAUTHORIZED_USER);
+		throw new NoteException(NoteMessageReference.UNAUTHORIZED_USER_EXCEPTION);
 	}
 
 
@@ -281,7 +296,7 @@ public class NoteService implements NoteServiceI{
 	 *Method: To Add Reminder
 	 */
 	@Override
-	public String addReminder(String token,String id, int year, int month, int day, int hour, int minute, int second) {
+	public String addReminder(String token, String id, int year, int month, int day, int hour, int minute, int second) {
 		
 		String email = jwt.getToken(token);
 		
@@ -303,7 +318,7 @@ public class NoteService implements NoteServiceI{
 			}
 			
 		}
-		throw new NoteException(NoteMessageReference.UNAUTHORIZED_USER);
+		throw new NoteException(NoteMessageReference.UNAUTHORIZED_USER_EXCEPTION);
 		
 	}
 
@@ -335,7 +350,7 @@ public class NoteService implements NoteServiceI{
 			noterepository.save(note);
 			return NoteMessageReference.EDIT_REMINDER;
 		}
-		throw new NoteException(NoteMessageReference.UNAUTHORIZED_USER);
+		throw new NoteException(NoteMessageReference.UNAUTHORIZED_USER_EXCEPTION);
 	}
 	
 	
@@ -358,7 +373,7 @@ public class NoteService implements NoteServiceI{
 			noterepository.save(note);
 			return NoteMessageReference.REMOVE_REMINDER;
 		}
-		throw new NoteException(NoteMessageReference.UNAUTHORIZED_USER);
+		throw new NoteException(NoteMessageReference.UNAUTHORIZED_USER_EXCEPTION);
 	}
 
 }

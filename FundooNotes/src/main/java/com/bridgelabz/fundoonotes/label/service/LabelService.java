@@ -35,13 +35,17 @@ public class LabelService implements LabelServiceI{
 	ModelMapper mapper;
 
 	
+	/**
+	 *Method: To Create Label
+	 */
 	@Override
 	public String createLabel(String id, String token, LabelDTO labeldto) {
-		String email = jwt.getToken(token);
 		
+		String email = jwt.getToken(token);
 		if(email != null) {
 			Label label = mapper.map(labeldto, Label.class);
 			label.setLabelTitle(labeldto.getLabelTitle());
+			label.setEmail(email);
 			
 			LocalDateTime now = LocalDateTime.now();
 			DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm:ss");
@@ -56,38 +60,46 @@ public class LabelService implements LabelServiceI{
 		
 			label.getNotelist().add(note);
 			labelrepository.save(label);
-			
 //			User user = userrepository.findByEmail(email);
 //			noterepository.deleteById(id);
 //			user.getUserlist().add(note);
 //			userrepository.save(user);
-			
-			
 			return LabelMessageReference.CREATE_LABEL;
 		}
 		throw new LoginException(LabelMessageReference.UNAUTHORIZED_USER);
 	}
 
 	
+	/**
+	 *Method: To Update Label
+	 */
 	@Override
-	public String updateLabel(String id, LabelDTO labeldto) {
-		Label label = labelrepository.findById(id).get();
+	public String updateLabel(String id, String token, LabelDTO labeldto) {
 		
-		if(label != null) {
-			label.setLabelTitle(labeldto.getLabelTitle());
+		String email = jwt.getToken(token);
+		if(email != null) {
+			Label label = labelrepository.findById(id).get();
 			
-			LocalDateTime now = LocalDateTime.now();
-			DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm:ss");
-			String date = now.format(formatter);
-			
-			label.setEditDate(date);
-			labelrepository.save(label);
-			return LabelMessageReference.UPDATE_LABEL;
+			if(label != null) {
+				label.setLabelTitle(labeldto.getLabelTitle());
+				
+				LocalDateTime now = LocalDateTime.now();
+				DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm:ss");
+				String date = now.format(formatter);
+				
+				label.setEditDate(date);
+				labelrepository.save(label);
+				return LabelMessageReference.UPDATE_LABEL;
+			}
+			return LabelMessageReference.ID_NOT_FOUND;
 		}
-		return LabelMessageReference.ID_NOT_FOUND;
+		throw new LoginException(LabelMessageReference.UNAUTHORIZED_USER);
 	}
 
 	
+	/**
+	 *Method: To Delete Label
+	 */
 	@Override
 	public String deleteLabel(String id) {
 		
@@ -96,6 +108,9 @@ public class LabelService implements LabelServiceI{
 	}
 
 	
+	/**
+	 *Method: To Show All Labels
+	 */
 	@Override
 	public List<Label> showLabels() {
 		
@@ -104,6 +119,9 @@ public class LabelService implements LabelServiceI{
 	}
 
 	
+	/**
+	 *Method: To Find Label By Id
+	 */
 	@Override
 	public Label findLabelById(String id) {
 		

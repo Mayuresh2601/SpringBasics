@@ -9,7 +9,7 @@ package com.bridgelabz.fundoonotes.user.service;
 
 public class UserMessageReferance {
 	
-	static final String ADD_USER = "User Added Successful";
+	static final String ADD_USER = "User Added Successfully";
 	static final String UPDATE_USER = "User Updated Successfully";
 	static final String DELETE_USER = "User Deleted Successfully";
 	static final String USER_REGISTER_SUCCESSFUL = "User Registered Successfully";
@@ -25,5 +25,5 @@ public class UserMessageReferance {
 	static final String PROFILE_NOT_FOUND_EXCEPTION = "No Profile Picture to Update";
 	static final String PROFILE_PICTURE_EXISTED_EXCEPTION = "Profile Picture Already Existing";
 	static final String PROFILE_PICTURE_REMOVE_EXCEPTION = "No Profile Picture to Remove";
-	
+	static final String FILE_INVALID = "Uploaded File is Not Valid";
 }

@@ -8,7 +8,7 @@ public interface LabelServiceI {
 	
 	public String createLabel(String id, String token, LabelDTO labeldto);
 	
-	public String updateLabel(String id, LabelDTO labeldto);
+	public String updateLabel(String id, String token, LabelDTO labeldto);
 	
 	public String deleteLabel(String id);
 	

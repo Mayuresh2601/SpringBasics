@@ -23,6 +23,7 @@ import org.springframework.web.multipart.MultipartFile;
 import com.bridgelabz.fundoonotes.user.dto.LoginDTO;
 import com.bridgelabz.fundoonotes.user.dto.RegisterDTO;
 import com.bridgelabz.fundoonotes.user.dto.ResetDTO;
+import com.bridgelabz.fundoonotes.user.exception.FileNotAcceptingException;
 import com.bridgelabz.fundoonotes.user.exception.LoginException;
 import com.bridgelabz.fundoonotes.user.exception.ProfilePictureException;
 import com.bridgelabz.fundoonotes.user.model.User;
@@ -57,19 +58,24 @@ public class UserService implements UserServiceI{
 	 */
 	@Override
 	public String createUser(RegisterDTO regdto) {
-		User user = mapper.map(regdto, User.class);
-		
-		if(user != null) {
-			user.setFirstName(regdto.getFirstName());
-			user.setLastName(regdto.getLastName());
-			user.setEmail(regdto.getEmail());
-			user.setMobileNumber(regdto.getMobileNumber());
-			user.setPassword(bCryptPasswordEncoder.encode(regdto.getPassword()));
-			String token = jwt.createToken(user.getEmail());
-		
-			jms.sendMail(user.getEmail(),token);
-			userrepository.save(user);
-			return UserMessageReferance.ADD_USER;
+		try {
+			User user = mapper.map(regdto, User.class);
+			
+			if(user != null) {
+				user.setFirstName(regdto.getFirstName());
+				user.setLastName(regdto.getLastName());
+				user.setEmail(regdto.getEmail());
+				user.setMobileNumber(regdto.getMobileNumber());
+				user.setPassword(bCryptPasswordEncoder.encode(regdto.getPassword()));
+				String token = jwt.createToken(user.getEmail());
+			
+				jms.sendMail(user.getEmail(),token);
+				userrepository.save(user);
+				return UserMessageReferance.ADD_USER;
+			}
+		}
+		catch(NullPointerException e) {
+			return "Null Pointer Exception";
 		}
 		throw new LoginException(UserMessageReferance.UNAUTHORIZED_USER);
 	}
@@ -110,7 +116,7 @@ public class UserService implements UserServiceI{
 	 *Method: Update User By its Id
 	 */
 	@Override
-	public String updateUser(RegisterDTO registerdto,String id) {
+	public String updateUser(RegisterDTO registerdto, String id) {
 		
 		User userupdate = userrepository.findById(id).get();
 		if(userupdate != null) {
@@ -130,18 +136,23 @@ public class UserService implements UserServiceI{
 	 */
 	@Override
 	public String login(LoginDTO logindto, String token) {
-		String email = jwt.getToken(token);
-		if(email != null) {
-			User user = mapper.map(logindto, User.class);
-			User user1 = userrepository.findByEmail(user.getEmail());
-			
-			boolean isValid = bCryptPasswordEncoder.matches(logindto.getPassword(), user1.getPassword());
-			
-			if(isValid ) {	
-				user1.setValidate(true);
-				userrepository.save(user1);
-				return UserMessageReferance.USER_LOGIN_SUCCESSFUL;
+		try {
+			String email = jwt.getToken(token);
+			if(email != null) {
+				User user = mapper.map(logindto, User.class);
+				User user1 = userrepository.findByEmail(user.getEmail());
+				
+				boolean isValid = bCryptPasswordEncoder.matches(logindto.getPassword(), user1.getPassword());
+				
+				if(isValid ) {	
+					user1.setValidate(true);
+					userrepository.save(user1);
+					return UserMessageReferance.USER_LOGIN_SUCCESSFUL;
+				}
 			}
+		}
+		catch(NullPointerException er) {
+			return "Null Pointer Exception";
 		}
 		throw new LoginException(UserMessageReferance.UNAUTHORIZED_USER);
 	}
@@ -152,13 +163,17 @@ public class UserService implements UserServiceI{
 	 */
 	@Override
 	public String forgetPassword(RegisterDTO logindto) {
-		
-		User user = mapper.map(logindto, User.class);
-		String token = jwt.createToken(user.getEmail());
-		System.out.println("Recieved token:::::::  "+token);
-		jms.sendMail(user.getEmail(), token);
-
-		return UserMessageReferance.CHECK_YOUR_MAIL;
+		try {
+			User user = mapper.map(logindto, User.class);
+			String token = jwt.createToken(user.getEmail());
+			System.out.println("Recieved token:::::::  "+token);
+			jms.sendMail(user.getEmail(), token);
+	
+			return UserMessageReferance.CHECK_YOUR_MAIL;
+		}
+		catch(NullPointerException e) {
+			return "Null Pointer Exception";
+		}
 	}
 
 	
@@ -167,19 +182,23 @@ public class UserService implements UserServiceI{
 	 */
 	@Override
 	public String resetPassword(ResetDTO resetdto, String token) {
-	
-		String email=jwt.getToken(token);
-		if(email!=null)
-		{
-			User user = userrepository.findByEmail(email);
-			user.setPassword(resetdto.getNewPassword());
-		
-			if(resetdto.getNewPassword().contentEquals(resetdto.getConfirmPassword()))
+		try {
+			String email=jwt.getToken(token);
+			if(email!=null)
 			{
-				user.setPassword(bCryptPasswordEncoder.encode(resetdto.getNewPassword()));
-				userrepository.save(user);
-				return UserMessageReferance.PASSWORD_UPDATED;
+				User user = userrepository.findByEmail(email);
+				user.setPassword(resetdto.getNewPassword());
+			
+				if(resetdto.getNewPassword().contentEquals(resetdto.getConfirmPassword()))
+				{
+					user.setPassword(bCryptPasswordEncoder.encode(resetdto.getNewPassword()));
+					userrepository.save(user);
+					return UserMessageReferance.PASSWORD_UPDATED;
+				}
 			}
+		}
+		catch(NullPointerException e) {
+			return "Null Pointer Exception";
 		}
 		return UserMessageReferance.PASSWORD_NOT_MATCHED;
 	}
@@ -212,29 +231,32 @@ public class UserService implements UserServiceI{
 	@SuppressWarnings("resource")
 	@Override
 	public String uploadProfilePicture(String token, MultipartFile file) throws IOException {
-		
 		String email = jwt.getToken(token);
-		File convertFile = new File("/home/admin1/Documents/"+file.getOriginalFilename());
-		convertFile.createNewFile();
-		
-		if(!file.isEmpty() && email != null) {
+		if(email != null) {
 			
-			FileOutputStream fout = new FileOutputStream(convertFile);
-			String string = "/home/admin1/Documents/" + file.getOriginalFilename();
-			User user = userrepository.findByEmail(email);
-		
-			if(user.getProfilePicture() == null) {
-				user.setProfilePicture(string);
-				userrepository.save(user);
-	
-				fout.write(file.getBytes());
-				fout.close();
-				return UserMessageReferance.PROFILE_PICTURE_UPLOADED;
-			}
+			File convertFile = new File("/home/admin1/Documents/"+file.getOriginalFilename());
+			convertFile.createNewFile();
+			boolean checker = file.getOriginalFilename().contains(".jpeg") || file.getOriginalFilename().contains(".jpg") || file.getOriginalFilename().contains(".png");
+			if(!file.isEmpty() && checker) {
+				
+				FileOutputStream fout = new FileOutputStream(convertFile);
+				String string = "/home/admin1/Documents/" + file.getOriginalFilename();
+				User user = userrepository.findByEmail(email);
 			
-			if(user.getProfilePicture().equals(string)) {
-				throw new ProfilePictureException(UserMessageReferance.PROFILE_PICTURE_EXISTED_EXCEPTION) ;
+				if(user.getProfilePicture() == null) {
+					user.setProfilePicture(string);
+					userrepository.save(user);
+		
+					fout.write(file.getBytes());
+					fout.close();
+					return UserMessageReferance.PROFILE_PICTURE_UPLOADED;
+				}
+				
+				if(user.getProfilePicture().equals(string)) {
+					throw new ProfilePictureException(UserMessageReferance.PROFILE_PICTURE_EXISTED_EXCEPTION) ;
+				}
 			}
+			throw new FileNotAcceptingException(UserMessageReferance.FILE_INVALID);
 		}
 		throw new LoginException(UserMessageReferance.UNAUTHORIZED_USER);
 	}
@@ -255,11 +277,10 @@ public class UserService implements UserServiceI{
 		{
 			User user = userrepository.findByEmail(email);
 			String pic = user.getProfilePicture();
-			
-			if(!file.isEmpty()) {
+			boolean checker = file.getOriginalFilename().contains(".jpeg") || file.getOriginalFilename().contains(".jpg") || file.getOriginalFilename().contains(".png");
+			if(!file.isEmpty() && checker) {
 				FileOutputStream fout = new FileOutputStream(convertFile);
 				String string = "/home/admin1/Documents/" + file.getOriginalFilename();
-				
 				if(pic == null) {
 					throw new ProfilePictureException(UserMessageReferance.PROFILE_NOT_FOUND_EXCEPTION) ;
 				}
@@ -275,9 +296,11 @@ public class UserService implements UserServiceI{
 				fout.close();
 				return UserMessageReferance.PROFILE_PICTURE_UPLOADED;
 			}
+			throw new FileNotAcceptingException(UserMessageReferance.FILE_INVALID);
 		}
 		throw new LoginException(UserMessageReferance.UNAUTHORIZED_USER);
 	}
+	
 	
 	/**
 	 *Method: To Remove Profile Picture

@@ -158,18 +158,6 @@ public class UserController {
 	}
 	
 	
-	/**Method: To Remove Profile Picture
-	 * @param token
-	 * @return Remove Profile Picture Implementation Logic
-	 */
-	@DeleteMapping("/removepicture")
-	public Response removeProfilePicture(@RequestHeader String token) {
-		
-		String result = userService.removeProfilePicture(token);
-		return new Response(200, "Profile Picture Removing", result);
-	}
-	
-	
 	/**Method: To Update Profile Picture
 	 * @param token
 	 * @param file
@@ -181,6 +169,18 @@ public class UserController {
 		
 		String result = userService.updateProfilePicture(token, file);
 		return new Response(200, "Profile Picture Updating", result);
+	}
+	
+	
+	/**Method: To Remove Profile Picture
+	 * @param token
+	 * @return Remove Profile Picture Implementation Logic
+	 */
+	@DeleteMapping("/removepicture")
+	public Response removeProfilePicture(@RequestHeader String token) {
+		
+		String result = userService.removeProfilePicture(token);
+		return new Response(200, "Profile Picture Removing", result);
 	}
 	
 }

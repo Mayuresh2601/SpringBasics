@@ -1,14 +1,16 @@
 package com.bridgelabz.fundoonotes.user.exception;
 
-public class NullPointerException extends RuntimeException{
+import java.io.IOException;
+
+public class FileNotAcceptingException extends IOException{
 
 	/**
 	 * 
 	 */
 	private static final long serialVersionUID = 1L;
 	
-	public NullPointerException(String message) {
-		
+	public FileNotAcceptingException(String message) {
+	
 		super(message);
 	}
 

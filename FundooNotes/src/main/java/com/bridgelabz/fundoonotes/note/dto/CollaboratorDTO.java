@@ -5,6 +5,6 @@ import lombok.Data;
 @Data
 public class CollaboratorDTO {
 	
-	private String emailId;
+	private String collaboratorEmail;
 
 }

@@ -16,7 +16,7 @@ public class NoteMessageReference {
 	static final String CREATE_COLLABORATOR = "Collaborator Successfully Created";
 	static final String COLLABORATOR_EXISTS = "Collaborator Already Exists";
 	static final String REMOVE_COLLABORATOR = "Collaborator Successfully Removed";
-	static final String UNAUTHORIZED_USER = "User is Not Authorized";
+	static final String UNAUTHORIZED_USER_EXCEPTION = "User is Not Authorized";
 	static final String ADD_REMINDER = "Reminder Added Successfully";
 	static final String EDIT_REMINDER = "Reminder Edited Successfully";
 	static final String REMOVE_REMINDER = "Reminder Removed Successfully";

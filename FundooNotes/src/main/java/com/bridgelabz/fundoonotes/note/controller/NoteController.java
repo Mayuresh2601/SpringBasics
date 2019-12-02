@@ -9,6 +9,7 @@ package com.bridgelabz.fundoonotes.note.controller;
 
 import java.io.IOException;
 import java.util.List;
+import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -51,9 +52,9 @@ public class NoteController {
 	 * @return Update Note Implementation Logic
 	 */
 	@PutMapping("/updatenote")
-	public Response updateNote(@RequestHeader String id,@RequestBody NoteDTO notedto) {
+	public Response updateNote(@RequestHeader String id,@RequestHeader String token, @RequestBody NoteDTO notedto) {
 		
-		String result = noteService.updateNote(id, notedto);
+		String result = noteService.updateNote(id, token, notedto);
 		return new Response(200, "Updating Note", result);
 	}
 
@@ -63,9 +64,9 @@ public class NoteController {
 	 * @return Delete Note Implementation Logic
 	 */
 	@DeleteMapping("/deletenote")
-	public Response deleteNote(@RequestHeader String id) {
+	public Response deleteNote(@RequestHeader String id, @RequestHeader String token) {
 		
-		String result =  noteService.deleteNote(id);
+		String result =  noteService.deleteNote(id, token);
 		return new Response(200, "Deleting Note", result);
 	}
 
@@ -75,9 +76,9 @@ public class NoteController {
 	 * @return Find Note By Id Implementation Logic 
 	 */
 	@GetMapping("/notes")
-	public Response findNoteById(@RequestHeader String id) {
+	public Response findNoteById(@RequestHeader String id, @RequestHeader String token) {
 		
-		Note note = noteService.findNoteById(id).get();
+		Optional<Note> note = noteService.findNoteById(id, token);
 		return new Response(200, "Finding Note By Id", note);
 	}
 	
@@ -159,7 +160,7 @@ public class NoteController {
 	 * @param token
 	 * @return Adding Collaborator using token Implementation Logic
 	 */
-	@PostMapping("/addcollaboratordemo")
+	@PostMapping("/addcollaborator")
 	public Response addCollaboratorDemo(@RequestHeader String id,@RequestHeader String token) {
 		
 		String result = noteService.addCollaboratorDemo(id, token);
@@ -172,7 +173,7 @@ public class NoteController {
 	 * @param collaboratorEmail
 	 * @return Adding Collaborator using emailId Implementation Logic
 	 */
-	@PostMapping("/addcollaborator")
+	@PostMapping("/addcollaboratordemo")
 	public Response addCollaborator(@RequestHeader String id, @RequestHeader String collaboratorEmail) {
 		
 		String result = noteService.addCollaborator(id, collaboratorEmail);
@@ -186,9 +187,9 @@ public class NoteController {
 	 * @return Removing Collaborator using emailId Implementation Logic
 	 */
 	@DeleteMapping("removecollaborator")
-	public Response removeCollaborator(@RequestHeader String id, @RequestHeader String collaboratorEmail) {
+	public Response removeCollaborator(@RequestHeader String id, @RequestHeader String token, @RequestHeader String collaboratorEmail) {
 		
-		String result = noteService.removeCollaborator(id, collaboratorEmail);
+		String result = noteService.removeCollaborator(id, token, collaboratorEmail);
 		return new Response(200, "Removing Collaborator", result);
 	}
 	

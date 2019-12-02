@@ -39,9 +39,9 @@ public class LabelController {
 	 * @return Update Label implementation Logic
 	 */
 	@PutMapping("/updatelabel")
-	public Response updateLabel(@RequestHeader String id,@RequestBody LabelDTO labeldto) {
+	public Response updateLabel(@RequestHeader String id,@RequestHeader String token, @RequestBody LabelDTO labeldto) {
 		
-		String result = service.updateLabel(id, labeldto);
+		String result = service.updateLabel(id, token, labeldto);
 		return new Response(200, "Updating Label", result);
 	}
 

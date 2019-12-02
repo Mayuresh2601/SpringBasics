@@ -10,11 +10,11 @@ public interface NoteServiceI {
 	
 	public String createNote(String token, NoteDTO notedto);
 	
-	public String updateNote(String id, NoteDTO notedto);
+	public String updateNote(String id, String token, NoteDTO notedto);
 	
-	public String deleteNote(String id);
+	public String deleteNote(String id, String token);
 	
-	public Optional<Note> findNoteById(String id);
+	public Optional<Note> findNoteById(String id, String token);
 	
 	public List<Note> showNotes();
 	
@@ -32,7 +32,7 @@ public interface NoteServiceI {
 	
 	public String addCollaborator(String id, String collaboratorEmailId);
 
-	public String removeCollaborator(String id, String collaboratorEmailId);
+	public String removeCollaborator(String id, String token, String collaboratorEmailId);
 	
 	public String addReminder(String token,String id, int year, int month, int day, int hour, int minute, int second);
 	
