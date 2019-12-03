@@ -24,13 +24,17 @@ public interface NoteServiceI {
 	
 	public boolean isArchieve(String id, String token);
 	
-	public List<?> sortNoteByTitle();
+	public List<?> sortNoteByTitleAsc();
 	
-	public List<?> sortNoteByDate();
+	public List<?> sortNoteByTitleDesc();
+	
+	public List<?> sortNoteByDateAsc();
+	
+	public List<?> sortNoteByDateDesc();
 	
 	public String addCollaboratorDemo(String id, String token);
 	
-	public String addCollaborator(String id, String collaboratorEmailId);
+	public String addCollaborator(String id, String token, String collaboratorEmailId);
 
 	public String removeCollaborator(String id, String token, String collaboratorEmailId);
 	

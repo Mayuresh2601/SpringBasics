@@ -1,9 +1,14 @@
 package com.bridgelabz.fundoonotes.user.model;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import javax.validation.constraints.NotBlank;
 
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
+
+import com.bridgelabz.fundoonotes.note.model.Note;
 
 import lombok.Data;
 
@@ -34,7 +39,7 @@ public class User {
 
 	private boolean isValidate;
 
-	//List<Note> userlist = new ArrayList<>();
+	List<Note> notelist = new ArrayList<>();
 	
 	private String profilePicture;
 	

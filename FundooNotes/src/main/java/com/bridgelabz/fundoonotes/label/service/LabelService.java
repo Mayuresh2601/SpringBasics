@@ -13,6 +13,7 @@ import com.bridgelabz.fundoonotes.label.repository.LabelRepositoryI;
 import com.bridgelabz.fundoonotes.note.model.Note;
 import com.bridgelabz.fundoonotes.note.repository.NoteRepositoryI;
 import com.bridgelabz.fundoonotes.user.exception.LoginException;
+import com.bridgelabz.fundoonotes.user.model.User;
 import com.bridgelabz.fundoonotes.user.repository.UserRepositoryI;
 import com.bridgelabz.fundoonotes.user.utility.Jwt;
 
@@ -60,10 +61,12 @@ public class LabelService implements LabelServiceI{
 		
 			label.getNotelist().add(note);
 			labelrepository.save(label);
-//			User user = userrepository.findByEmail(email);
-//			noterepository.deleteById(id);
-//			user.getUserlist().add(note);
-//			userrepository.save(user);
+			
+//			Note note1 = noterepository.findById(id).get();
+			User user = userrepository.findByEmail(email);
+//			user.getNotelist().removeIf(data -> data.getId().equals(note1.getId()));
+			//user.getNotelist().stream().filter(i -> i.getId().equals(label.getId()));
+			userrepository.save(user);
 			return LabelMessageReference.CREATE_LABEL;
 		}
 		throw new LoginException(LabelMessageReference.UNAUTHORIZED_USER);
@@ -89,6 +92,12 @@ public class LabelService implements LabelServiceI{
 				
 				label.setEditDate(date);
 				labelrepository.save(label);
+				
+//				Note note1 = noterepository.findById(id).get();
+//				User user = userrepository.findByEmail(email);
+//				user.getNotelist().removeIf(data -> data.getId().equals(note1.getId()));
+//				user.getNotelist().add(label);
+//				userrepository.save(user);
 				return LabelMessageReference.UPDATE_LABEL;
 			}
 			return LabelMessageReference.ID_NOT_FOUND;

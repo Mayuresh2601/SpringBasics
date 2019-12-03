@@ -16,6 +16,8 @@ public class NoteMessageReference {
 	static final String CREATE_COLLABORATOR = "Collaborator Successfully Created";
 	static final String COLLABORATOR_EXISTS = "Collaborator Already Exists";
 	static final String REMOVE_COLLABORATOR = "Collaborator Successfully Removed";
+	static final String COLLABORATOR_CANNOT_ADD = "Cannot Add Self Email Id Collaborator";
+	static final String UNAUTHORIZED_COLLABORATOR_EXCEPTION = "Collaborator is Not Authorized";
 	static final String UNAUTHORIZED_USER_EXCEPTION = "User is Not Authorized";
 	static final String ADD_REMINDER = "Reminder Added Successfully";
 	static final String EDIT_REMINDER = "Reminder Edited Successfully";

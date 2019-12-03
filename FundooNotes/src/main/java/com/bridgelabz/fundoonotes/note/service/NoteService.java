@@ -22,7 +22,9 @@ import com.bridgelabz.fundoonotes.note.dto.NoteDTO;
 import com.bridgelabz.fundoonotes.note.model.Note;
 import com.bridgelabz.fundoonotes.note.repository.NoteRepositoryI;
 import com.bridgelabz.fundoonotes.user.exception.NoteException;
+import com.bridgelabz.fundoonotes.user.model.User;
 import com.bridgelabz.fundoonotes.user.repository.UserRepositoryI;
+import com.bridgelabz.fundoonotes.user.service.UserService;
 import com.bridgelabz.fundoonotes.user.utility.Jwt;
 
 @Service
@@ -43,6 +45,8 @@ public class NoteService implements NoteServiceI{
 	@Autowired
 	ModelMapper mapper;
 	
+	@Autowired
+	UserService userservice;
 	
 	/**
 	 *Method: To Create a Note for User
@@ -51,7 +55,6 @@ public class NoteService implements NoteServiceI{
 	public String createNote(String token, NoteDTO notedto) {
 
 		String email = jwt.getToken(token);
-		System.out.println(email);
 		if(email != null) {
 			Note note = mapper.map(notedto, Note.class);
 			note.setEmailId(email);
@@ -60,11 +63,10 @@ public class NoteService implements NoteServiceI{
 			String date = now.format(formatter);
 			
 			note.setCreateDate(date);
-			
 			noterepository.save(note);
-//			User user = userrepository.findByEmail(email);
-//			user.getUserlist().add(note);
-//			userrepository.save(user);
+			User user = userrepository.findByEmail(email);
+			user.getNotelist().add(note);
+			userrepository.save(user);
 			return NoteMessageReference.CREATE_NOTE;
 		}
 		throw new NoteException(NoteMessageReference.UNAUTHORIZED_USER_EXCEPTION);
@@ -91,9 +93,12 @@ public class NoteService implements NoteServiceI{
 				
 				noteupdate.setEditDate(date);
 				noterepository.save(noteupdate);
-//				User user = userrepository.findByEmail(email);
-//				user.getUserlist().add(noteupdate);
-//				userrepository.save(user);
+				
+				Note note = noterepository.findById(id).get();
+				User user = userrepository.findByEmail(email);
+				user.getNotelist().removeIf(data -> data.getId().equals(note.getId()));
+				user.getNotelist().add(noteupdate);
+				userrepository.save(user);
 				return NoteMessageReference.UPDATE_NOTE;
 			}
 		}
@@ -108,7 +113,11 @@ public class NoteService implements NoteServiceI{
 	public String deleteNote(String id, String token) {
 		String email = jwt.getToken(token);
 		if(email != null) {
+			Note note = noterepository.findById(id).get();
 			noterepository.deleteById(id);
+			User user = userrepository.findByEmail(email);
+			user.getNotelist().remove(note);
+			userrepository.save(user);
 			return NoteMessageReference.DELETE_NOTE;
 		}
 		throw new NoteException(NoteMessageReference.UNAUTHORIZED_USER_EXCEPTION);
@@ -145,13 +154,21 @@ public class NoteService implements NoteServiceI{
 	@Override
 	public boolean isPin(String id, String token) {
 		
-		String emailId = jwt.getToken(token);
-		List<Note> listofNote= noterepository.findByEmailId(emailId);
+		String email = jwt.getToken(token);
+		List<Note> listofNote= noterepository.findByEmailId(email);
 		Note note =listofNote.stream().filter(i->i.getId().equals(id)).findAny().orElse(null);
 		if(note!=null)
 		{
 			note.setPin(!(note.isPin()));
 			noterepository.save(note);
+			
+			Note note1 = noterepository.findById(id).get();
+			System.out.println("Delete Note"+note1);
+			User user = userrepository.findByEmail(email);
+			user.getNotelist().removeIf(data -> data.getId().equals(note1.getId()));
+			System.out.println("After Deletion -> "+user.getNotelist());
+			user.getNotelist().add(note);
+			userrepository.save(user);
 			return note.isPin();
 		}
 		throw new NoteException(NoteMessageReference.UNAUTHORIZED_USER_EXCEPTION);
@@ -164,13 +181,21 @@ public class NoteService implements NoteServiceI{
 	@Override
 	public boolean isTrash(String id, String token) {
 		
-		String emailId = jwt.getToken(token);
-		List<Note> listofNote= noterepository.findByEmailId(emailId);
+		String email = jwt.getToken(token);
+		List<Note> listofNote= noterepository.findByEmailId(email);
 		Note note =listofNote.stream().filter(i->i.getId().equals(id)).findAny().orElse(null);
 		if(note!=null)
 		{
 			note.setTrash(!(note.isTrash()));
 			noterepository.save(note);
+			
+			Note note1 = noterepository.findById(id).get();
+			System.out.println("Delete Note"+note1);
+			User user = userrepository.findByEmail(email);
+			user.getNotelist().removeIf(data -> data.getId().equals(note1.getId()));
+			System.out.println("After Deletion -> "+user.getNotelist());
+			user.getNotelist().add(note);
+			userrepository.save(user);
 			return note.isTrash();
 		}
 		throw new NoteException(NoteMessageReference.UNAUTHORIZED_USER_EXCEPTION);
@@ -183,13 +208,21 @@ public class NoteService implements NoteServiceI{
 	@Override
 	public boolean isArchieve(String id, String token) {
 		
-		String emailId = jwt.getToken(token);
-		List<Note> listofNote= noterepository.findByEmailId(emailId);
+		String email = jwt.getToken(token);
+		List<Note> listofNote= noterepository.findByEmailId(email);
 		Note note =listofNote.stream().filter(i->i.getId().equals(id)).findAny().orElse(null);
 		if(note!=null)
 		{
 			note.setArchieve(!(note.isArchieve()));
 			noterepository.save(note);
+			
+			Note note1 = noterepository.findById(id).get();
+			System.out.println("Delete Note"+note1);
+			User user = userrepository.findByEmail(email);
+			user.getNotelist().removeIf(data -> data.getId().equals(note1.getId()));
+			System.out.println("After Deletion -> "+user.getNotelist());
+			user.getNotelist().add(note);
+			userrepository.save(user);
 			return note.isArchieve();
 		}
 		throw new NoteException(NoteMessageReference.UNAUTHORIZED_USER_EXCEPTION);
@@ -197,22 +230,34 @@ public class NoteService implements NoteServiceI{
 
 
 	/**
-	 *Method: To Sort Notes By Title
+	 *Method: To Sort Notes By Title in Ascending Order
 	 */
 	@Override
-	public List<?> sortNoteByTitle() {
+	public List<?> sortNoteByTitleAsc() {
 		
 		List<Note> list=showNotes();
         list= list.stream().sorted((list1,list2)->list1.getTitle().compareToIgnoreCase(list2.getTitle())).collect(Collectors.toList());
         return list;
 	}
 
-
+	
 	/**
-	 *Method: To Sort Notes By Date
+	 *Method: To Sort Notes By Title in Descending Order
 	 */
 	@Override
-	public List<?> sortNoteByDate() {
+	public List<?> sortNoteByTitleDesc() {
+		
+		List<Note> list=showNotes();
+        list= list.stream().sorted((list1,list2)->list2.getTitle().compareToIgnoreCase(list1.getTitle())).collect(Collectors.toList());
+		return list;
+	}
+
+	
+	/**
+	 *Method: To Sort Notes By Date in Ascending Order
+	 */
+	@Override
+	public List<?> sortNoteByDateAsc() {
 		
 		 List<Note> list=showNotes();
          list= list.stream().sorted((list1,list2)->list1.getCreateDate().compareToIgnoreCase(list2.getCreateDate())).collect(Collectors.toList());
@@ -220,6 +265,18 @@ public class NoteService implements NoteServiceI{
 	}
 
 
+	/**
+	 *Method: To Sort Notes By Title in Descending Order
+	 */
+	@Override
+	public List<?> sortNoteByDateDesc() {
+		
+		List<Note> list=showNotes();
+        list= list.stream().sorted((list1,list2)->list2.getCreateDate().compareToIgnoreCase(list1.getCreateDate())).collect(Collectors.toList());
+		return list;
+	}
+
+	
 	/**
 	 *Method: To Add Collaborators using Token of User
 	 */
@@ -237,11 +294,20 @@ public class NoteService implements NoteServiceI{
 					return NoteMessageReference.COLLABORATOR_EXISTS;
 				}
 				
+				if(email.equals(note.getEmailId())) {
+					return NoteMessageReference.COLLABORATOR_CANNOT_ADD;
+				}
+				
 				note.getCollaboratorList().add(email);
 				noterepository.save(note);
-//				User user = userrepository.findByEmail(email);
-//				user.getUserlist().add(note);
-//				userrepository.save(user);
+				
+				Note note1 = noterepository.findById(id).get();
+				System.out.println("Delete Note"+note1);
+				User user = userrepository.findByEmail(email);
+				user.getNotelist().removeIf(data -> data.getId().equals(note1.getId()));
+				System.out.println("After Deletion -> "+user.getNotelist());
+				user.getNotelist().add(note);
+				userrepository.save(user);
 				return NoteMessageReference.CREATE_COLLABORATOR;
 			}
 			return NoteMessageReference.ID_NOT_FOUND;
@@ -254,19 +320,44 @@ public class NoteService implements NoteServiceI{
 	 *Method: To Add Collaborators using emailId
 	 */
 	@Override
-	public String addCollaborator(String id, String collaboratorEmailId) {
+	public String addCollaborator(String id, String token, String collaboratorEmailId) {
 		
-		Note note = noterepository.findById(id).get();
-		if(note != null) {
-			
-			boolean isValid = note.getCollaboratorList().contains(collaboratorEmailId);
-			if(isValid) {
+		String email = jwt.getToken(token);
+		if(email != null) {
+			Note note = noterepository.findById(id).get();
+			if(note != null) {
 				
-				return NoteMessageReference.COLLABORATOR_EXISTS;
+//				List<User> listuser = userservice.showUsers();
+//				List<String> users = new ArrayList<>();
+//				for (int i = 0; i <listuser.size() ; i++) {
+//					users.add(listuser.get(i).getEmail());
+//				}
+//				if(users.contains(collaboratorEmailId)) {
+//					throw new NoteException(NoteMessageReference.UNAUTHORIZED_COLLABORATOR_EXCEPTION);
+//				}
+				
+				boolean isValid = note.getCollaboratorList().contains(collaboratorEmailId);
+				if(isValid) {
+					return NoteMessageReference.COLLABORATOR_EXISTS;
+				}
+				
+				if(collaboratorEmailId.equals(note.getEmailId())) {
+					return NoteMessageReference.COLLABORATOR_CANNOT_ADD;
+				}
+				
+				note.getCollaboratorList().add(collaboratorEmailId);
+				noterepository.save(note);
+				
+				Note note1 = noterepository.findById(id).get();
+				System.out.println("Delete Note"+note1);
+				User user = userrepository.findByEmail(email);
+				user.getNotelist().removeIf(data -> data.getId().equals(note1.getId()));
+				System.out.println("After Deletion -> "+user.getNotelist());
+				user.getNotelist().add(note);
+				userrepository.save(user);
+				return NoteMessageReference.CREATE_COLLABORATOR;
 			}
-			note.getCollaboratorList().add(collaboratorEmailId);
-			noterepository.save(note);
-			return NoteMessageReference.CREATE_COLLABORATOR;
+			return NoteMessageReference.ID_NOT_FOUND;
 		}
 		throw new NoteException(NoteMessageReference.UNAUTHORIZED_USER_EXCEPTION);
 	}
@@ -284,6 +375,13 @@ public class NoteService implements NoteServiceI{
 				
 				note.getCollaboratorList().remove(collaboratorEmailId);
 				noterepository.save(note);
+				
+				
+				System.out.println("Delete Note"+note);
+				User user = userrepository.findByEmail(email);
+				user.getNotelist().removeIf(data -> data.getId().equals(note.getId()));
+				System.out.println("After Deletion -> "+user.getNotelist());
+				userrepository.save(user);
 				return NoteMessageReference.REMOVE_COLLABORATOR;
 			}
 			return NoteMessageReference.ID_NOT_FOUND;
@@ -310,6 +408,14 @@ public class NoteService implements NoteServiceI{
 				
 				note.setReminder(date);
 				noterepository.save(note);
+				
+				Note note1 = noterepository.findById(id).get();
+				System.out.println("Delete Note"+note1);
+				User user = userrepository.findByEmail(email);
+				user.getNotelist().removeIf(data -> data.getId().equals(note1.getId()));
+				System.out.println("After Deletion -> "+user.getNotelist());
+				user.getNotelist().add(note);
+				userrepository.save(user);
 				return NoteMessageReference.ADD_REMINDER;
 			}
 			
@@ -348,6 +454,14 @@ public class NoteService implements NoteServiceI{
 			
 			note.setReminder(date);
 			noterepository.save(note);
+			
+			Note note1 = noterepository.findById(id).get();
+			System.out.println("Delete Note"+note1);
+			User user = userrepository.findByEmail(email);
+			user.getNotelist().removeIf(data -> data.getId().equals(note1.getId()));
+			System.out.println("After Deletion -> "+user.getNotelist());
+			user.getNotelist().add(note);
+			userrepository.save(user);
 			return NoteMessageReference.EDIT_REMINDER;
 		}
 		throw new NoteException(NoteMessageReference.UNAUTHORIZED_USER_EXCEPTION);
@@ -369,8 +483,11 @@ public class NoteService implements NoteServiceI{
 				throw new NoteException(NoteMessageReference.REMINDER_REMOVE_EXCEPTION);
 			}
 			
-			note.setReminder(null);
-			noterepository.save(note);
+			System.out.println("Delete Note"+note);
+			User user = userrepository.findByEmail(email);
+			user.getNotelist().removeIf(data -> data.getId().equals(note.getId()));
+			System.out.println("After Deletion -> "+user.getNotelist());
+			userrepository.save(user);
 			return NoteMessageReference.REMOVE_REMINDER;
 		}
 		throw new NoteException(NoteMessageReference.UNAUTHORIZED_USER_EXCEPTION);

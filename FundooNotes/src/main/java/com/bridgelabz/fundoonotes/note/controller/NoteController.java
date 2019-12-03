@@ -134,24 +134,46 @@ public class NoteController {
 	
 	
 	/**Method: To Sort Notes By Title
-	 * @return Sorted Notes By Title Implementation Logic
+	 * @return Sorted Notes By Title in Ascending Implementation Logic
 	 */
-	@GetMapping("/sortbytitle")
-	public Response sortNoteByTitle() {
+	@GetMapping("/sortbytitleasc")
+	public Response sortNoteByTitleAsc() {
 		
-		List<?> list = noteService.sortNoteByTitle();
-		return new Response(200, "Sorting Notes By Title", list);
+		List<?> list = noteService.sortNoteByTitleAsc();
+		return new Response(200, "Sorting Notes By Title in Ascending Order", list);
+	}
+	
+	
+	/**Method: To Sort Notes By Title
+	 * @return Sorted Notes By Title in Descending Implementation Logic
+	 */
+	@GetMapping("/sortbytitledesc")
+	public Response sortNoteByTitleDesc() {
+		
+		List<?> list = noteService.sortNoteByTitleDesc();
+		return new Response(200, "Sorting Notes By Title in Descending Order", list);
 	}
 	
 	
 	/**Method: To Sort Notes By Note Creation Date
-	 * @return Sorted Notes By Note Creation Date Implementation Logic
+	 * @return Sorted Notes By Note Creation Date in Ascending Implementation Logic
 	 */
-	@GetMapping("/sortbydate")
-	public Response sortNoteByDate() {
+	@GetMapping("/sortbydateasc")
+	public Response sortNoteByDateAsc() {
 		
-		List<?> list = noteService.sortNoteByDate();
-		return new Response(200, "Sorting Notes By Date", list);
+		List<?> list = noteService.sortNoteByDateAsc();
+		return new Response(200, "Sorting Notes By Date in Ascending Order", list);
+	}
+	
+	
+	/**Method: To Sort Notes By Note Creation Date
+	 * @return Sorted Notes By Note Creation Date in Descending Implementation Logic
+	 */
+	@GetMapping("/sortbydatedesc")
+	public Response sortNoteByDateDesc() {
+		
+		List<?> list = noteService.sortNoteByDateDesc();
+		return new Response(200, "Sorting Notes By Date in Descending Order", list);
 	}
 	
 	
@@ -160,7 +182,7 @@ public class NoteController {
 	 * @param token
 	 * @return Adding Collaborator using token Implementation Logic
 	 */
-	@PostMapping("/addcollaborator")
+	@PostMapping("/addcollaboratordemo")
 	public Response addCollaboratorDemo(@RequestHeader String id,@RequestHeader String token) {
 		
 		String result = noteService.addCollaboratorDemo(id, token);
@@ -173,10 +195,10 @@ public class NoteController {
 	 * @param collaboratorEmail
 	 * @return Adding Collaborator using emailId Implementation Logic
 	 */
-	@PostMapping("/addcollaboratordemo")
-	public Response addCollaborator(@RequestHeader String id, @RequestHeader String collaboratorEmail) {
+	@PostMapping("/addcollaborator")
+	public Response addCollaborator(@RequestHeader String id, @RequestHeader String token, @RequestHeader String collaboratorEmail) {
 		
-		String result = noteService.addCollaborator(id, collaboratorEmail);
+		String result = noteService.addCollaborator(id, token, collaboratorEmail);
 		return new Response(200, "Adding Collaborator", result);
 	}
 	
