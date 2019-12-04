@@ -11,7 +11,10 @@ import java.io.IOException;
 import java.util.List;
 import java.util.Optional;
 
+import javax.validation.Valid;
+
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.env.Environment;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -32,6 +35,8 @@ public class NoteController {
 	@Autowired
 	NoteService noteService;
 	
+	@Autowired
+	Environment noteEnvironment;
 	
 	/**Method: To create a Note
 	 * @param token
@@ -39,10 +44,10 @@ public class NoteController {
 	 * @return Create Note Implementation Logic
 	 */
 	@PostMapping("/createnote")
-	public Response createNote(@RequestHeader String token, @RequestBody NoteDTO notedto) {
+	public Response createNote(@RequestHeader String token,@Valid @RequestBody NoteDTO notedto) {
 		
 		String result = noteService.createNote(token, notedto);
-		return new Response(200, "Creating Note", result);
+		return new Response(200, noteEnvironment.getProperty("Create_Note"), result);
 	}
 
 	
@@ -52,10 +57,10 @@ public class NoteController {
 	 * @return Update Note Implementation Logic
 	 */
 	@PutMapping("/updatenote")
-	public Response updateNote(@RequestHeader String id,@RequestHeader String token, @RequestBody NoteDTO notedto) {
+	public Response updateNote(@RequestHeader String id,@RequestHeader String token,@Valid @RequestBody NoteDTO notedto) {
 		
 		String result = noteService.updateNote(id, token, notedto);
-		return new Response(200, "Updating Note", result);
+		return new Response(200, noteEnvironment.getProperty("Update_Note"), result);
 	}
 
 	
@@ -67,7 +72,7 @@ public class NoteController {
 	public Response deleteNote(@RequestHeader String id, @RequestHeader String token) {
 		
 		String result =  noteService.deleteNote(id, token);
-		return new Response(200, "Deleting Note", result);
+		return new Response(200, noteEnvironment.getProperty("Delete_Note"), result);
 	}
 
 	
@@ -79,7 +84,7 @@ public class NoteController {
 	public Response findNoteById(@RequestHeader String id, @RequestHeader String token) {
 		
 		Optional<Note> note = noteService.findNoteById(id, token);
-		return new Response(200, "Finding Note By Id", note);
+		return new Response(200, noteEnvironment.getProperty("Find_Note"), note);
 	}
 	
 	
@@ -90,7 +95,7 @@ public class NoteController {
 	public Response showNotes() {
 		
 		List<Note> note = noteService.showNotes();
-		return new Response(200, "Showing All Notes", note);
+		return new Response(200, noteEnvironment.getProperty("Show_Notes"), note);
 	}
 
 	
@@ -103,7 +108,7 @@ public class NoteController {
 	public Response isPin(@RequestHeader String id, @RequestHeader String token) {
 		
 		boolean result = noteService.isPin(id, token);
-		return new Response(200, "Pin/Unpin Note", result);
+		return new Response(200, noteEnvironment.getProperty("Pin_Note"), result);
 	}
 
 	
@@ -116,7 +121,7 @@ public class NoteController {
 	public Response isTrash(@RequestHeader String id, @RequestHeader String token) {
 		
 		boolean result = noteService.isTrash(id, token);
-		return new Response(200, "Trash/Recover Note", result);
+		return new Response(200, noteEnvironment.getProperty("Trash_Note"), result);
 	}
 
 	
@@ -129,7 +134,7 @@ public class NoteController {
 	public Response isArchieve(@RequestHeader String id, @RequestHeader String token) {
 		
 		boolean result = noteService.isArchieve(id, token);
-		return new Response(200, "Archieve/Unarchieve Note", result);
+		return new Response(200, noteEnvironment.getProperty("Archieve_Note"), result);
 	}
 	
 	
@@ -140,7 +145,7 @@ public class NoteController {
 	public Response sortNoteByTitleAsc() {
 		
 		List<?> list = noteService.sortNoteByTitleAsc();
-		return new Response(200, "Sorting Notes By Title in Ascending Order", list);
+		return new Response(200, noteEnvironment.getProperty("Sort_Note_By_Title_Asc"), list);
 	}
 	
 	
@@ -151,7 +156,7 @@ public class NoteController {
 	public Response sortNoteByTitleDesc() {
 		
 		List<?> list = noteService.sortNoteByTitleDesc();
-		return new Response(200, "Sorting Notes By Title in Descending Order", list);
+		return new Response(200, noteEnvironment.getProperty("Sort_Note_By_Title_Desc"), list);
 	}
 	
 	
@@ -162,7 +167,7 @@ public class NoteController {
 	public Response sortNoteByDateAsc() {
 		
 		List<?> list = noteService.sortNoteByDateAsc();
-		return new Response(200, "Sorting Notes By Date in Ascending Order", list);
+		return new Response(200, noteEnvironment.getProperty("Sort_Note_By_Date_Asc"), list);
 	}
 	
 	
@@ -173,7 +178,7 @@ public class NoteController {
 	public Response sortNoteByDateDesc() {
 		
 		List<?> list = noteService.sortNoteByDateDesc();
-		return new Response(200, "Sorting Notes By Date in Descending Order", list);
+		return new Response(200, noteEnvironment.getProperty("Sort_Note_By_Date_Desc"), list);
 	}
 	
 	
@@ -186,7 +191,7 @@ public class NoteController {
 	public Response addCollaboratorDemo(@RequestHeader String id,@RequestHeader String token) {
 		
 		String result = noteService.addCollaboratorDemo(id, token);
-		return new Response(200, "Adding Collaborator", result);
+		return new Response(200, noteEnvironment.getProperty("Add_Collaborator"), result);
 	}
 	
 	
@@ -199,7 +204,7 @@ public class NoteController {
 	public Response addCollaborator(@RequestHeader String id, @RequestHeader String token, @RequestHeader String collaboratorEmail) {
 		
 		String result = noteService.addCollaborator(id, token, collaboratorEmail);
-		return new Response(200, "Adding Collaborator", result);
+		return new Response(200, noteEnvironment.getProperty("Add_Collaborator"), result);
 	}
 	
 	
@@ -212,7 +217,7 @@ public class NoteController {
 	public Response removeCollaborator(@RequestHeader String id, @RequestHeader String token, @RequestHeader String collaboratorEmail) {
 		
 		String result = noteService.removeCollaborator(id, token, collaboratorEmail);
-		return new Response(200, "Removing Collaborator", result);
+		return new Response(200, noteEnvironment.getProperty("Remove_Collaborator"), result);
 	}
 	
 	
@@ -232,7 +237,7 @@ public class NoteController {
 	public Response addReminder(@RequestHeader String token, @RequestHeader String id, @RequestParam int year,@RequestParam int month,@RequestParam int day,@RequestParam int hour,@RequestParam int minute,@RequestParam int second) throws IOException {
 		
 		String result = noteService.addReminder(token, id, year, month, day, hour, minute, second);
-		return new Response(200, "Adding Reminder", result);
+		return new Response(200, noteEnvironment.getProperty("Add_Reminder"), result);
 	}
 	
 	
@@ -252,7 +257,7 @@ public class NoteController {
 	public Response editReminder(@RequestHeader String token, @RequestHeader String id, @RequestParam int year,@RequestParam int month,@RequestParam int day,@RequestParam int hour,@RequestParam int minute,@RequestParam int second) throws IOException {
 		
 		String result = noteService.editReminder(token, id, year, month, day, hour, minute, second);
-		return new Response(200, "Editing Reminder", result);
+		return new Response(200, noteEnvironment.getProperty("Edit_Reminder"), result);
 	}
 	
 	
@@ -266,7 +271,7 @@ public class NoteController {
 	public Response removeReminder(@RequestHeader String token, @RequestHeader String id) throws IOException {
 		
 		String result = noteService.removeReminder(token, id);
-		return new Response(200, "Removing Reminder", result);
+		return new Response(200, noteEnvironment.getProperty("Remove_Reminder"), result);
 	}
 
 }

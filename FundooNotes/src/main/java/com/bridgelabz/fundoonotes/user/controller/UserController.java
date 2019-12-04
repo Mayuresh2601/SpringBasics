@@ -10,7 +10,10 @@ package com.bridgelabz.fundoonotes.user.controller;
 import java.io.IOException;
 import java.util.List;
 
+import javax.validation.Valid;
+
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.env.Environment;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -34,16 +37,19 @@ public class UserController {
 	@Autowired
 	private UserService userService;
 	
+	@Autowired
+	Environment userEnvironment;
+	
 	
 	/**Method: To Create User in Database
 	 * @param regdto
 	 * @return Create User implementation Logic
 	 */
 	@PostMapping("/createuser")
-	public Response createUser(@RequestBody RegisterDTO regdto) {
+	public Response createUser(@Valid @RequestBody RegisterDTO regdto) {
 		
 		String result = userService.createUser(regdto); 
-		return new Response(200, "Creating New User", result);
+		return new Response(200, userEnvironment.getProperty("Add_User"), result);
 	}
 	
 	
@@ -54,7 +60,7 @@ public class UserController {
 	@GetMapping("/users")
 	public Response findUserById(@RequestHeader String id) {
 		
-		return new Response(200, "Finding User By ID", userService.findUserById(id));
+		return new Response(200, userEnvironment.getProperty("Find_User"), userService.findUserById(id));
 	}
 	
 	
@@ -64,10 +70,10 @@ public class UserController {
 	 * @return Update User Details implementation Logic
 	 */
 	@PutMapping("/updateuser")
-	public Response updateUser(@RequestBody RegisterDTO regdto,@RequestHeader String id) {
+	public Response updateUser(@Valid @RequestBody RegisterDTO regdto,@RequestHeader String id) {
 		
 		String result = userService.updateUser(regdto, id);
-		return new Response(200, "Updating User", result);
+		return new Response(200, userEnvironment.getProperty("Update_User"), result);
 	}
 	
 	
@@ -79,7 +85,7 @@ public class UserController {
 	public Response deleteUser(@RequestHeader String id) {
 		
 		String result = userService.deleteUserById(id);
-		return new Response(200, "Deleting User", result);
+		return new Response(200, userEnvironment.getProperty("Delete_User"), result);
 	}
 	
 	
@@ -91,7 +97,7 @@ public class UserController {
 
 		List<User> list = userService.showUsers();
 
-		return new Response(200, "Showing All User", list);
+		return new Response(200, userEnvironment.getProperty("Show_Users"), list);
 	}
 	
 	
@@ -100,10 +106,10 @@ public class UserController {
 	 * @return Implementation Logic of login
 	 */
 	@PostMapping("/login")
-	public Response login(@RequestBody LoginDTO logindto,@RequestHeader String token) {
+	public Response login(@Valid @RequestBody LoginDTO logindto,@RequestHeader String token) {
 		
 		String result =  userService.login(logindto, token);
-		return new Response(200, "Login User ", result);
+		return new Response(200, userEnvironment.getProperty("Login_User"), result);
 	}
 	
 	
@@ -112,10 +118,10 @@ public class UserController {
 	 * @return Implementation Logic of forget password
 	 */
 	@PostMapping("/forget")
-	public Response forgetPassword(@RequestBody RegisterDTO registerdto) {
+	public Response forgetPassword(@Valid @RequestBody RegisterDTO registerdto) {
 		
 		String result = userService.forgetPassword(registerdto);
-		return new Response(200, "Forget Password", result);
+		return new Response(200, userEnvironment.getProperty("Forget_password"), result);
 	}
 	
 	
@@ -125,10 +131,10 @@ public class UserController {
 	 * @return Implementation Logic of reset password
 	 */
 	@PostMapping("/reset")
-	public Response resetPassword(@RequestBody ResetDTO reset,@RequestHeader String token) {
+	public Response resetPassword(@Valid @RequestBody ResetDTO reset,@RequestHeader String token) {
 		
 		String result = userService.resetPassword(reset, token);
-		return new Response(200, "Reset Password", result);
+		return new Response(200, userEnvironment.getProperty("Reset_Password"), result);
 	}
 	
 	
@@ -137,10 +143,10 @@ public class UserController {
 	 * @return Implementation Logic of verifying user
 	 */
 	@PostMapping("/verify")
-	public Response verifyUser(@RequestHeader String token) {
+	public Response verifyUser(@Valid @RequestHeader String token) {
 		
 		String result = userService.verify(token);
-		return new Response(200, "EmailId & Password Verified Successfully", result);
+		return new Response(200, userEnvironment.getProperty("Verify_User"), result);
 	}
 	
 	
@@ -154,7 +160,7 @@ public class UserController {
 	public Response uploadProfilePicture(@RequestHeader String token, @RequestParam MultipartFile file) throws IOException {
 		
 		String result = userService.uploadProfilePicture(token, file);
-		return new Response(200, "Profile Picture Uploading", result);
+		return new Response(200, userEnvironment.getProperty("Upload_Profile_Picture"), result);
 	}
 	
 	
@@ -168,7 +174,7 @@ public class UserController {
 	public Response updateProfilePicture(@RequestHeader String token, @RequestParam MultipartFile file) throws IOException {
 		
 		String result = userService.updateProfilePicture(token, file);
-		return new Response(200, "Profile Picture Updating", result);
+		return new Response(200, userEnvironment.getProperty("Update_Profile_Picture"), result);
 	}
 	
 	
@@ -180,7 +186,7 @@ public class UserController {
 	public Response removeProfilePicture(@RequestHeader String token) {
 		
 		String result = userService.removeProfilePicture(token);
-		return new Response(200, "Profile Picture Removing", result);
+		return new Response(200, userEnvironment.getProperty("Remove_Profile_Picture"), result);
 	}
 	
 }

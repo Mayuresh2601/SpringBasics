@@ -15,6 +15,7 @@ import java.util.stream.Collectors;
 
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.env.Environment;
 import org.springframework.stereotype.Service;
 
 import com.bridgelabz.fundoonotes.label.repository.LabelRepositoryI;
@@ -48,6 +49,9 @@ public class NoteService implements NoteServiceI{
 	@Autowired
 	UserService userservice;
 	
+	@Autowired
+	Environment noteEnvironment;
+	
 	/**
 	 *Method: To Create a Note for User
 	 */
@@ -67,9 +71,9 @@ public class NoteService implements NoteServiceI{
 			User user = userrepository.findByEmail(email);
 			user.getNotelist().add(note);
 			userrepository.save(user);
-			return NoteMessageReference.CREATE_NOTE;
+			return noteEnvironment.getProperty("CREATE_NOTE");
 		}
-		throw new NoteException(NoteMessageReference.UNAUTHORIZED_USER_EXCEPTION);
+		throw new NoteException(noteEnvironment.getProperty("UNAUTHORIZED_USER_EXCEPTION"));
 	}
 
 	
@@ -99,10 +103,10 @@ public class NoteService implements NoteServiceI{
 				user.getNotelist().removeIf(data -> data.getId().equals(note.getId()));
 				user.getNotelist().add(noteupdate);
 				userrepository.save(user);
-				return NoteMessageReference.UPDATE_NOTE;
+				return noteEnvironment.getProperty("UPDATE_NOTE");
 			}
 		}
-		throw new NoteException(NoteMessageReference.UNAUTHORIZED_USER_EXCEPTION);
+		throw new NoteException(noteEnvironment.getProperty("UNAUTHORIZED_USER_EXCEPTION"));
 	}
 
 	
@@ -118,9 +122,9 @@ public class NoteService implements NoteServiceI{
 			User user = userrepository.findByEmail(email);
 			user.getNotelist().remove(note);
 			userrepository.save(user);
-			return NoteMessageReference.DELETE_NOTE;
+			return noteEnvironment.getProperty("DELETE_NOTE");
 		}
-		throw new NoteException(NoteMessageReference.UNAUTHORIZED_USER_EXCEPTION);
+		throw new NoteException(noteEnvironment.getProperty("UNAUTHORIZED_USER_EXCEPTION"));
 	}
 
 	
@@ -134,7 +138,7 @@ public class NoteService implements NoteServiceI{
 			Optional<Note> note =  noterepository.findById(id);
 			return note;
 		}
-		throw new NoteException(NoteMessageReference.UNAUTHORIZED_USER_EXCEPTION);
+		throw new NoteException(noteEnvironment.getProperty("UNAUTHORIZED_USER_EXCEPTION"));
 	}
 
 	
@@ -171,7 +175,7 @@ public class NoteService implements NoteServiceI{
 			userrepository.save(user);
 			return note.isPin();
 		}
-		throw new NoteException(NoteMessageReference.UNAUTHORIZED_USER_EXCEPTION);
+		throw new NoteException(noteEnvironment.getProperty("UNAUTHORIZED_USER_EXCEPTION"));
 	}
 
 	
@@ -198,7 +202,7 @@ public class NoteService implements NoteServiceI{
 			userrepository.save(user);
 			return note.isTrash();
 		}
-		throw new NoteException(NoteMessageReference.UNAUTHORIZED_USER_EXCEPTION);
+		throw new NoteException(noteEnvironment.getProperty("UNAUTHORIZED_USER_EXCEPTION"));
 	}
 
 	
@@ -225,7 +229,7 @@ public class NoteService implements NoteServiceI{
 			userrepository.save(user);
 			return note.isArchieve();
 		}
-		throw new NoteException(NoteMessageReference.UNAUTHORIZED_USER_EXCEPTION);
+		throw new NoteException(noteEnvironment.getProperty("UNAUTHORIZED_USER_EXCEPTION"));
 	}
 
 
@@ -291,11 +295,11 @@ public class NoteService implements NoteServiceI{
 				
 				boolean checker = note.getCollaboratorList().contains(email);
 				if(checker) {
-					return NoteMessageReference.COLLABORATOR_EXISTS;
+					return noteEnvironment.getProperty("COLLABORATOR_EXISTS");
 				}
 				
 				if(email.equals(note.getEmailId())) {
-					return NoteMessageReference.COLLABORATOR_CANNOT_ADD;
+					return noteEnvironment.getProperty("COLLABORATOR_CANNOT_ADD");
 				}
 				
 				note.getCollaboratorList().add(email);
@@ -308,11 +312,11 @@ public class NoteService implements NoteServiceI{
 				System.out.println("After Deletion -> "+user.getNotelist());
 				user.getNotelist().add(note);
 				userrepository.save(user);
-				return NoteMessageReference.CREATE_COLLABORATOR;
+				return noteEnvironment.getProperty("CREATE_COLLABORATOR");
 			}
-			return NoteMessageReference.ID_NOT_FOUND;
+			return noteEnvironment.getProperty("NOTE_ID_NOT_FOUND");
 		}
-		throw new NoteException(NoteMessageReference.UNAUTHORIZED_USER_EXCEPTION);
+		throw new NoteException(noteEnvironment.getProperty("UNAUTHORIZED_USER_EXCEPTION"));
 	}
 
 	
@@ -332,20 +336,21 @@ public class NoteService implements NoteServiceI{
 //				for (int i = 0; i <listuser.size() ; i++) {
 //					users.add(listuser.get(i).getEmail());
 //				}
-//				if(users.contains(collaboratorEmailId)) {
+//				if(!users.contains(collaboratorEmailId)) {
 //					throw new NoteException(NoteMessageReference.UNAUTHORIZED_COLLABORATOR_EXCEPTION);
 //				}
 				
 				boolean isValid = note.getCollaboratorList().contains(collaboratorEmailId);
 				if(isValid) {
-					return NoteMessageReference.COLLABORATOR_EXISTS;
+					return noteEnvironment.getProperty("COLLABORATOR_EXISTS");
 				}
 				
 				if(collaboratorEmailId.equals(note.getEmailId())) {
-					return NoteMessageReference.COLLABORATOR_CANNOT_ADD;
+					return noteEnvironment.getProperty("COLLABORATOR_CANNOT_ADD");
 				}
 				
 				note.getCollaboratorList().add(collaboratorEmailId);
+				System.out.println("Collaborator List"+note.getCollaboratorList());
 				noterepository.save(note);
 				
 				Note note1 = noterepository.findById(id).get();
@@ -355,11 +360,11 @@ public class NoteService implements NoteServiceI{
 				System.out.println("After Deletion -> "+user.getNotelist());
 				user.getNotelist().add(note);
 				userrepository.save(user);
-				return NoteMessageReference.CREATE_COLLABORATOR;
+				return noteEnvironment.getProperty("CREATE_COLLABORATOR");
 			}
-			return NoteMessageReference.ID_NOT_FOUND;
+			return noteEnvironment.getProperty("NOTE_ID_NOT_FOUND");
 		}
-		throw new NoteException(NoteMessageReference.UNAUTHORIZED_USER_EXCEPTION);
+		throw new NoteException(noteEnvironment.getProperty("UNAUTHORIZED_USER_EXCEPTION"));
 	}
 	
 	
@@ -372,21 +377,25 @@ public class NoteService implements NoteServiceI{
 		if(email != null) {
 			Note note = noterepository.findById(id).get();
 			if(note != null) {	
+				System.out.println("Colaborator List ->"+note.getCollaboratorList());
+				if(!note.getCollaboratorList().contains(collaboratorEmailId)) {
+					return noteEnvironment.getProperty("COLLABORATOR_NOT_EXISTS");
+				}
 				
 				note.getCollaboratorList().remove(collaboratorEmailId);
 				noterepository.save(note);
-				
 				
 				System.out.println("Delete Note"+note);
 				User user = userrepository.findByEmail(email);
 				user.getNotelist().removeIf(data -> data.getId().equals(note.getId()));
 				System.out.println("After Deletion -> "+user.getNotelist());
+				user.getNotelist().add(note);
 				userrepository.save(user);
-				return NoteMessageReference.REMOVE_COLLABORATOR;
+				return noteEnvironment.getProperty("REMOVE_COLLABORATOR");
 			}
-			return NoteMessageReference.ID_NOT_FOUND;
+			return noteEnvironment.getProperty("NOTE_ID_NOT_FOUND");
 		}
-		throw new NoteException(NoteMessageReference.UNAUTHORIZED_USER_EXCEPTION);
+		throw new NoteException(noteEnvironment.getProperty("UNAUTHORIZED_USER_EXCEPTION"));
 	}
 
 
@@ -416,15 +425,15 @@ public class NoteService implements NoteServiceI{
 				System.out.println("After Deletion -> "+user.getNotelist());
 				user.getNotelist().add(note);
 				userrepository.save(user);
-				return NoteMessageReference.ADD_REMINDER;
+				return noteEnvironment.getProperty("ADD_REMINDER");
 			}
 			
 			if(note.getReminder().equals(date)) {
-				throw new NoteException(NoteMessageReference.REMINDER_EXISTS_EXCEPTION);
+				throw new NoteException(noteEnvironment.getProperty("REMINDER_EXISTS_EXCEPTION"));
 			}
 			
 		}
-		throw new NoteException(NoteMessageReference.UNAUTHORIZED_USER_EXCEPTION);
+		throw new NoteException(noteEnvironment.getProperty("UNAUTHORIZED_USER_EXCEPTION"));
 		
 	}
 
@@ -445,11 +454,11 @@ public class NoteService implements NoteServiceI{
 			String existingDate = note.getReminder();
 			
 			if(existingDate == null) {
-				throw new NoteException(NoteMessageReference.REMINDER_NOT_FOUND_EXCEPTION);
+				throw new NoteException(noteEnvironment.getProperty("REMINDER_NOT_FOUND_EXCEPTION"));
 			}
 			
 			if(note.getReminder().equals(date)) {
-				throw new NoteException(NoteMessageReference.REMINDER_EXISTS_EXCEPTION);
+				throw new NoteException(noteEnvironment.getProperty("REMINDER_EXISTS_EXCEPTION"));
 			}
 			
 			note.setReminder(date);
@@ -462,9 +471,9 @@ public class NoteService implements NoteServiceI{
 			System.out.println("After Deletion -> "+user.getNotelist());
 			user.getNotelist().add(note);
 			userrepository.save(user);
-			return NoteMessageReference.EDIT_REMINDER;
+			return noteEnvironment.getProperty("EDIT_REMINDER");
 		}
-		throw new NoteException(NoteMessageReference.UNAUTHORIZED_USER_EXCEPTION);
+		throw new NoteException(noteEnvironment.getProperty("UNAUTHORIZED_USER_EXCEPTION"));
 	}
 	
 	
@@ -480,7 +489,7 @@ public class NoteService implements NoteServiceI{
 			Note note = noterepository.findById(id).get();
 			
 			if(note.getReminder() == null) {
-				throw new NoteException(NoteMessageReference.REMINDER_REMOVE_EXCEPTION);
+				throw new NoteException(noteEnvironment.getProperty("REMINDER_REMOVE_EXCEPTION"));
 			}
 			
 			System.out.println("Delete Note"+note);
@@ -488,9 +497,9 @@ public class NoteService implements NoteServiceI{
 			user.getNotelist().removeIf(data -> data.getId().equals(note.getId()));
 			System.out.println("After Deletion -> "+user.getNotelist());
 			userrepository.save(user);
-			return NoteMessageReference.REMOVE_REMINDER;
+			return noteEnvironment.getProperty("REMINDER_REMOVE_EXCEPTION");
 		}
-		throw new NoteException(NoteMessageReference.UNAUTHORIZED_USER_EXCEPTION);
+		throw new NoteException(noteEnvironment.getProperty("UNAUTHORIZED_USER_EXCEPTION"));
 	}
 
 }

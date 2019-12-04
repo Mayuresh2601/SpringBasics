@@ -15,6 +15,8 @@ import java.util.Optional;
 
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.PropertySource;
+import org.springframework.core.env.Environment;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -32,6 +34,7 @@ import com.bridgelabz.fundoonotes.user.utility.Jms;
 import com.bridgelabz.fundoonotes.user.utility.Jwt;
 
 @Service
+@PropertySource("classpath:message.properties")
 public class UserService implements UserServiceI{
 	
 	@Autowired
@@ -52,6 +55,8 @@ public class UserService implements UserServiceI{
 	@Autowired
 	ModelMapper mapper;
 	
+	@Autowired
+	Environment userEnvironment;
 	
 	/**
 	 *Method: To Add New User into Database
@@ -71,13 +76,13 @@ public class UserService implements UserServiceI{
 			
 				jms.sendMail(user.getEmail(),token);
 				userrepository.save(user);
-				return UserMessageReferance.ADD_USER;
+				return userEnvironment.getProperty("ADD_USER");
 			}
 		}
 		catch(NullPointerException e) {
-			return "Null Pointer Exception";
+			return userEnvironment.getProperty("Null_Pointer_Exception");
 		}
-		throw new LoginException(UserMessageReferance.UNAUTHORIZED_USER);
+		throw new LoginException(userEnvironment.getProperty("UNAUTHORIZED_USER"));
 	}
 
 	
@@ -108,7 +113,7 @@ public class UserService implements UserServiceI{
 	public String deleteUserById(String id) {
 		
 		userrepository.deleteById(id);
-		return UserMessageReferance.DELETE_USER;
+		return userEnvironment.getProperty("DELETE_USER");
 	}
 
 	
@@ -125,9 +130,9 @@ public class UserService implements UserServiceI{
 			userupdate.setMobileNumber(registerdto.getMobileNumber());
 			
 			userrepository.save(userupdate);
-			return UserMessageReferance.UPDATE_USER;
+			return userEnvironment.getProperty("UPDATE_USER");
 		}
-		throw new LoginException(UserMessageReferance.UNAUTHORIZED_USER);
+		throw new LoginException(userEnvironment.getProperty("UNAUTHORIZED_USER"));
 	}
 	
 	
@@ -147,14 +152,14 @@ public class UserService implements UserServiceI{
 				if(isValid ) {	
 					user1.setValidate(true);
 					userrepository.save(user1);
-					return UserMessageReferance.USER_LOGIN_SUCCESSFUL;
+					return userEnvironment.getProperty("USER_LOGIN_SUCCESSFUL");
 				}
 			}
 		}
 		catch(NullPointerException er) {
-			return "Null Pointer Exception";
+			return userEnvironment.getProperty("Null_Pointer_Exception");
 		}
-		throw new LoginException(UserMessageReferance.UNAUTHORIZED_USER);
+		throw new LoginException(userEnvironment.getProperty("UNAUTHORIZED_USER"));
 	}
 	
 	
@@ -169,10 +174,10 @@ public class UserService implements UserServiceI{
 			System.out.println("Recieved token:::::::  "+token);
 			jms.sendMail(user.getEmail(), token);
 	
-			return UserMessageReferance.CHECK_YOUR_MAIL;
+			return userEnvironment.getProperty("CHECK_YOUR_MAIL");
 		}
 		catch(NullPointerException e) {
-			return "Null Pointer Exception";
+			return userEnvironment.getProperty("Null_Pointer_Exception");
 		}
 	}
 
@@ -193,14 +198,14 @@ public class UserService implements UserServiceI{
 				{
 					user.setPassword(bCryptPasswordEncoder.encode(resetdto.getNewPassword()));
 					userrepository.save(user);
-					return UserMessageReferance.PASSWORD_UPDATED;
+					return userEnvironment.getProperty("PASSWORD_UPDATED");
 				}
 			}
 		}
 		catch(NullPointerException e) {
-			return "Null Pointer Exception";
+			return userEnvironment.getProperty("Null_Pointer_Exception");
 		}
-		return UserMessageReferance.PASSWORD_NOT_MATCHED;
+		return userEnvironment.getProperty("PASSWORD_NOT_MATCHED");
 	}
 
 	
@@ -221,7 +226,7 @@ public class UserService implements UserServiceI{
 				return email;
 			}
 		}
-		throw new LoginException(UserMessageReferance.UNAUTHORIZED_USER);
+		throw new LoginException(userEnvironment.getProperty("UNAUTHORIZED_USER"));
 	}
 
 
@@ -249,16 +254,16 @@ public class UserService implements UserServiceI{
 		
 					fout.write(file.getBytes());
 					fout.close();
-					return UserMessageReferance.PROFILE_PICTURE_UPLOADED;
+					return userEnvironment.getProperty("PROFILE_PICTURE_UPLOADED");
 				}
 				
 				if(user.getProfilePicture().equals(string)) {
-					throw new ProfilePictureException(UserMessageReferance.PROFILE_PICTURE_EXISTED_EXCEPTION) ;
+					throw new ProfilePictureException(userEnvironment.getProperty("PROFILE_PICTURE_EXISTED_EXCEPTION")) ;
 				}
 			}
-			throw new FileNotAcceptingException(UserMessageReferance.FILE_INVALID);
+			throw new FileNotAcceptingException(userEnvironment.getProperty("FILE_INVALID"));
 		}
-		throw new LoginException(UserMessageReferance.UNAUTHORIZED_USER);
+		throw new LoginException(userEnvironment.getProperty("UNAUTHORIZED_USER"));
 	}
 
 
@@ -282,11 +287,11 @@ public class UserService implements UserServiceI{
 				FileOutputStream fout = new FileOutputStream(convertFile);
 				String string = "/home/admin1/Documents/" + file.getOriginalFilename();
 				if(pic == null) {
-					throw new ProfilePictureException(UserMessageReferance.PROFILE_NOT_FOUND_EXCEPTION) ;
+					throw new ProfilePictureException(userEnvironment.getProperty("PROFILE_NOT_FOUND_EXCEPTION")) ;
 				}
 				
 				if(user.getProfilePicture().equals(string)) {
-					throw new ProfilePictureException(UserMessageReferance.PROFILE_PICTURE_EXISTED_EXCEPTION);
+					throw new ProfilePictureException(userEnvironment.getProperty("PROFILE_PICTURE_EXISTED_EXCEPTION"));
 				}
 				
 				user.setProfilePicture(string);
@@ -294,11 +299,11 @@ public class UserService implements UserServiceI{
 	
 				fout.write(file.getBytes());
 				fout.close();
-				return UserMessageReferance.PROFILE_PICTURE_UPLOADED;
+				return userEnvironment.getProperty("PROFILE_PICTURE_UPLOADED");
 			}
-			throw new FileNotAcceptingException(UserMessageReferance.FILE_INVALID);
+			throw new FileNotAcceptingException(userEnvironment.getProperty("FILE_INVALID"));
 		}
-		throw new LoginException(UserMessageReferance.UNAUTHORIZED_USER);
+		throw new LoginException(userEnvironment.getProperty("UNAUTHORIZED_USER"));
 	}
 	
 	
@@ -314,14 +319,14 @@ public class UserService implements UserServiceI{
 		if(email != null) {
 			
 			if(user.getProfilePicture() == null) {
-				throw new ProfilePictureException(UserMessageReferance.PROFILE_PICTURE_REMOVE_EXCEPTION) ;
+				throw new ProfilePictureException(userEnvironment.getProperty("PROFILE_PICTURE_REMOVE_EXCEPTION")) ;
 			}
 			
 			user.setProfilePicture(null);
 			userrepository.save(user);
-			return UserMessageReferance.PROFILE_PICTURE_DELETED;
+			return userEnvironment.getProperty("PROFILE_PICTURE_DELETED");
 		}
-		throw new LoginException(UserMessageReferance.UNAUTHORIZED_USER);
+		throw new LoginException(userEnvironment.getProperty("UNAUTHORIZED_USER"));
 	}
 
 }

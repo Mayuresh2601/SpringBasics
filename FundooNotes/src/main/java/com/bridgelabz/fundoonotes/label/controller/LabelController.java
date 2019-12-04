@@ -1,5 +1,7 @@
 package com.bridgelabz.fundoonotes.label.controller;
 
+import javax.validation.Valid;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -26,7 +28,7 @@ public class LabelController {
 	 * @return Create Label implementation Logic
 	 */
 	@PostMapping("/createlabel")
-	public Response createLabel(@RequestHeader String id, @RequestHeader String token,@RequestBody LabelDTO labeldto) {
+	public Response createLabel(@RequestHeader String id, @RequestHeader String token,@Valid @RequestBody LabelDTO labeldto) {
 		
 		String result = service.createLabel(id, token, labeldto);
 		return new Response(200, "Creating Label", result);
@@ -39,9 +41,9 @@ public class LabelController {
 	 * @return Update Label implementation Logic
 	 */
 	@PutMapping("/updatelabel")
-	public Response updateLabel(@RequestHeader String id,@RequestHeader String token, @RequestBody LabelDTO labeldto) {
+	public Response updateLabel(@RequestHeader String noteid, @RequestHeader String labelid,@Valid @RequestHeader String token, @RequestBody LabelDTO labeldto) {
 		
-		String result = service.updateLabel(id, token, labeldto);
+		String result = service.updateLabel(noteid, labelid, token, labeldto);
 		return new Response(200, "Updating Label", result);
 	}
 
@@ -51,9 +53,9 @@ public class LabelController {
 	 * @return Delete Label implementation Logic
 	 */
 	@DeleteMapping("/deletelabel")
-	public Response deleteLabel(@RequestHeader String id) {
+	public Response deleteLabel(@RequestHeader String noteid, @RequestHeader String labelid, @RequestHeader String token) {
 	
-		String result = service.deleteLabel(id);
+		String result = service.deleteLabel(noteid, labelid, token);
 		return new Response(200, "Deleting Label", result);
 	}
 	
@@ -63,9 +65,9 @@ public class LabelController {
 	 * @return Find Label by Id implementation Logic
 	 */
 	@GetMapping("/labels")
-	public Response findLabelById(@RequestHeader String id) {
+	public Response findLabelById(@RequestHeader String labelid, @RequestHeader String token) {
 		
-		return new Response(200, "Finding Label By Id", service.findLabelById(id));
+		return new Response(200, "Finding Label By Id", service.findLabelById(labelid, token));
 	}
 	
 	
