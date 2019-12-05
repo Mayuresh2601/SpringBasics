@@ -16,15 +16,19 @@ public class RegisterDTO {
 	private String lastName;
 
 	@NotBlank(message = "Email Id is Mandotary")
-	@Pattern(regexp = ".+@.//.[a-z]")
+	@Pattern(regexp=".+@.+\\.[a-z]+", message = "EmailId Format is Invalid")
 	private String email;
 
 	@NotBlank(message = "Password is Mandatory")
-	@Size(min = 6, max = 16,message = "Password should be Between 6 to 16 letters")
+	@Size(min = 6,max = 16,message = "Password should be Between 6 to 16 letters")
 	private String password;
 	
-	@Size(min = 10,message = "Enter 10 Digit Mobile Number")
-	private long mobileNumber;
+	@NotBlank(message = "Confirm Password is Mandatory")
+	@Size(min = 6,max = 16,message = "Password should be Between 6 to 16 letters")
+	private String confirmPassword;
+	
+	@NotBlank(message = "Mobile Number is Mandatory")
+	private String mobileNumber;
 	
 	private boolean isValidate;
 

@@ -24,6 +24,7 @@ import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.bridgelabz.fundoonotes.note.dto.CollaboratorDTO;
 import com.bridgelabz.fundoonotes.note.dto.NoteDTO;
 import com.bridgelabz.fundoonotes.note.model.Note;
 import com.bridgelabz.fundoonotes.note.service.NoteService;
@@ -201,9 +202,9 @@ public class NoteController {
 	 * @return Adding Collaborator using emailId Implementation Logic
 	 */
 	@PostMapping("/addcollaborator")
-	public Response addCollaborator(@RequestHeader String id, @RequestHeader String token, @RequestHeader String collaboratorEmail) {
+	public Response addCollaborator(@RequestHeader String id, @RequestHeader String token, @RequestBody CollaboratorDTO collaboratordto) {
 		
-		String result = noteService.addCollaborator(id, token, collaboratorEmail);
+		String result = noteService.addCollaborator(id, token, collaboratordto);
 		return new Response(200, noteEnvironment.getProperty("Add_Collaborator"), result);
 	}
 	
@@ -234,7 +235,7 @@ public class NoteController {
 	 * @throws IOException
 	 */
 	@PostMapping("/addreminder")
-	public Response addReminder(@RequestHeader String token, @RequestHeader String id, @RequestParam int year,@RequestParam int month,@RequestParam int day,@RequestParam int hour,@RequestParam int minute,@RequestParam int second) throws IOException {
+	public Response addReminder(@RequestHeader String token, @RequestHeader String id, @RequestParam int year,@RequestParam int month,@RequestParam int day,@RequestParam int hour,@RequestParam int minute,@RequestParam int second) {
 		
 		String result = noteService.addReminder(token, id, year, month, day, hour, minute, second);
 		return new Response(200, noteEnvironment.getProperty("Add_Reminder"), result);
@@ -254,7 +255,7 @@ public class NoteController {
 	 * @throws IOException
 	 */
 	@PutMapping("/editreminder")
-	public Response editReminder(@RequestHeader String token, @RequestHeader String id, @RequestParam int year,@RequestParam int month,@RequestParam int day,@RequestParam int hour,@RequestParam int minute,@RequestParam int second) throws IOException {
+	public Response editReminder(@RequestHeader String token, @RequestHeader String id, @RequestParam int year,@RequestParam int month,@RequestParam int day,@RequestParam int hour,@RequestParam int minute,@RequestParam int second) {
 		
 		String result = noteService.editReminder(token, id, year, month, day, hour, minute, second);
 		return new Response(200, noteEnvironment.getProperty("Edit_Reminder"), result);
@@ -268,7 +269,7 @@ public class NoteController {
 	 * @throws IOException
 	 */
 	@DeleteMapping("/removereminder")
-	public Response removeReminder(@RequestHeader String token, @RequestHeader String id) throws IOException {
+	public Response removeReminder(@RequestHeader String token, @RequestHeader String id) {
 		
 		String result = noteService.removeReminder(token, id);
 		return new Response(200, noteEnvironment.getProperty("Remove_Reminder"), result);

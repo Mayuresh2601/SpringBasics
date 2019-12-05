@@ -10,7 +10,7 @@ import lombok.Data;
 public class LoginDTO {
 	
 	@NotBlank(message = "Email Id is Mandotary")
-	@Pattern(regexp = ".+@.//.[a-z]")
+	@Pattern(regexp=".+@.+\\.[a-z]+", message = "EmailId Format is Invalid")
 	private String email;
 	
 	@NotBlank(message = "Password is Mandatory")

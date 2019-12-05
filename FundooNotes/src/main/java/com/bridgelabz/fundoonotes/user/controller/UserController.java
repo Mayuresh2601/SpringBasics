@@ -24,9 +24,11 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
+import com.bridgelabz.fundoonotes.user.dto.ForgetDTO;
 import com.bridgelabz.fundoonotes.user.dto.LoginDTO;
 import com.bridgelabz.fundoonotes.user.dto.RegisterDTO;
 import com.bridgelabz.fundoonotes.user.dto.ResetDTO;
+import com.bridgelabz.fundoonotes.user.dto.UpdateDTO;
 import com.bridgelabz.fundoonotes.user.model.User;
 import com.bridgelabz.fundoonotes.user.response.Response;
 import com.bridgelabz.fundoonotes.user.service.UserService;
@@ -70,9 +72,9 @@ public class UserController {
 	 * @return Update User Details implementation Logic
 	 */
 	@PutMapping("/updateuser")
-	public Response updateUser(@Valid @RequestBody RegisterDTO regdto,@RequestHeader String id) {
+	public Response updateUser(@Valid @RequestBody UpdateDTO updatedto,@RequestHeader String token) {
 		
-		String result = userService.updateUser(regdto, id);
+		String result = userService.updateUser(updatedto, token);
 		return new Response(200, userEnvironment.getProperty("Update_User"), result);
 	}
 	
@@ -109,7 +111,7 @@ public class UserController {
 	public Response login(@Valid @RequestBody LoginDTO logindto,@RequestHeader String token) {
 		
 		String result =  userService.login(logindto, token);
-		return new Response(200, userEnvironment.getProperty("Login_User"), result);
+		return new Response(200, userEnvironment.getProperty("Login"), result);
 	}
 	
 	
@@ -118,10 +120,10 @@ public class UserController {
 	 * @return Implementation Logic of forget password
 	 */
 	@PostMapping("/forget")
-	public Response forgetPassword(@Valid @RequestBody RegisterDTO registerdto) {
+	public Response forgetPassword(@Valid @RequestBody ForgetDTO forget) {
 		
-		String result = userService.forgetPassword(registerdto);
-		return new Response(200, userEnvironment.getProperty("Forget_password"), result);
+		String result = userService.forgetPassword(forget);
+		return new Response(200, userEnvironment.getProperty("Forget_Password"), result);
 	}
 	
 	

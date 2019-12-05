@@ -15,6 +15,7 @@ import com.bridgelabz.fundoonotes.note.model.Note;
 import com.bridgelabz.fundoonotes.note.repository.NoteRepositoryI;
 import com.bridgelabz.fundoonotes.note.service.NoteService;
 import com.bridgelabz.fundoonotes.user.exception.LoginException;
+import com.bridgelabz.fundoonotes.user.exception.NoteException;
 import com.bridgelabz.fundoonotes.user.model.User;
 import com.bridgelabz.fundoonotes.user.repository.UserRepositoryI;
 import com.bridgelabz.fundoonotes.user.utility.Jwt;
@@ -43,41 +44,33 @@ public class LabelService implements LabelServiceI{
 	@Autowired
 	Environment labelEnvironment;
 	
+	@Autowired
+	Environment noteEnvironment;
+	
 	/**
 	 *Method: To Create Label
 	 */
 	@Override
-	public String createLabel(String noteid, String token, LabelDTO labeldto) {
-			String email = jwt.getToken(token);
-			Note note = noterepository.findById(noteid).get();
-			
-			if(email.equals(note.getEmailId())) {
-				Label label = mapper.map(labeldto, Label.class);
-				label.setLabelTitle(labeldto.getLabelTitle());
-				label.setEmail(email);
-				
-				LocalDateTime now = LocalDateTime.now();
-				DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm:ss");
-				String date = now.format(formatter);
-				System.out.println(label.getLabelTitle());
-				
-				label.setCreateDate(date);
-				labelrepository.save(label);
-				
-				note.getLabellist().add(label);
-				noterepository.save(note);
-			
-				label.getNotelist().add(note);
-				labelrepository.save(label);
-				
-				User user = userrepository.findByEmail(email);
-				user.getNotelist().removeIf(data -> data.getId().equals(note.getId()));
-				user.getNotelist().add(note);
-				userrepository.save(user);
-				return labelEnvironment.getProperty("CREATE_LABEL");
-			}
-			throw new LoginException(labelEnvironment.getProperty("UNAUTHORIZED_USER"));
+	public String createLabel(String token, LabelDTO labeldto) {
 		
+		String email = jwt.getToken(token);
+		User user = userrepository.findByEmail(email);
+		if (email.equals(user.getEmail())) {
+			
+			Label label = mapper.map(labeldto, Label.class);
+			label.setLabelTitle(labeldto.getLabelTitle());
+			label.setEmail(email);
+
+			LocalDateTime now = LocalDateTime.now();
+			DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm:ss");
+			String date = now.format(formatter);
+
+			label.setCreateDate(date);
+			labelrepository.save(label);
+			return labelEnvironment.getProperty("CREATE_LABEL");
+		}
+		throw new LoginException(labelEnvironment.getProperty("UNAUTHORIZED_USER"));
+
 	}
 
 	
@@ -130,12 +123,12 @@ public class LabelService implements LabelServiceI{
 	 */
 	@Override
 	public String deleteLabel(String noteid, String labelid, String token) {
+		
 		String email = jwt.getToken(token);
 		Label label = labelrepository.findById(labelid).get();
-		Note n = noterepository.findById(noteid).get();
-		
 		if(email.equals(label.getEmail())) {
-
+			
+			Note n = noterepository.findById(noteid).get();
 			if(n.getId().equalsIgnoreCase(noteid)) {
 			
 				if(label.getId().equalsIgnoreCase(labelid)) {
@@ -185,5 +178,41 @@ public class LabelService implements LabelServiceI{
 		}
 		throw new LoginException(labelEnvironment.getProperty("UNAUTHORIZED_USER"));
 	}
+	
+	
+	 /**
+     * Adding label into notes and notes into labellist
+     */
+    @Override
+    public String addLabelToNote(String noteid, String labelid, String token) {
+    	
+    	String emailId = jwt.getToken(token);
+        User user = userrepository.findByEmail(emailId);
+        if (emailId.equals(user.getEmail())) {
+            List<Note> listNote = noterepository.findByEmailId(emailId);
+
+            Note note = listNote.stream().filter(i -> i.getId().equals(noteid)).findAny().orElse(null);
+            Label label = labelrepository.findById(labelid).get();
+            if (note.getId().equals(noteid)) {
+
+            	if(label.getId().equals(labelid)) {
+            		label.getNotelist().add(note);
+            		labelrepository.save(label);
+            		
+            		note.getLabellist().add(label);
+	                noterepository.save(note);
+	                
+	    			user.getNotelist().removeIf(data -> data.getId().equals(note.getId()));
+	    			user.getNotelist().add(note);
+	    			userrepository.save(user);
+	                return (labelEnvironment.getProperty("LABEL_ADDED_TO_NOTE"));
+            	}
+            	return labelEnvironment.getProperty("LABEL_ID_NOT_FOUND");
+            }
+            return noteEnvironment.getProperty("NOTE_ID_NOT_FOUND");
+        }
+        throw new NoteException(labelEnvironment.getProperty("UNAUTHORIZED_USER"));
+
+    }
 
 }

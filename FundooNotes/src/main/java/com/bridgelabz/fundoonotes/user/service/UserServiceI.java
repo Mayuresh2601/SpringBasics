@@ -6,9 +6,11 @@ import java.util.Optional;
 
 import org.springframework.web.multipart.MultipartFile;
 
+import com.bridgelabz.fundoonotes.user.dto.ForgetDTO;
 import com.bridgelabz.fundoonotes.user.dto.LoginDTO;
 import com.bridgelabz.fundoonotes.user.dto.RegisterDTO;
 import com.bridgelabz.fundoonotes.user.dto.ResetDTO;
+import com.bridgelabz.fundoonotes.user.dto.UpdateDTO;
 import com.bridgelabz.fundoonotes.user.model.User;
 
 public interface UserServiceI {
@@ -21,11 +23,11 @@ public interface UserServiceI {
 	
 	public String deleteUserById(String id);
 	
-	public String updateUser(RegisterDTO registerdto, String id);
+	public String updateUser(UpdateDTO updatedto, String token);
 
 	public String login(LoginDTO logindto, String token);
 	
-	public String forgetPassword(RegisterDTO logindto);
+	public String forgetPassword(ForgetDTO forget);
 	
 	public String resetPassword(ResetDTO reset, String token);
 	
