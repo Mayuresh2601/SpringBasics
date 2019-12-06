@@ -24,28 +24,28 @@ import com.bridgelabz.fundoonotes.user.utility.Jwt;
 public class LabelService implements LabelServiceI{
 	
 	@Autowired
-	LabelRepositoryI labelrepository;
+	private LabelRepositoryI labelrepository;
 	
 	@Autowired
-	NoteRepositoryI noterepository;
+	private NoteRepositoryI noterepository;
 	
 	@Autowired
-	UserRepositoryI userrepository;
+	private UserRepositoryI userrepository;
 	
 	@Autowired
-	NoteService noteService;
+	private NoteService noteService;
 	
 	@Autowired
-	Jwt jwt;
+	private Jwt jwt;
 	
 	@Autowired
-	ModelMapper mapper;
+	private ModelMapper mapper;
 
 	@Autowired
-	Environment labelEnvironment;
+	private Environment labelEnvironment;
 	
 	@Autowired
-	Environment noteEnvironment;
+	private	Environment noteEnvironment;
 	
 	/**
 	 *Method: To Create Label
@@ -53,7 +53,7 @@ public class LabelService implements LabelServiceI{
 	@Override
 	public String createLabel(String token, LabelDTO labeldto) {
 		
-		String email = jwt.getToken(token);
+		String email = jwt.getEmailId(token);
 		User user = userrepository.findByEmail(email);
 		if (email.equals(user.getEmail())) {
 			
@@ -80,7 +80,7 @@ public class LabelService implements LabelServiceI{
 	@Override
 	public String updateLabel(String noteid, String labelid, String token, LabelDTO labeldto) {
 		
-		String email = jwt.getToken(token);
+		String email = jwt.getEmailId(token);
 		Label label = labelrepository.findById(labelid).get();
 		Note n = noterepository.findById(noteid).get();
 		
@@ -124,7 +124,7 @@ public class LabelService implements LabelServiceI{
 	@Override
 	public String deleteLabel(String noteid, String labelid, String token) {
 		
-		String email = jwt.getToken(token);
+		String email = jwt.getEmailId(token);
 		Label label = labelrepository.findById(labelid).get();
 		if(email.equals(label.getEmail())) {
 			
@@ -170,7 +170,7 @@ public class LabelService implements LabelServiceI{
 	@Override
 	public Label findLabelById(String labelid, String token) {
 		
-		String email = jwt.getToken(token);
+		String email = jwt.getEmailId(token);
 		Label label = labelrepository.findById(labelid).get();
 		
 		if(email.equals(label.getEmail())) {
@@ -186,7 +186,7 @@ public class LabelService implements LabelServiceI{
     @Override
     public String addLabelToNote(String noteid, String labelid, String token) {
     	
-    	String emailId = jwt.getToken(token);
+    	String emailId = jwt.getEmailId(token);
         User user = userrepository.findByEmail(emailId);
         if (emailId.equals(user.getEmail())) {
             List<Note> listNote = noterepository.findByEmailId(emailId);

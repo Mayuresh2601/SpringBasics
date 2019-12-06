@@ -51,25 +51,4 @@ public class Note {
 	
 	private String reminder;
 
-	public Note(String id, @NotBlank(message = "Title is Mandatory") String title,
-			@NotBlank(message = "Description is Mandatory") String description,
-			@NotBlank(message = "Email ID is Mandatory") String emailId,
-			@NotBlank(message = "Created Note Date is Mandatory") String createDate, String editDate, boolean isPin,
-			boolean isTrash, boolean isArchieve, List<Label> labellist, List<String> collaboratorList,
-			String reminder) {
-		super();
-		this.id = id;
-		this.title = title;
-		this.description = description;
-		this.emailId = emailId;
-		this.createDate = createDate;
-		this.editDate = editDate;
-		this.isPin = isPin;
-		this.isTrash = isTrash;
-		this.isArchieve = isArchieve;
-		this.labellist = labellist;
-		this.collaboratorList = collaboratorList;
-		this.reminder = reminder;
-	}
-
 }

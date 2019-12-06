@@ -19,6 +19,7 @@ import com.bridgelabz.fundoonotes.note.dto.NoteDTO;
 import com.bridgelabz.fundoonotes.note.model.Note;
 import com.bridgelabz.fundoonotes.note.repository.NoteRepositoryI;
 import com.bridgelabz.fundoonotes.note.service.NoteService;
+import com.bridgelabz.fundoonotes.user.model.User;
 import com.bridgelabz.fundoonotes.user.repository.UserRepositoryI;
 import com.bridgelabz.fundoonotes.user.utility.Jwt;
 
@@ -27,26 +28,28 @@ import com.bridgelabz.fundoonotes.user.utility.Jwt;
 public class NoteServiceTests {
 	
 	@InjectMocks
-	NoteService noteService;
+	private NoteService noteService;
 	
 	@Mock
-	NoteRepositoryI noteRepo;
+	private NoteRepositoryI noteRepo;
 	
 	@Mock
-	UserRepositoryI userRepo;
+	private UserRepositoryI userRepo;
 	
 	@Mock
-	Jwt jwt;
+	private User user;
 	
 	@Mock
-	ModelMapper mapper;
+	private Jwt jwt;
 	
 	@Mock
-	Environment noteEnvironment;
+	private ModelMapper mapper;
 	
+	@Mock
+	private Environment noteEnvironment;
 	
-	Note note = new Note("5de8dce0586a6e12cfab675d","DBZ","Dragon Ball Z","mssonar26@gmail.com",null,null,false,false,false,null,null,null);
-	
+
+	private Note note = new Note();
 	
 	/**
 	 * Method: Test Case for Create Note
@@ -55,18 +58,24 @@ public class NoteServiceTests {
 	public void testCreateNote() {
 		
 		NoteDTO noteDTO = new NoteDTO();
-		String email = "demo.mayuresh.com";
-		String token = jwt.getToken(email);
-		noteDTO.setTitle("DBZ");
-		noteDTO.setDescription("Dragon Ball Z");
-		System.out.println("Creating Note in Testing:" + noteDTO.getTitle() +"   "+ noteDTO.getDescription());
+		String token = "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJlbWFpbElkIjoibXNzb25hcjI2QGdtYWlsLmNvbSJ9.PnmJiMaZVOJ03T5WgZU8k0VNEK-Osgj-mCtWe2whkUQ";
+		String email = "mssonar26@gmail.com";
+		noteDTO.setTitle("Title");
+		noteDTO.setDescription("Description");
+		note.setEmailId(email);
+		System.out.println("Creating Note in JUnitTest: " + noteDTO.getTitle() +"   "+ noteDTO.getDescription());
 
 		// Mock Object Defined
+		when(jwt.getEmailId(token)).thenReturn(email);
+//		when(user.getNotelist().add(note));
 		when(mapper.map(noteDTO, Note.class)).thenReturn(note);
 		when(noteRepo.save(note)).thenReturn(note);
+		//verify(user.getNotelist().add(note));
+		//when(user.getNotelist().add(note)).;
 
 		String response = noteService.createNote(token, noteDTO);
-		System.out.println("Testing CreateNote Response\n" + response + "\n");
+		System.out.println("Testing CreateNote Response\n" + response);
+		System.out.println(noteEnvironment.getProperty("CREATE_NOTE"));
 		assertEquals(noteEnvironment.getProperty("CREATE_NOTE"), response);
 	}
 	

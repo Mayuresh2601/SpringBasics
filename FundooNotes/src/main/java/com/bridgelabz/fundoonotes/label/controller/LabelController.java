@@ -20,10 +20,10 @@ import com.bridgelabz.fundoonotes.user.response.Response;
 public class LabelController {
 	
 	@Autowired
-	LabelService service;
+	private LabelService service;
 	
 	@Autowired
-	Environment labelEnvironment;
+	private Environment labelEnvironment;
 	
 	
 	/**Method: To Create Label in Database

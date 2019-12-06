@@ -34,7 +34,7 @@ public class Jwt {
 	 * @param token
 	 * @return EmailID Created
 	 */
-	public String getToken(String token) {
+	public String getEmailId(String token) {
 		
 		Claim claim=JWT.require(Algorithm.HMAC256(SECRET_KEY)).build().verify(token).getClaim("emailId");
 		return claim.asString();

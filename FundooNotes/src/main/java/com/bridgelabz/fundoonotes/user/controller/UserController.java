@@ -40,7 +40,7 @@ public class UserController {
 	private UserService userService;
 	
 	@Autowired
-	Environment userEnvironment;
+	private Environment userEnvironment;
 	
 	
 	/**Method: To Create User in Database

@@ -18,7 +18,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.env.Environment;
 import org.springframework.stereotype.Service;
 
-import com.bridgelabz.fundoonotes.label.repository.LabelRepositoryI;
 import com.bridgelabz.fundoonotes.note.dto.CollaboratorDTO;
 import com.bridgelabz.fundoonotes.note.dto.NoteDTO;
 import com.bridgelabz.fundoonotes.note.model.Note;
@@ -26,32 +25,25 @@ import com.bridgelabz.fundoonotes.note.repository.NoteRepositoryI;
 import com.bridgelabz.fundoonotes.user.exception.NoteException;
 import com.bridgelabz.fundoonotes.user.model.User;
 import com.bridgelabz.fundoonotes.user.repository.UserRepositoryI;
-import com.bridgelabz.fundoonotes.user.service.UserService;
 import com.bridgelabz.fundoonotes.user.utility.Jwt;
 
 @Service
 public class NoteService implements NoteServiceI{
 	
 	@Autowired
-	Jwt jwt;
+	private Jwt jwt;
 	
 	@Autowired
-	UserRepositoryI userrepository;
+	private UserRepositoryI userrepository;
 	
 	@Autowired
-	NoteRepositoryI noterepository;
+	private NoteRepositoryI noterepository;
 	
 	@Autowired
-	LabelRepositoryI labelrepository;
+	private ModelMapper mapper;
 	
 	@Autowired
-	ModelMapper mapper;
-	
-	@Autowired
-	UserService userservice;
-	
-	@Autowired
-	Environment noteEnvironment;
+	private Environment noteEnvironment;
 	
 	
 	/**
@@ -60,12 +52,13 @@ public class NoteService implements NoteServiceI{
 	@Override
 	public String createNote(String token, NoteDTO notedto) {
 
-		String email = jwt.getToken(token);
+		String email = jwt.getEmailId(token);
 		User user = userrepository.findByEmail(email);
 		
-		if(email.equals(user.getEmail())) {
+		if(email != null) {
 			Note note = mapper.map(notedto, Note.class);
 			note.setEmailId(email);
+			
 			LocalDateTime now = LocalDateTime.now();
 			DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm:ss");
 			String date = now.format(formatter);
@@ -86,7 +79,7 @@ public class NoteService implements NoteServiceI{
 	@Override
 	public String updateNote(String noteid, String token, NoteDTO notedto) {
 		
-		String email = jwt.getToken(token);
+		String email = jwt.getEmailId(token);
 		User user = userrepository.findByEmail(email);
 		if(email.equals(user.getEmail())) {
 		
@@ -119,7 +112,7 @@ public class NoteService implements NoteServiceI{
 	@Override
 	public String deleteNote(String noteid, String token) {
 		
-		String email = jwt.getToken(token);
+		String email = jwt.getEmailId(token);
 		User user = userrepository.findByEmail(email);
 		
 		if(email.equals(user.getEmail())) {
@@ -140,7 +133,7 @@ public class NoteService implements NoteServiceI{
 	@Override
 	public Optional<Note> findNoteById(String noteid, String token) {
 		
-		String email = jwt.getToken(token);
+		String email = jwt.getEmailId(token);
 		User user = userrepository.findByEmail(email);
 		
 		if(email.equals(user.getEmail())) {
@@ -167,7 +160,7 @@ public class NoteService implements NoteServiceI{
 	@Override
 	public boolean isPin(String noteid, String token) {
 		
-		String email = jwt.getToken(token);
+		String email = jwt.getEmailId(token);
 		List<Note> listofNote= noterepository.findByEmailId(email);
 		Note note =listofNote.stream().filter(i->i.getId().equals(noteid)).findAny().orElse(null);
 		User user = userrepository.findByEmail(email);
@@ -196,7 +189,7 @@ public class NoteService implements NoteServiceI{
 	@Override
 	public boolean isTrash(String noteid, String token) {
 		
-		String email = jwt.getToken(token);
+		String email = jwt.getEmailId(token);
 		List<Note> listofNote= noterepository.findByEmailId(email);
 		Note note =listofNote.stream().filter(i->i.getId().equals(noteid)).findAny().orElse(null);
 		User user = userrepository.findByEmail(email);
@@ -224,7 +217,7 @@ public class NoteService implements NoteServiceI{
 	@Override
 	public boolean isArchieve(String noteid, String token) {
 		
-		String email = jwt.getToken(token);
+		String email = jwt.getEmailId(token);
 		List<Note> listofNote= noterepository.findByEmailId(email);
 		Note note =listofNote.stream().filter(i->i.getId().equals(noteid)).findAny().orElse(null);
 		User user = userrepository.findByEmail(email);
@@ -303,7 +296,7 @@ public class NoteService implements NoteServiceI{
 	@Override
 	public String addCollaboratorDemo(String noteid, String token) {
 		
-		String email = jwt.getToken(token);
+		String email = jwt.getEmailId(token);
 		User user = userrepository.findByEmail(email);
 		if(email.equals(user.getEmail())) {
 			
@@ -339,7 +332,7 @@ public class NoteService implements NoteServiceI{
 	@Override
 	public String addCollaborator(String noteid, String token, CollaboratorDTO collaboratordto) {
 		
-		String email = jwt.getToken(token);
+		String email = jwt.getEmailId(token);
 		User user = userrepository.findByEmail(email);
 		if(email.equals(user.getEmail())) {
 			
@@ -383,7 +376,7 @@ public class NoteService implements NoteServiceI{
 	 */
 	@Override
 	public String removeCollaborator(String noteid, String token, String collaboratorEmailId) {
-		String email = jwt.getToken(token);
+		String email = jwt.getEmailId(token);
 		User user = userrepository.findByEmail(email);
 		if(email.equals(user.getEmail())) {
 			
@@ -414,7 +407,7 @@ public class NoteService implements NoteServiceI{
 	@Override
 	public String addReminder(String token, String noteid, int year, int month, int day, int hour, int minute, int second) {
 		
-		String email = jwt.getToken(token);
+		String email = jwt.getEmailId(token);
 		
 		User user = userrepository.findByEmail(email);
 		if(email.equals(user.getEmail())) {
@@ -455,7 +448,7 @@ public class NoteService implements NoteServiceI{
 	@Override
 	public String editReminder(String token, String noteid, int year, int month, int day, int hour, int minute, int second) {
 		
-		String email = jwt.getToken(token);
+		String email = jwt.getEmailId(token);
 		User user = userrepository.findByEmail(email);
 		if(email.equals(user.getEmail())) {
 			
@@ -495,7 +488,7 @@ public class NoteService implements NoteServiceI{
 	@Override
 	public String removeReminder(String token, String noteid) {
 		
-		String email = jwt.getToken(token);
+		String email = jwt.getEmailId(token);
 		User user = userrepository.findByEmail(email);
 		if(email.equals(user.getEmail())) {
 			

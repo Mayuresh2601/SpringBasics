@@ -17,7 +17,6 @@ import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.PropertySource;
 import org.springframework.core.env.Environment;
-import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
@@ -40,25 +39,22 @@ import com.bridgelabz.fundoonotes.user.utility.Jwt;
 public class UserService implements UserServiceI{
 	
 	@Autowired
-	UserRepositoryI userrepository;
+	private UserRepositoryI userrepository;
 	
 	@Autowired
-	JavaMailSender mailSender;
+	private Jwt jwt;
 	
 	@Autowired
-	Jwt jwt;
-	
-	@Autowired
-	Jms jms;
+	private Jms jms;
 
 	@Autowired
-	BCryptPasswordEncoder bCryptPasswordEncoder;
+	private BCryptPasswordEncoder bCryptPasswordEncoder;
 	
 	@Autowired
-	ModelMapper mapper;
+	private ModelMapper mapper;
 	
 	@Autowired
-	Environment userEnvironment;
+	private Environment userEnvironment;
 	
 	/**
 	 *Method: To Add New User into Database
@@ -131,7 +127,7 @@ public class UserService implements UserServiceI{
 	 */
 	@Override
 	public String updateUser(UpdateDTO updatedto, String token) {
-		String email = jwt.getToken(token);
+		String email = jwt.getEmailId(token);
 		User user = userrepository.findByEmail(email);
 		
 		if(email.equals(user.getEmail())){
@@ -151,7 +147,7 @@ public class UserService implements UserServiceI{
 	 */
 	@Override
 	public String login(LoginDTO logindto, String token) {
-		String email = jwt.getToken(token);
+		String email = jwt.getEmailId(token);
 		User user = userrepository.findByEmail(email);
 		if(logindto.getEmail().equals(user.getEmail())) {
 				
@@ -193,7 +189,7 @@ public class UserService implements UserServiceI{
 	@Override
 	public String resetPassword(ResetDTO resetdto, String token) {
 		try {
-			String email=jwt.getToken(token);
+			String email=jwt.getEmailId(token);
 			User user = userrepository.findByEmail(email);
 			if(email.equals(user.getEmail()))
 			{
@@ -221,7 +217,7 @@ public class UserService implements UserServiceI{
 	@Override
 	public String verify(String token) {
 		try {
-			String email=jwt.getToken(token);
+			String email=jwt.getEmailId(token);
 			User user = userrepository.findByEmail(email);
 			
 			if(email.equals(user.getEmail()))
@@ -244,7 +240,7 @@ public class UserService implements UserServiceI{
 	@SuppressWarnings("resource")
 	@Override
 	public String uploadProfilePicture(String token, MultipartFile file) throws IOException {
-		String email = jwt.getToken(token);
+		String email = jwt.getEmailId(token);
 		User user = userrepository.findByEmail(email);
 		if(email.equals(user.getEmail())) {
 			
@@ -282,7 +278,7 @@ public class UserService implements UserServiceI{
 	@Override
 	public String updateProfilePicture(String token, MultipartFile file) throws IOException {
 		
-		String email = jwt.getToken(token);
+		String email = jwt.getEmailId(token);
 		File convertFile = new File("/home/admin1/Documents/"+file.getOriginalFilename());
 		convertFile.createNewFile();
 		User user = userrepository.findByEmail(email);
@@ -322,7 +318,7 @@ public class UserService implements UserServiceI{
 	@Override
 	public String removeProfilePicture(String token) {
 		
-		String email = jwt.getToken(token);
+		String email = jwt.getEmailId(token);
 		User user = userrepository.findByEmail(email);
 		
 		if(email.equals(user.getEmail())) {

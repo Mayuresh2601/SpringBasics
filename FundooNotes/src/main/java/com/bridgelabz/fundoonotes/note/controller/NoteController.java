@@ -34,10 +34,10 @@ import com.bridgelabz.fundoonotes.user.response.Response;
 public class NoteController {
 	
 	@Autowired
-	NoteService noteService;
+	private NoteService noteService;
 	
 	@Autowired
-	Environment noteEnvironment;
+	private Environment noteEnvironment;
 	
 	/**Method: To create a Note
 	 * @param token
