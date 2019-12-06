@@ -34,8 +34,8 @@ public class LabelController {
 	@PostMapping("/createlabel")
 	public Response createLabel(@RequestHeader String token, @Valid @RequestBody LabelDTO labeldto) {
 		
-		String result = service.createLabel(token, labeldto);
-		return new Response(200, labelEnvironment.getProperty("Create_Label"), result);
+		Response response = service.createLabel(token, labeldto);
+		return response;
 	}
 	
 	
@@ -47,8 +47,8 @@ public class LabelController {
 	@PutMapping("/updatelabel")
 	public Response updateLabel(@RequestHeader String noteid, @RequestHeader String labelid, @RequestHeader String token,@Valid @RequestBody LabelDTO labeldto) {
 		
-		String result = service.updateLabel(noteid, labelid, token, labeldto);
-		return new Response(200, labelEnvironment.getProperty("Update_Label"), result);
+		Response response = service.updateLabel(noteid, labelid, token, labeldto);
+		return response;
 	}
 
 	
@@ -59,8 +59,8 @@ public class LabelController {
 	@DeleteMapping("/deletelabel")
 	public Response deleteLabel(@RequestHeader String noteid, @RequestHeader String labelid, @RequestHeader String token) {
 	
-		String result = service.deleteLabel(noteid, labelid, token);
-		return new Response(200, labelEnvironment.getProperty("Delete_Label"), result);
+		Response response = service.deleteLabel(noteid, labelid, token);
+		return response;
 	}
 	
 	
@@ -94,7 +94,7 @@ public class LabelController {
 	@PostMapping("/addlabeltonote")
 	public Response addLabelToNote(@RequestHeader String noteid, @RequestHeader  String labelid, @RequestHeader String token) {
 		
-		String result = service.addLabelToNote(noteid,labelid, token);
-		return new Response(200, labelEnvironment.getProperty("Add_Label_To_Note"), result);
+		Response response = service.addLabelToNote(noteid,labelid, token);
+		return response;
 	}
 }

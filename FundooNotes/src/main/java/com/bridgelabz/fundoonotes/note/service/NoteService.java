@@ -25,6 +25,7 @@ import com.bridgelabz.fundoonotes.note.repository.NoteRepositoryI;
 import com.bridgelabz.fundoonotes.user.exception.NoteException;
 import com.bridgelabz.fundoonotes.user.model.User;
 import com.bridgelabz.fundoonotes.user.repository.UserRepositoryI;
+import com.bridgelabz.fundoonotes.user.response.Response;
 import com.bridgelabz.fundoonotes.user.utility.Jwt;
 
 @Service
@@ -50,10 +51,10 @@ public class NoteService implements NoteServiceI{
 	 *Method: To Create a Note for User
 	 */
 	@Override
-	public String createNote(String token, NoteDTO notedto) {
+	public Response createNote(String token, NoteDTO notedto) {
 
 		String email = jwt.getEmailId(token);
-		User user = userrepository.findByEmail(email);
+//		User user = userrepository.findByEmail(email);
 		
 		if(email != null) {
 			Note note = mapper.map(notedto, Note.class);
@@ -65,9 +66,9 @@ public class NoteService implements NoteServiceI{
 			note.setCreateDate(date);
 			noterepository.save(note);
 			
-			user.getNotelist().add(note);
-			userrepository.save(user);
-			return noteEnvironment.getProperty("CREATE_NOTE");
+//			user.getNotelist().add(note);
+//			userrepository.save(user);
+			return new Response(200, noteEnvironment.getProperty("CREATE_NOTE"), noteEnvironment.getProperty("CREATE_NOTE"));
 		}
 		throw new NoteException(noteEnvironment.getProperty("UNAUTHORIZED_USER_EXCEPTION"));
 	}
@@ -77,11 +78,11 @@ public class NoteService implements NoteServiceI{
 	 *Method: To Update a Note for User
 	 */
 	@Override
-	public String updateNote(String noteid, String token, NoteDTO notedto) {
+	public Response updateNote(String noteid, String token, NoteDTO notedto) {
 		
 		String email = jwt.getEmailId(token);
 		User user = userrepository.findByEmail(email);
-		if(email.equals(user.getEmail())) {
+		if(email != null) {
 		
 			Note noteupdate = noterepository.findById(noteid).get();
 			if(noteupdate != null) {
@@ -99,10 +100,10 @@ public class NoteService implements NoteServiceI{
 				user.getNotelist().removeIf(data -> data.getId().equals(note.getId()));
 				user.getNotelist().add(noteupdate);
 				userrepository.save(user);
-				return noteEnvironment.getProperty("UPDATE_NOTE");
+				return new Response(200, noteEnvironment.getProperty("UPDATE_NOTE"), noteEnvironment.getProperty("UPDATE_NOTE"));
 			}
 		}
-		throw new NoteException(noteEnvironment.getProperty("UNAUTHORIZED_USER_EXCEPTION"));
+		return new Response(200, noteEnvironment.getProperty("UNAUTHORIZED_USER_EXCEPTION"), noteEnvironment.getProperty("UNAUTHORIZED_USER_EXCEPTION"));
 	}
 
 	
@@ -110,20 +111,20 @@ public class NoteService implements NoteServiceI{
 	 *Method: To Delete a Note
 	 */
 	@Override
-	public String deleteNote(String noteid, String token) {
+	public Response deleteNote(String noteid, String token) {
 		
 		String email = jwt.getEmailId(token);
 		User user = userrepository.findByEmail(email);
 		
-		if(email.equals(user.getEmail())) {
+		if(email != null) {
 			Note note = noterepository.findById(noteid).get();
 			noterepository.deleteById(noteid);
 			
 			user.getNotelist().remove(note);
 			userrepository.save(user);
-			return noteEnvironment.getProperty("DELETE_NOTE");
+			return new Response(200, noteEnvironment.getProperty("DELETE_NOTE"), noteEnvironment.getProperty("DELETE_NOTE"));
 		}
-		throw new NoteException(noteEnvironment.getProperty("UNAUTHORIZED_USER_EXCEPTION"));
+		return new Response(200, noteEnvironment.getProperty("UNAUTHORIZED_USER_EXCEPTION"), noteEnvironment.getProperty("UNAUTHORIZED_USER_EXCEPTION"));
 	}
 
 	
@@ -294,7 +295,7 @@ public class NoteService implements NoteServiceI{
 	 *Method: To Add Collaborators using Token of User
 	 */
 	@Override
-	public String addCollaboratorDemo(String noteid, String token) {
+	public Response addCollaboratorDemo(String noteid, String token) {
 		
 		String email = jwt.getEmailId(token);
 		User user = userrepository.findByEmail(email);
@@ -305,11 +306,11 @@ public class NoteService implements NoteServiceI{
 				
 				boolean checker = note.getCollaboratorList().contains(email);
 				if(checker) {
-					return noteEnvironment.getProperty("COLLABORATOR_EXISTS");
+					return new Response(200, noteEnvironment.getProperty("COLLABORATOR_EXISTS"), noteEnvironment.getProperty("COLLABORATOR_EXISTS"));
 				}
 				
 				if(email.equals(note.getEmailId())) {
-					return noteEnvironment.getProperty("COLLABORATOR_CANNOT_ADD");
+					return new Response(200, noteEnvironment.getProperty("COLLABORATOR_CANNOT_ADD"), noteEnvironment.getProperty("COLLABORATOR_CANNOT_ADD"));
 				}
 				
 				note.getCollaboratorList().add(email);
@@ -318,11 +319,11 @@ public class NoteService implements NoteServiceI{
 				user.getNotelist().removeIf(data -> data.getId().equals(note.getId()));
 				user.getNotelist().add(note);
 				userrepository.save(user);
-				return noteEnvironment.getProperty("CREATE_COLLABORATOR");
+				return new Response(200, noteEnvironment.getProperty("CREATE_COLLABORATOR"), noteEnvironment.getProperty("CREATE_COLLABORATOR"));
 			}
-			return noteEnvironment.getProperty("NOTE_ID_NOT_FOUND");
+			return new Response(200, noteEnvironment.getProperty("NOTE_ID_NOT_FOUND"), noteEnvironment.getProperty("NOTE_ID_NOT_FOUND"));
 		}
-		throw new NoteException(noteEnvironment.getProperty("UNAUTHORIZED_USER_EXCEPTION"));
+		return new Response(200, noteEnvironment.getProperty("UNAUTHORIZED_USER_EXCEPTION"), noteEnvironment.getProperty("UNAUTHORIZED_USER_EXCEPTION"));
 	}
 
 	
@@ -330,11 +331,11 @@ public class NoteService implements NoteServiceI{
 	 *Method: To Add Collaborators using emailId
 	 */
 	@Override
-	public String addCollaborator(String noteid, String token, CollaboratorDTO collaboratordto) {
+	public Response addCollaborator(String noteid, String token, CollaboratorDTO collaboratordto) {
 		
 		String email = jwt.getEmailId(token);
 		User user = userrepository.findByEmail(email);
-		if(email.equals(user.getEmail())) {
+		if(email != null) {
 			
 			Note note = noterepository.findById(noteid).get();
 			if(note.getId().equals(noteid)) {
@@ -350,11 +351,11 @@ public class NoteService implements NoteServiceI{
 				
 				boolean isValid = note.getCollaboratorList().contains(collaboratordto.getCollaboratorEmail());
 				if(isValid) {
-					return noteEnvironment.getProperty("COLLABORATOR_EXISTS");
+					return new Response(200, noteEnvironment.getProperty("COLLABORATOR_EXISTS"), noteEnvironment.getProperty("COLLABORATOR_EXISTS"));
 				}
 				
 				if(collaboratordto.getCollaboratorEmail().equals(note.getEmailId())) {
-					return noteEnvironment.getProperty("COLLABORATOR_CANNOT_ADD");
+					return new Response(200, noteEnvironment.getProperty("COLLABORATOR_CANNOT_ADD"), noteEnvironment.getProperty("COLLABORATOR_CANNOT_ADD"));
 				}
 				
 				note.getCollaboratorList().add(collaboratordto.getCollaboratorEmail());
@@ -363,11 +364,11 @@ public class NoteService implements NoteServiceI{
 				user.getNotelist().removeIf(data -> data.getId().equals(note.getId()));
 				user.getNotelist().add(note);
 				userrepository.save(user);
-				return noteEnvironment.getProperty("CREATE_COLLABORATOR");
+				return new Response(200, noteEnvironment.getProperty("CREATE_COLLABORATOR"), noteEnvironment.getProperty("CREATE_COLLABORATOR"));
 			}
-			return noteEnvironment.getProperty("NOTE_ID_NOT_FOUND");
+			return new Response(200, noteEnvironment.getProperty("NOTE_ID_NOT_FOUND"), noteEnvironment.getProperty("NOTE_ID_NOT_FOUND"));
 		}
-		throw new NoteException(noteEnvironment.getProperty("UNAUTHORIZED_USER_EXCEPTION"));
+		return new Response(200, noteEnvironment.getProperty("UNAUTHORIZED_USER_EXCEPTION"), noteEnvironment.getProperty("UNAUTHORIZED_USER_EXCEPTION"));
 	}
 	
 	
@@ -375,16 +376,16 @@ public class NoteService implements NoteServiceI{
 	 *Method: To Remove Collaborators
 	 */
 	@Override
-	public String removeCollaborator(String noteid, String token, String collaboratorEmailId) {
+	public Response removeCollaborator(String noteid, String token, String collaboratorEmailId) {
 		String email = jwt.getEmailId(token);
 		User user = userrepository.findByEmail(email);
-		if(email.equals(user.getEmail())) {
+		if(email != null) {
 			
 			Note note = noterepository.findById(noteid).get();
 			if(note.getId().equals(noteid)) {
 				
 				if(!note.getCollaboratorList().contains(collaboratorEmailId)) {
-					return noteEnvironment.getProperty("COLLABORATOR_NOT_EXISTS");
+					return new Response(200, noteEnvironment.getProperty("COLLABORATOR_NOT_EXISTS"), noteEnvironment.getProperty("COLLABORATOR_NOT_EXISTS"));
 				}
 				
 				note.getCollaboratorList().remove(collaboratorEmailId);
@@ -393,11 +394,11 @@ public class NoteService implements NoteServiceI{
 				user.getNotelist().removeIf(data -> data.getId().equals(note.getId()));
 				user.getNotelist().add(note);
 				userrepository.save(user);
-				return noteEnvironment.getProperty("REMOVE_COLLABORATOR");
+				return new Response(200, noteEnvironment.getProperty("REMOVE_COLLABORATOR"), noteEnvironment.getProperty("REMOVE_COLLABORATOR"));
 			}
-			return noteEnvironment.getProperty("NOTE_ID_NOT_FOUND");
+			return new Response(200, noteEnvironment.getProperty("NOTE_ID_NOT_FOUND"), noteEnvironment.getProperty("NOTE_ID_NOT_FOUND"));
 		}
-		throw new NoteException(noteEnvironment.getProperty("UNAUTHORIZED_USER_EXCEPTION"));
+		return new Response(200, noteEnvironment.getProperty("UNAUTHORIZED_USER_EXCEPTION"), noteEnvironment.getProperty("UNAUTHORIZED_USER_EXCEPTION"));
 	}
 
 
@@ -405,12 +406,12 @@ public class NoteService implements NoteServiceI{
 	 *Method: To Add Reminder
 	 */
 	@Override
-	public String addReminder(String token, String noteid, int year, int month, int day, int hour, int minute, int second) {
+	public Response addReminder(String token, String noteid, int year, int month, int day, int hour, int minute, int second) {
 		
 		String email = jwt.getEmailId(token);
 		
 		User user = userrepository.findByEmail(email);
-		if(email.equals(user.getEmail())) {
+		if(email != null) {
 			
 			Note note = noterepository.findById(noteid).get();
 			if(note.getId().equals(noteid)) {
@@ -431,13 +432,12 @@ public class NoteService implements NoteServiceI{
 					user.getNotelist().removeIf(data -> data.getId().equals(note.getId()));
 					user.getNotelist().add(note);
 					userrepository.save(user);
-					return noteEnvironment.getProperty("ADD_REMINDER");
+					return new Response(200, noteEnvironment.getProperty("ADD_REMINDER"), noteEnvironment.getProperty("ADD_REMINDER"));
 				}
-				
 			}
-			return noteEnvironment.getProperty("NOTE_ID_NOT_FOUND");
+			return new Response(200, noteEnvironment.getProperty("NOTE_ID_NOT_FOUND"), noteEnvironment.getProperty("NOTE_ID_NOT_FOUND"));
 		}
-		throw new NoteException(noteEnvironment.getProperty("UNAUTHORIZED_USER_EXCEPTION"));
+		return new Response(200, noteEnvironment.getProperty("UNAUTHORIZED_USER_EXCEPTION"), noteEnvironment.getProperty("UNAUTHORIZED_USER_EXCEPTION"));
 		
 	}
 
@@ -446,11 +446,11 @@ public class NoteService implements NoteServiceI{
 	 *Method: To Edit Reminder
 	 */
 	@Override
-	public String editReminder(String token, String noteid, int year, int month, int day, int hour, int minute, int second) {
+	public Response editReminder(String token, String noteid, int year, int month, int day, int hour, int minute, int second) {
 		
 		String email = jwt.getEmailId(token);
 		User user = userrepository.findByEmail(email);
-		if(email.equals(user.getEmail())) {
+		if(email != null) {
 			
 			Note note = noterepository.findById(noteid).get();
 			if(note.getId().equals(noteid)) {
@@ -474,11 +474,11 @@ public class NoteService implements NoteServiceI{
 				user.getNotelist().removeIf(data -> data.getId().equals(note.getId()));
 				user.getNotelist().add(note);
 				userrepository.save(user);
-				return noteEnvironment.getProperty("EDIT_REMINDER");
+				return new Response(200, noteEnvironment.getProperty("EDIT_REMINDER"), noteEnvironment.getProperty("EDIT_REMINDER"));
 			}
-			return noteEnvironment.getProperty("NOTE_ID_NOT_FOUND");
+			return new Response(200, noteEnvironment.getProperty("NOTE_ID_NOT_FOUND"), noteEnvironment.getProperty("NOTE_ID_NOT_FOUND"));
 		}
-		throw new NoteException(noteEnvironment.getProperty("UNAUTHORIZED_USER_EXCEPTION"));
+		return new Response(200, noteEnvironment.getProperty("UNAUTHORIZED_USER_EXCEPTION"), noteEnvironment.getProperty("UNAUTHORIZED_USER_EXCEPTION"));
 	}
 	
 	
@@ -486,7 +486,7 @@ public class NoteService implements NoteServiceI{
 	 *Method: To Remove Reminder
 	 */
 	@Override
-	public String removeReminder(String token, String noteid) {
+	public Response removeReminder(String token, String noteid) {
 		
 		String email = jwt.getEmailId(token);
 		User user = userrepository.findByEmail(email);
@@ -505,11 +505,11 @@ public class NoteService implements NoteServiceI{
 				user.getNotelist().removeIf(data -> data.getId().equals(note.getId()));
 				user.getNotelist().add(note);
 				userrepository.save(user);
-				return noteEnvironment.getProperty("REMOVE_REMINDER");
+				return new Response(200, noteEnvironment.getProperty("REMOVE_REMINDER"), noteEnvironment.getProperty("REMOVE_REMINDER"));
 			}
-			return noteEnvironment.getProperty("NOTE_ID_NOT_FOUND");
+			return new Response(200, noteEnvironment.getProperty("NOTE_ID_NOT_FOUND"), noteEnvironment.getProperty("NOTE_ID_NOT_FOUND"));
 		}
-		throw new NoteException(noteEnvironment.getProperty("UNAUTHORIZED_USER_EXCEPTION"));
+		return new Response(200, noteEnvironment.getProperty("UNAUTHORIZED_USER_EXCEPTION"), noteEnvironment.getProperty("UNAUTHORIZED_USER_EXCEPTION"));
 	}
 
 }

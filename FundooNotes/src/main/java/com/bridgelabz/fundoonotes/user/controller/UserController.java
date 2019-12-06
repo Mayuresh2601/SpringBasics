@@ -50,8 +50,8 @@ public class UserController {
 	@PostMapping("/createuser")
 	public Response createUser(@Valid @RequestBody RegisterDTO regdto) {
 		
-		String result = userService.createUser(regdto); 
-		return new Response(200, userEnvironment.getProperty("Add_User"), result);
+		Response response = userService.createUser(regdto); 
+		return response;
 	}
 	
 	
@@ -74,8 +74,8 @@ public class UserController {
 	@PutMapping("/updateuser")
 	public Response updateUser(@Valid @RequestBody UpdateDTO updatedto,@RequestHeader String token) {
 		
-		String result = userService.updateUser(updatedto, token);
-		return new Response(200, userEnvironment.getProperty("Update_User"), result);
+		Response response = userService.updateUser(updatedto, token);
+		return response;
 	}
 	
 	
@@ -86,8 +86,8 @@ public class UserController {
 	@DeleteMapping("/deleteuser")
 	public Response deleteUser(@RequestHeader String id) {
 		
-		String result = userService.deleteUserById(id);
-		return new Response(200, userEnvironment.getProperty("Delete_User"), result);
+		Response response = userService.deleteUserById(id);
+		return response;
 	}
 	
 	
@@ -98,7 +98,6 @@ public class UserController {
 	public Response showUsers() {
 
 		List<User> list = userService.showUsers();
-
 		return new Response(200, userEnvironment.getProperty("Show_Users"), list);
 	}
 	
@@ -110,8 +109,8 @@ public class UserController {
 	@PostMapping("/login")
 	public Response login(@Valid @RequestBody LoginDTO logindto,@RequestHeader String token) {
 		
-		String result =  userService.login(logindto, token);
-		return new Response(200, userEnvironment.getProperty("Login"), result);
+		Response response =  userService.login(logindto, token);
+		return response;
 	}
 	
 	
@@ -122,8 +121,8 @@ public class UserController {
 	@PostMapping("/forget")
 	public Response forgetPassword(@Valid @RequestBody ForgetDTO forget) {
 		
-		String result = userService.forgetPassword(forget);
-		return new Response(200, userEnvironment.getProperty("Forget_Password"), result);
+		Response response = userService.forgetPassword(forget);
+		return response;
 	}
 	
 	
@@ -135,8 +134,8 @@ public class UserController {
 	@PostMapping("/reset")
 	public Response resetPassword(@Valid @RequestBody ResetDTO reset,@RequestHeader String token) {
 		
-		String result = userService.resetPassword(reset, token);
-		return new Response(200, userEnvironment.getProperty("Reset_Password"), result);
+		Response response = userService.resetPassword(reset, token);
+		return response;
 	}
 	
 	
@@ -147,8 +146,8 @@ public class UserController {
 	@PostMapping("/verify")
 	public Response verifyUser(@Valid @RequestHeader String token) {
 		
-		String result = userService.verify(token);
-		return new Response(200, userEnvironment.getProperty("Verify_User"), result);
+		Response response = userService.verify(token);
+		return response;
 	}
 	
 	
@@ -161,8 +160,8 @@ public class UserController {
 	@PostMapping("/uploadpicture")
 	public Response uploadProfilePicture(@RequestHeader String token, @RequestParam MultipartFile file) throws IOException {
 		
-		String result = userService.uploadProfilePicture(token, file);
-		return new Response(200, userEnvironment.getProperty("Upload_Profile_Picture"), result);
+		Response response = userService.uploadProfilePicture(token, file);
+		return response;
 	}
 	
 	
@@ -175,8 +174,8 @@ public class UserController {
 	@PutMapping("/updatepicture")
 	public Response updateProfilePicture(@RequestHeader String token, @RequestParam MultipartFile file) throws IOException {
 		
-		String result = userService.updateProfilePicture(token, file);
-		return new Response(200, userEnvironment.getProperty("Update_Profile_Picture"), result);
+		Response response = userService.updateProfilePicture(token, file);
+		return response;
 	}
 	
 	
@@ -187,8 +186,8 @@ public class UserController {
 	@DeleteMapping("/removepicture")
 	public Response removeProfilePicture(@RequestHeader String token) {
 		
-		String result = userService.removeProfilePicture(token);
-		return new Response(200, userEnvironment.getProperty("Remove_Profile_Picture"), result);
+		Response response = userService.removeProfilePicture(token);
+		return response;
 	}
 	
 }

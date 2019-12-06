@@ -12,30 +12,31 @@ import com.bridgelabz.fundoonotes.user.dto.RegisterDTO;
 import com.bridgelabz.fundoonotes.user.dto.ResetDTO;
 import com.bridgelabz.fundoonotes.user.dto.UpdateDTO;
 import com.bridgelabz.fundoonotes.user.model.User;
+import com.bridgelabz.fundoonotes.user.response.Response;
 
 public interface UserServiceI {
 	
-	public String createUser(RegisterDTO regdto);
+	public Response createUser(RegisterDTO regdto);
 	
 	public Optional<User> findUserById(String id);
 	
 	public List<User> showUsers();
 	
-	public String deleteUserById(String id);
+	public Response deleteUserById(String id);
 	
-	public String updateUser(UpdateDTO updatedto, String token);
+	public Response updateUser(UpdateDTO updatedto, String token);
 
-	public String login(LoginDTO logindto, String token);
+	public Response login(LoginDTO logindto, String token);
 	
-	public String forgetPassword(ForgetDTO forget);
+	public Response forgetPassword(ForgetDTO forget);
 	
-	public String resetPassword(ResetDTO reset, String token);
+	public Response resetPassword(ResetDTO reset, String token);
 	
-	public String verify(String token);
+	public Response verify(String token);
 	
-	public String uploadProfilePicture(String token, MultipartFile file) throws IOException;
+	public Response uploadProfilePicture(String token, MultipartFile file) throws IOException;
 	
-	public String updateProfilePicture(String token, MultipartFile file) throws IOException;
+	public Response updateProfilePicture(String token, MultipartFile file) throws IOException;
 	
-	public String removeProfilePicture(String token);
+	public Response removeProfilePicture(String token);
 }

@@ -6,14 +6,15 @@ import java.util.Optional;
 import com.bridgelabz.fundoonotes.note.dto.CollaboratorDTO;
 import com.bridgelabz.fundoonotes.note.dto.NoteDTO;
 import com.bridgelabz.fundoonotes.note.model.Note;
+import com.bridgelabz.fundoonotes.user.response.Response;
 
 public interface NoteServiceI {
 	
-	public String createNote(String token, NoteDTO notedto);
+	public Response createNote(String token, NoteDTO notedto);
 	
-	public String updateNote(String noteid, String token, NoteDTO notedto);
+	public Response updateNote(String noteid, String token, NoteDTO notedto);
 	
-	public String deleteNote(String noteid, String token);
+	public Response deleteNote(String noteid, String token);
 	
 	public Optional<Note> findNoteById(String noteid, String token);
 	
@@ -33,15 +34,15 @@ public interface NoteServiceI {
 	
 	public List<?> sortNoteByDateDesc();
 	
-	public String addCollaboratorDemo(String noteid, String token);
+	public Response addCollaboratorDemo(String noteid, String token);
 	
-	public String addCollaborator(String noteid, String token, CollaboratorDTO collaboratorEmailId);
+	public Response addCollaborator(String noteid, String token, CollaboratorDTO collaboratorEmailId);
 
-	public String removeCollaborator(String noteid, String token, String collaboratorEmailId);
+	public Response removeCollaborator(String noteid, String token, String collaboratorEmailId);
 	
-	public String addReminder(String token,String noteid, int year, int month, int day, int hour, int minute, int second);
+	public Response addReminder(String token,String noteid, int year, int month, int day, int hour, int minute, int second);
 	
-	public String removeReminder(String token, String noteid);
+	public Response removeReminder(String token, String noteid);
 	
-	public String editReminder(String token,String noteid, int year, int month, int day, int hour, int minute, int second);
+	public Response editReminder(String token,String noteid, int year, int month, int day, int hour, int minute, int second);
 }

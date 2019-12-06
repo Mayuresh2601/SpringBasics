@@ -6,6 +6,7 @@ import java.util.List;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.env.Environment;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
 import com.bridgelabz.fundoonotes.label.dto.LabelDTO;
@@ -15,9 +16,9 @@ import com.bridgelabz.fundoonotes.note.model.Note;
 import com.bridgelabz.fundoonotes.note.repository.NoteRepositoryI;
 import com.bridgelabz.fundoonotes.note.service.NoteService;
 import com.bridgelabz.fundoonotes.user.exception.LoginException;
-import com.bridgelabz.fundoonotes.user.exception.NoteException;
 import com.bridgelabz.fundoonotes.user.model.User;
 import com.bridgelabz.fundoonotes.user.repository.UserRepositoryI;
+import com.bridgelabz.fundoonotes.user.response.Response;
 import com.bridgelabz.fundoonotes.user.utility.Jwt;
 
 @Service
@@ -51,7 +52,7 @@ public class LabelService implements LabelServiceI{
 	 *Method: To Create Label
 	 */
 	@Override
-	public String createLabel(String token, LabelDTO labeldto) {
+	public Response createLabel(String token, LabelDTO labeldto) {
 		
 		String email = jwt.getEmailId(token);
 		User user = userrepository.findByEmail(email);
@@ -67,9 +68,9 @@ public class LabelService implements LabelServiceI{
 
 			label.setCreateDate(date);
 			labelrepository.save(label);
-			return labelEnvironment.getProperty("CREATE_LABEL");
+			return new Response(200, labelEnvironment.getProperty("CREATE_LABEL"), HttpStatus.OK);
 		}
-		throw new LoginException(labelEnvironment.getProperty("UNAUTHORIZED_USER"));
+		return new Response(200, labelEnvironment.getProperty("UNAUTHORIZED_USER"), labelEnvironment.getProperty("UNAUTHORIZED_USER"));
 
 	}
 
@@ -78,7 +79,7 @@ public class LabelService implements LabelServiceI{
 	 *Method: To Update Label
 	 */
 	@Override
-	public String updateLabel(String noteid, String labelid, String token, LabelDTO labeldto) {
+	public Response updateLabel(String noteid, String labelid, String token, LabelDTO labeldto) {
 		
 		String email = jwt.getEmailId(token);
 		Label label = labelrepository.findById(labelid).get();
@@ -108,13 +109,13 @@ public class LabelService implements LabelServiceI{
 					user.getNotelist().removeIf(data -> data.getId().equals(note.getId()));
 					user.getNotelist().add(note);
 					userrepository.save(user);
-					return labelEnvironment.getProperty("UPDATE_LABEL");
+					return new Response(200, labelEnvironment.getProperty("UPDATE_LABEL"), HttpStatus.OK);
 				}
-				return labelEnvironment.getProperty("LABEL_ID_NOT_FOUND");
+				return new Response(200, labelEnvironment.getProperty("LABEL_ID_NOT_FOUND"), labelEnvironment.getProperty("LABEL_ID_NOT_FOUND"));
 			}
-			return labelEnvironment.getProperty("NOTE_ID_NOT_FOUND");
+			return new Response(200, labelEnvironment.getProperty("NOTE_ID_NOT_FOUND"), labelEnvironment.getProperty("NOTE_ID_NOT_FOUND"));
 		}
-		throw new LoginException(labelEnvironment.getProperty("UNAUTHORIZED_USER"));
+		return new Response(200, labelEnvironment.getProperty("UNAUTHORIZED_USER"), labelEnvironment.getProperty("UNAUTHORIZED_USER"));
 	}
 
 	
@@ -122,7 +123,7 @@ public class LabelService implements LabelServiceI{
 	 *Method: To Delete Label
 	 */
 	@Override
-	public String deleteLabel(String noteid, String labelid, String token) {
+	public Response deleteLabel(String noteid, String labelid, String token) {
 		
 		String email = jwt.getEmailId(token);
 		Label label = labelrepository.findById(labelid).get();
@@ -143,13 +144,13 @@ public class LabelService implements LabelServiceI{
 					user.getNotelist().removeIf(data -> data.getId().equals(note.getId()));
 					user.getNotelist().add(note);
 					userrepository.save(user);
-					return labelEnvironment.getProperty("DELETE_LABEL");
+					return new Response(200, labelEnvironment.getProperty("DELETE_LABEL"), HttpStatus.OK);
 				}
-				return labelEnvironment.getProperty("LABEL_ID_NOT_FOUND");
+				return new Response(200, labelEnvironment.getProperty("LABEL_ID_NOT_FOUND"), labelEnvironment.getProperty("LABEL_ID_NOT_FOUND"));
 			}
-			return labelEnvironment.getProperty("LABEL_ID_NOT_FOUND");
+			return new Response(200, noteEnvironment.getProperty("NOTE_ID_NOT_FOUND"), noteEnvironment.getProperty("NOTE_ID_NOT_FOUND"));
 		}
-		throw new LoginException(labelEnvironment.getProperty("UNAUTHORIZED_USER"));
+		return new Response(200, labelEnvironment.getProperty("UNAUTHORIZED_USER"), labelEnvironment.getProperty("UNAUTHORIZED_USER"));
 	}
 
 	
@@ -184,7 +185,7 @@ public class LabelService implements LabelServiceI{
      * Adding label into notes and notes into labellist
      */
     @Override
-    public String addLabelToNote(String noteid, String labelid, String token) {
+    public Response addLabelToNote(String noteid, String labelid, String token) {
     	
     	String emailId = jwt.getEmailId(token);
         User user = userrepository.findByEmail(emailId);
@@ -205,13 +206,13 @@ public class LabelService implements LabelServiceI{
 	    			user.getNotelist().removeIf(data -> data.getId().equals(note.getId()));
 	    			user.getNotelist().add(note);
 	    			userrepository.save(user);
-	                return (labelEnvironment.getProperty("LABEL_ADDED_TO_NOTE"));
+	                return new Response(200, labelEnvironment.getProperty("LABEL_ADDED_TO_NOTE"), HttpStatus.OK);
             	}
-            	return labelEnvironment.getProperty("LABEL_ID_NOT_FOUND");
+            	return new Response(200, labelEnvironment.getProperty("LABEL_ID_NOT_FOUND"), labelEnvironment.getProperty("LABEL_ID_NOT_FOUND"));
             }
-            return noteEnvironment.getProperty("NOTE_ID_NOT_FOUND");
+            return new Response(200, noteEnvironment.getProperty("NOTE_ID_NOT_FOUND"), noteEnvironment.getProperty("NOTE_ID_NOT_FOUND"));
         }
-        throw new NoteException(labelEnvironment.getProperty("UNAUTHORIZED_USER"));
+        return new Response(200, labelEnvironment.getProperty("UNAUTHORIZED_USER"), labelEnvironment.getProperty("UNAUTHORIZED_USER"));
 
     }
 

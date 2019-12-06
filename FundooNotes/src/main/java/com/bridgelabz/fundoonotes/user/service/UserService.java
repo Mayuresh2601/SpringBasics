@@ -31,6 +31,7 @@ import com.bridgelabz.fundoonotes.user.exception.LoginException;
 import com.bridgelabz.fundoonotes.user.exception.ProfilePictureException;
 import com.bridgelabz.fundoonotes.user.model.User;
 import com.bridgelabz.fundoonotes.user.repository.UserRepositoryI;
+import com.bridgelabz.fundoonotes.user.response.Response;
 import com.bridgelabz.fundoonotes.user.utility.Jms;
 import com.bridgelabz.fundoonotes.user.utility.Jwt;
 
@@ -60,7 +61,7 @@ public class UserService implements UserServiceI{
 	 *Method: To Add New User into Database
 	 */
 	@Override
-	public String createUser(RegisterDTO regdto) {
+	public Response createUser(RegisterDTO regdto) {
 		try {
 			User user = mapper.map(regdto, User.class);
 			
@@ -75,18 +76,18 @@ public class UserService implements UserServiceI{
 					user.setPassword(bCryptPasswordEncoder.encode(regdto.getPassword()));
 				}
 				else {
-					return userEnvironment.getProperty("PASSWORD_NOT_MATCH");
+					throw new LoginException(userEnvironment.getProperty("PASSWORD_NOT_MATCH"));
 				}
 				
 				String token = jwt.createToken(user.getEmail());
 				jms.sendMail(user.getEmail(),token);
 				userrepository.save(user);
-				return userEnvironment.getProperty("ADD_USER");
+				return new Response(200, userEnvironment.getProperty("ADD_USER"), userEnvironment.getProperty("Add_User"));
 			}
 			throw new LoginException(userEnvironment.getProperty("UNAUTHORIZED_USER"));
 		}
 		catch(NullPointerException e) {
-			return userEnvironment.getProperty("Null_Pointer_Exception");
+			return new Response(200, userEnvironment.getProperty("NULL_POINTER_EXCEPTION"), userEnvironment.getProperty("NULL_POINTER_EXCEPTION"));
 		}
 	}
 
@@ -115,10 +116,10 @@ public class UserService implements UserServiceI{
 	 *Method: To Delete a User by its Id 
 	 */
 	@Override
-	public String deleteUserById(String id) {
+	public Response deleteUserById(String id) {
 		
 		userrepository.deleteById(id);
-		return userEnvironment.getProperty("DELETE_USER");
+		return new Response(200, userEnvironment.getProperty("DELETE_USER"), userEnvironment.getProperty("Delete_User"));
 	}
 
 	
@@ -126,7 +127,7 @@ public class UserService implements UserServiceI{
 	 *Method: Update User By its Id
 	 */
 	@Override
-	public String updateUser(UpdateDTO updatedto, String token) {
+	public Response updateUser(UpdateDTO updatedto, String token) {
 		String email = jwt.getEmailId(token);
 		User user = userrepository.findByEmail(email);
 		
@@ -136,7 +137,7 @@ public class UserService implements UserServiceI{
 			user.setMobileNumber(updatedto.getMobileNumber());
 				
 			userrepository.save(user);
-			return userEnvironment.getProperty("UPDATE_USER");
+			return new Response(200, userEnvironment.getProperty("UPDATE_USER"), userEnvironment.getProperty("Update_User"));
 		}
 		throw new LoginException(userEnvironment.getProperty("UNAUTHORIZED_USER"));
 	}
@@ -146,7 +147,7 @@ public class UserService implements UserServiceI{
 	 *Method: Login User if password matches the existing user record
 	 */
 	@Override
-	public String login(LoginDTO logindto, String token) {
+	public Response login(LoginDTO logindto, String token) {
 		String email = jwt.getEmailId(token);
 		User user = userrepository.findByEmail(email);
 		if(logindto.getEmail().equals(user.getEmail())) {
@@ -156,7 +157,7 @@ public class UserService implements UserServiceI{
 			if(isValid ) {	
 				user.setValidate(true);
 				userrepository.save(user);
-				return userEnvironment.getProperty("USER_LOGIN_SUCCESSFUL");
+				return new Response(200, userEnvironment.getProperty("USER_LOGIN_SUCCESSFUL"), userEnvironment.getProperty("Login"));
 			}
 		}
 		throw new LoginException(userEnvironment.getProperty("UNAUTHORIZED_USER"));
@@ -168,7 +169,7 @@ public class UserService implements UserServiceI{
 	 */
 	@SuppressWarnings("unlikely-arg-type")
 	@Override
-	public String forgetPassword(ForgetDTO forget) {
+	public Response forgetPassword(ForgetDTO forget) {
 		
 		List<User> userlist = showUsers();
 		
@@ -177,7 +178,7 @@ public class UserService implements UserServiceI{
 			String token = jwt.createToken(user.getEmail());
 			System.out.println("Recieved token:::::::  "+token);
 			jms.sendMail(user.getEmail(), token);
-			return userEnvironment.getProperty("CHECK_YOUR_MAIL");
+			return new Response(200, userEnvironment.getProperty("CHECK_YOUR_MAIL"), userEnvironment.getProperty("Forget_Password"));
 		}
 		throw new LoginException(userEnvironment.getProperty("UNAUTHORIZED_USER"));
 	}
@@ -187,36 +188,31 @@ public class UserService implements UserServiceI{
 	 *Method: To Reset your password using the obtained token from email
 	 */
 	@Override
-	public String resetPassword(ResetDTO resetdto, String token) {
-		try {
-			String email=jwt.getEmailId(token);
-			User user = userrepository.findByEmail(email);
-			if(email.equals(user.getEmail()))
-			{
-				user.setPassword(resetdto.getNewPassword());
+	public Response resetPassword(ResetDTO resetdto, String token) {
+		
+		String email=jwt.getEmailId(token);
+		User user = userrepository.findByEmail(email);
+		if(email.equals(user.getEmail()))
+		{
+			user.setPassword(resetdto.getNewPassword());
 			
-				if(resetdto.getNewPassword().contentEquals(resetdto.getConfirmPassword()))
-				{
-					user.setPassword(bCryptPasswordEncoder.encode(resetdto.getNewPassword()));
-					userrepository.save(user);
-					return userEnvironment.getProperty("PASSWORD_UPDATED");
-				}
-				return userEnvironment.getProperty("PASSWORD_NOT_MATCHED");
+			if(resetdto.getNewPassword().contentEquals(resetdto.getConfirmPassword()))
+			{
+				user.setPassword(bCryptPasswordEncoder.encode(resetdto.getNewPassword()));
+				userrepository.save(user);
+				return new Response(200, userEnvironment.getProperty("PASSWORD_UPDATED"), userEnvironment.getProperty("Reset_Password"));
 			}
-			throw new LoginException(userEnvironment.getProperty("UNAUTHORIZED_USER"));
+			throw new LoginException(userEnvironment.getProperty("PASSWORD_NOT_MATCHED"));
 		}
-		catch(NullPointerException e) {
-			return userEnvironment.getProperty("Null_Pointer_Exception");
-		}
+		throw new LoginException(userEnvironment.getProperty("UNAUTHORIZED_USER"));
 	}
-
 	
 	/**
 	 *Method: To Verify the EmailId and Password  
 	 */
 	@Override
-	public String verify(String token) {
-		try {
+	public Response verify(String token) {
+
 			String email=jwt.getEmailId(token);
 			User user = userrepository.findByEmail(email);
 			
@@ -224,14 +220,10 @@ public class UserService implements UserServiceI{
 			{
 				user.setValidate(true);
 				userrepository.save(user);
-				return email;
+				return new Response(200, userEnvironment.getProperty("PASSWORD_UPDATED"), userEnvironment.getProperty("PASSWORD_UPDATED"));
 			}
 			throw new LoginException(userEnvironment.getProperty("UNAUTHORIZED_USER"));
 		}
-		catch (NullPointerException e) {
-			return userEnvironment.getProperty("Null_Pointer_Exception");
-		}
-	}
 
 
 	/**
@@ -239,7 +231,7 @@ public class UserService implements UserServiceI{
 	 */
 	@SuppressWarnings("resource")
 	@Override
-	public String uploadProfilePicture(String token, MultipartFile file) throws IOException {
+	public Response uploadProfilePicture(String token, MultipartFile file) throws IOException {
 		String email = jwt.getEmailId(token);
 		User user = userrepository.findByEmail(email);
 		if(email.equals(user.getEmail())) {
@@ -258,7 +250,7 @@ public class UserService implements UserServiceI{
 		
 					fout.write(file.getBytes());
 					fout.close();
-					return userEnvironment.getProperty("PROFILE_PICTURE_UPLOADED");
+					return new Response(200, userEnvironment.getProperty("PROFILE_PICTURE_UPLOADED"), userEnvironment.getProperty("Upload_Profile_Picture"));
 				}
 				
 				if(user.getProfilePicture().equals(path)) {
@@ -276,7 +268,7 @@ public class UserService implements UserServiceI{
 	 */
 	@SuppressWarnings("resource")
 	@Override
-	public String updateProfilePicture(String token, MultipartFile file) throws IOException {
+	public Response updateProfilePicture(String token, MultipartFile file) throws IOException {
 		
 		String email = jwt.getEmailId(token);
 		File convertFile = new File("/home/admin1/Documents/"+file.getOriginalFilename());
@@ -304,7 +296,7 @@ public class UserService implements UserServiceI{
 	
 				fout.write(file.getBytes());
 				fout.close();
-				return userEnvironment.getProperty("PROFILE_PICTURE_UPLOADED");
+				return new Response(200, userEnvironment.getProperty("PROFILE_PICTURE_UPDATED"), userEnvironment.getProperty("Update_Profile_Picture"));
 			}
 			throw new FileNotAcceptingException(userEnvironment.getProperty("FILE_INVALID"));
 		}
@@ -316,7 +308,7 @@ public class UserService implements UserServiceI{
 	 *Method: To Remove Profile Picture
 	 */
 	@Override
-	public String removeProfilePicture(String token) {
+	public Response removeProfilePicture(String token) {
 		
 		String email = jwt.getEmailId(token);
 		User user = userrepository.findByEmail(email);
@@ -328,7 +320,7 @@ public class UserService implements UserServiceI{
 			}
 			user.setProfilePicture(null);
 			userrepository.save(user);
-			return userEnvironment.getProperty("PROFILE_PICTURE_DELETED");
+			return new Response(200, userEnvironment.getProperty("PROFILE_PICTURE_DELETED"), userEnvironment.getProperty("Remove_Profile_Picture"));
 		}
 		throw new LoginException(userEnvironment.getProperty("UNAUTHORIZED_USER"));
 	}

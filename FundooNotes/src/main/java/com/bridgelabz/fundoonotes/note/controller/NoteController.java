@@ -47,8 +47,8 @@ public class NoteController {
 	@PostMapping("/createnote")
 	public Response createNote(@RequestHeader String token,@Valid @RequestBody NoteDTO notedto) {
 		
-		String result = noteService.createNote(token, notedto);
-		return new Response(200, noteEnvironment.getProperty("Create_Note"), result);
+		Response response = noteService.createNote(token, notedto);
+		return response;
 	}
 
 	
@@ -60,8 +60,8 @@ public class NoteController {
 	@PutMapping("/updatenote")
 	public Response updateNote(@RequestHeader String id,@RequestHeader String token,@Valid @RequestBody NoteDTO notedto) {
 		
-		String result = noteService.updateNote(id, token, notedto);
-		return new Response(200, noteEnvironment.getProperty("Update_Note"), result);
+		Response response = noteService.updateNote(id, token, notedto);
+		return response;
 	}
 
 	
@@ -72,8 +72,8 @@ public class NoteController {
 	@DeleteMapping("/deletenote")
 	public Response deleteNote(@RequestHeader String id, @RequestHeader String token) {
 		
-		String result =  noteService.deleteNote(id, token);
-		return new Response(200, noteEnvironment.getProperty("Delete_Note"), result);
+		Response response =  noteService.deleteNote(id, token);
+		return response;
 	}
 
 	
@@ -191,8 +191,8 @@ public class NoteController {
 	@PostMapping("/addcollaboratordemo")
 	public Response addCollaboratorDemo(@RequestHeader String id,@RequestHeader String token) {
 		
-		String result = noteService.addCollaboratorDemo(id, token);
-		return new Response(200, noteEnvironment.getProperty("Add_Collaborator"), result);
+		Response response = noteService.addCollaboratorDemo(id, token);
+		return response;
 	}
 	
 	
@@ -204,8 +204,8 @@ public class NoteController {
 	@PostMapping("/addcollaborator")
 	public Response addCollaborator(@RequestHeader String id, @RequestHeader String token, @RequestBody CollaboratorDTO collaboratordto) {
 		
-		String result = noteService.addCollaborator(id, token, collaboratordto);
-		return new Response(200, noteEnvironment.getProperty("Add_Collaborator"), result);
+		Response response = noteService.addCollaborator(id, token, collaboratordto);
+		return response;
 	}
 	
 	
@@ -217,8 +217,8 @@ public class NoteController {
 	@DeleteMapping("removecollaborator")
 	public Response removeCollaborator(@RequestHeader String id, @RequestHeader String token, @RequestHeader String collaboratorEmail) {
 		
-		String result = noteService.removeCollaborator(id, token, collaboratorEmail);
-		return new Response(200, noteEnvironment.getProperty("Remove_Collaborator"), result);
+		Response response = noteService.removeCollaborator(id, token, collaboratorEmail);
+		return response;
 	}
 	
 	
@@ -237,8 +237,8 @@ public class NoteController {
 	@PostMapping("/addreminder")
 	public Response addReminder(@RequestHeader String token, @RequestHeader String id, @RequestParam int year,@RequestParam int month,@RequestParam int day,@RequestParam int hour,@RequestParam int minute,@RequestParam int second) {
 		
-		String result = noteService.addReminder(token, id, year, month, day, hour, minute, second);
-		return new Response(200, noteEnvironment.getProperty("Add_Reminder"), result);
+		Response response = noteService.addReminder(token, id, year, month, day, hour, minute, second);
+		return response;
 	}
 	
 	
@@ -257,8 +257,8 @@ public class NoteController {
 	@PutMapping("/editreminder")
 	public Response editReminder(@RequestHeader String token, @RequestHeader String id, @RequestParam int year,@RequestParam int month,@RequestParam int day,@RequestParam int hour,@RequestParam int minute,@RequestParam int second) {
 		
-		String result = noteService.editReminder(token, id, year, month, day, hour, minute, second);
-		return new Response(200, noteEnvironment.getProperty("Edit_Reminder"), result);
+		Response response = noteService.editReminder(token, id, year, month, day, hour, minute, second);
+		return response;
 	}
 	
 	
@@ -271,8 +271,8 @@ public class NoteController {
 	@DeleteMapping("/removereminder")
 	public Response removeReminder(@RequestHeader String token, @RequestHeader String id) {
 		
-		String result = noteService.removeReminder(token, id);
-		return new Response(200, noteEnvironment.getProperty("Remove_Reminder"), result);
+		Response response = noteService.removeReminder(token, id);
+		return response;
 	}
 
 }
