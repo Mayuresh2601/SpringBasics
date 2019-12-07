@@ -16,13 +16,13 @@ import java.util.stream.Collectors;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.env.Environment;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
 import com.bridgelabz.fundoonotes.note.dto.CollaboratorDTO;
 import com.bridgelabz.fundoonotes.note.dto.NoteDTO;
 import com.bridgelabz.fundoonotes.note.model.Note;
 import com.bridgelabz.fundoonotes.note.repository.NoteRepositoryI;
-import com.bridgelabz.fundoonotes.user.exception.NoteException;
 import com.bridgelabz.fundoonotes.user.model.User;
 import com.bridgelabz.fundoonotes.user.repository.UserRepositoryI;
 import com.bridgelabz.fundoonotes.user.response.Response;
@@ -54,7 +54,7 @@ public class NoteService implements NoteServiceI{
 	public Response createNote(String token, NoteDTO notedto) {
 
 		String email = jwt.getEmailId(token);
-//		User user = userrepository.findByEmail(email);
+		User user = userrepository.findByEmail(email);
 		
 		if(email != null) {
 			Note note = mapper.map(notedto, Note.class);
@@ -66,11 +66,11 @@ public class NoteService implements NoteServiceI{
 			note.setCreateDate(date);
 			noterepository.save(note);
 			
-//			user.getNotelist().add(note);
-//			userrepository.save(user);
-			return new Response(200, noteEnvironment.getProperty("CREATE_NOTE"), noteEnvironment.getProperty("CREATE_NOTE"));
+			user.getNotelist().add(note);
+			userrepository.save(user);
+			return new Response(200, noteEnvironment.getProperty("Create_Note"), noteEnvironment.getProperty("CREATE_NOTE"));
 		}
-		throw new NoteException(noteEnvironment.getProperty("UNAUTHORIZED_USER_EXCEPTION"));
+		return new Response(404, noteEnvironment.getProperty("UNAUTHORIZED_USER_EXCEPTION"), HttpStatus.BAD_REQUEST);
 	}
 
 	
@@ -100,10 +100,11 @@ public class NoteService implements NoteServiceI{
 				user.getNotelist().removeIf(data -> data.getId().equals(note.getId()));
 				user.getNotelist().add(noteupdate);
 				userrepository.save(user);
-				return new Response(200, noteEnvironment.getProperty("UPDATE_NOTE"), noteEnvironment.getProperty("UPDATE_NOTE"));
+				return new Response(200, noteEnvironment.getProperty("Update_Note"), noteEnvironment.getProperty("UPDATE_NOTE"));
 			}
+			return new Response(404, noteEnvironment.getProperty("UPDATE_NOTE_NULL"), HttpStatus.BAD_REQUEST);
 		}
-		return new Response(200, noteEnvironment.getProperty("UNAUTHORIZED_USER_EXCEPTION"), noteEnvironment.getProperty("UNAUTHORIZED_USER_EXCEPTION"));
+		return new Response(404, noteEnvironment.getProperty("UNAUTHORIZED_USER_EXCEPTION"), HttpStatus.BAD_REQUEST);
 	}
 
 	
@@ -122,9 +123,9 @@ public class NoteService implements NoteServiceI{
 			
 			user.getNotelist().remove(note);
 			userrepository.save(user);
-			return new Response(200, noteEnvironment.getProperty("DELETE_NOTE"), noteEnvironment.getProperty("DELETE_NOTE"));
+			return new Response(200, noteEnvironment.getProperty("Delete_Note"), noteEnvironment.getProperty("DELETE_NOTE"));
 		}
-		return new Response(200, noteEnvironment.getProperty("UNAUTHORIZED_USER_EXCEPTION"), noteEnvironment.getProperty("UNAUTHORIZED_USER_EXCEPTION"));
+		return new Response(404, noteEnvironment.getProperty("UNAUTHORIZED_USER_EXCEPTION"), HttpStatus.BAD_REQUEST);
 	}
 
 	
@@ -132,16 +133,16 @@ public class NoteService implements NoteServiceI{
 	 *Method: Search a Note using Id
 	 */
 	@Override
-	public Optional<Note> findNoteById(String noteid, String token) {
+	public Response findNoteById(String noteid, String token) {
 		
 		String email = jwt.getEmailId(token);
-		User user = userrepository.findByEmail(email);
 		
-		if(email.equals(user.getEmail())) {
+		if(email != null) {
 			Optional<Note> note =  noterepository.findById(noteid);
-			return note;
+			return new Response(200, noteEnvironment.getProperty("Find_Note"), note);
 		}
-		throw new NoteException(noteEnvironment.getProperty("UNAUTHORIZED_USER_EXCEPTION"));
+		return new Response(404, noteEnvironment.getProperty("UNAUTHORIZED_USER_EXCEPTION"), HttpStatus.BAD_REQUEST);
+		
 	}
 
 	
@@ -159,13 +160,13 @@ public class NoteService implements NoteServiceI{
 	 *Method: To Pin/Unpin Note for User
 	 */
 	@Override
-	public boolean isPin(String noteid, String token) {
+	public Response isPin(String noteid, String token) {
 		
 		String email = jwt.getEmailId(token);
 		List<Note> listofNote= noterepository.findByEmailId(email);
 		Note note =listofNote.stream().filter(i->i.getId().equals(noteid)).findAny().orElse(null);
 		User user = userrepository.findByEmail(email);
-		if(email.equals(user.getEmail()))
+		if(email != null)
 		{
 			if(note.getId().equals(noteid)) 
 			{
@@ -176,11 +177,11 @@ public class NoteService implements NoteServiceI{
 				user.getNotelist().removeIf(data -> data.getId().equals(note1.getId()));
 				user.getNotelist().add(note);
 				userrepository.save(user);
-				return note.isPin();
+				return new Response(200, noteEnvironment.getProperty("UPDATE_Pin"), note.isPin());
 			}
-			throw new NoteException(noteEnvironment.getProperty("NOTE_ID_NOT_FOUND"));
+			return new Response(404, noteEnvironment.getProperty("NOTE_ID_NOT_FOUND"), HttpStatus.BAD_REQUEST);
 		}
-		throw new NoteException(noteEnvironment.getProperty("UNAUTHORIZED_USER_EXCEPTION"));
+		return new Response(404, noteEnvironment.getProperty("UNAUTHORIZED_USER_EXCEPTION"), HttpStatus.BAD_REQUEST);
 	}
 
 	
@@ -188,13 +189,13 @@ public class NoteService implements NoteServiceI{
 	 *Method: To Trash/Recover Note for User
 	 */
 	@Override
-	public boolean isTrash(String noteid, String token) {
+	public Response isTrash(String noteid, String token) {
 		
 		String email = jwt.getEmailId(token);
 		List<Note> listofNote= noterepository.findByEmailId(email);
 		Note note =listofNote.stream().filter(i->i.getId().equals(noteid)).findAny().orElse(null);
 		User user = userrepository.findByEmail(email);
-		if(email.equals(user.getEmail()))
+		if(email != null)
 		{
 			if(note.getId().equals(noteid)) {
 				note.setTrash(!(note.isTrash()));
@@ -204,11 +205,11 @@ public class NoteService implements NoteServiceI{
 				user.getNotelist().removeIf(data -> data.getId().equals(note1.getId()));
 				user.getNotelist().add(note);
 				userrepository.save(user);
-				return note.isTrash();
+				return new Response(200, noteEnvironment.getProperty("UPDATE_TRASH"), note.isTrash());
 			}
-			throw new NoteException(noteEnvironment.getProperty("NOTE_ID_NOT_FOUND"));
+			return new Response(404, noteEnvironment.getProperty("NOTE_ID_NOT_FOUND"), HttpStatus.BAD_REQUEST);
 		}
-		throw new NoteException(noteEnvironment.getProperty("UNAUTHORIZED_USER_EXCEPTION"));
+		return new Response(404, noteEnvironment.getProperty("UNAUTHORIZED_USER_EXCEPTION"), HttpStatus.BAD_REQUEST);
 	}
 
 	
@@ -216,13 +217,13 @@ public class NoteService implements NoteServiceI{
 	 *Method: To Archieve/Unarchieve Note for User
 	 */
 	@Override
-	public boolean isArchieve(String noteid, String token) {
+	public Response isArchieve(String noteid, String token) {
 		
 		String email = jwt.getEmailId(token);
 		List<Note> listofNote= noterepository.findByEmailId(email);
 		Note note =listofNote.stream().filter(i->i.getId().equals(noteid)).findAny().orElse(null);
 		User user = userrepository.findByEmail(email);
-		if(email.equals(user.getEmail()))
+		if(email != null)
 		{
 			if(note.getId().equals(noteid)) {
 				note.setArchieve(!(note.isArchieve()));
@@ -235,11 +236,11 @@ public class NoteService implements NoteServiceI{
 				System.out.println("After Deletion -> "+user.getNotelist());
 				user.getNotelist().add(note);
 				userrepository.save(user);
-				return note.isArchieve();
+				return new Response(200, noteEnvironment.getProperty("UPDATE_ARCHIEVE"), note.isArchieve());
 			}
-			throw new NoteException(noteEnvironment.getProperty("NOTE_ID_NOT_FOUND"));
+			return new Response(404, noteEnvironment.getProperty("NOTE_ID_NOT_FOUND"), HttpStatus.BAD_REQUEST);
 		}
-		throw new NoteException(noteEnvironment.getProperty("UNAUTHORIZED_USER_EXCEPTION"));
+		return new Response(404, noteEnvironment.getProperty("UNAUTHORIZED_USER_EXCEPTION"), HttpStatus.BAD_REQUEST);
 	}
 
 
@@ -247,7 +248,7 @@ public class NoteService implements NoteServiceI{
 	 *Method: To Sort Notes By Title in Ascending Order
 	 */
 	@Override
-	public List<?> sortNoteByTitleAsc() {
+	public List<Note> sortNoteByTitleAsc() {
 		
 		List<Note> list=showNotes();
         list= list.stream().sorted((list1,list2)->list1.getTitle().compareToIgnoreCase(list2.getTitle())).collect(Collectors.toList());
@@ -259,7 +260,7 @@ public class NoteService implements NoteServiceI{
 	 *Method: To Sort Notes By Title in Descending Order
 	 */
 	@Override
-	public List<?> sortNoteByTitleDesc() {
+	public List<Note> sortNoteByTitleDesc() {
 		
 		List<Note> list=showNotes();
         list= list.stream().sorted((list1,list2)->list2.getTitle().compareToIgnoreCase(list1.getTitle())).collect(Collectors.toList());
@@ -271,7 +272,7 @@ public class NoteService implements NoteServiceI{
 	 *Method: To Sort Notes By Date in Ascending Order
 	 */
 	@Override
-	public List<?> sortNoteByDateAsc() {
+	public List<Note> sortNoteByDateAsc() {
 		
 		 List<Note> list=showNotes();
          list= list.stream().sorted((list1,list2)->list1.getCreateDate().compareToIgnoreCase(list2.getCreateDate())).collect(Collectors.toList());
@@ -283,7 +284,7 @@ public class NoteService implements NoteServiceI{
 	 *Method: To Sort Notes By Title in Descending Order
 	 */
 	@Override
-	public List<?> sortNoteByDateDesc() {
+	public List<Note> sortNoteByDateDesc() {
 		
 		List<Note> list=showNotes();
         list= list.stream().sorted((list1,list2)->list2.getCreateDate().compareToIgnoreCase(list1.getCreateDate())).collect(Collectors.toList());
@@ -306,11 +307,11 @@ public class NoteService implements NoteServiceI{
 				
 				boolean checker = note.getCollaboratorList().contains(email);
 				if(checker) {
-					return new Response(200, noteEnvironment.getProperty("COLLABORATOR_EXISTS"), noteEnvironment.getProperty("COLLABORATOR_EXISTS"));
+					return new Response(404, noteEnvironment.getProperty("COLLABORATOR_EXISTS"), HttpStatus.BAD_REQUEST);
 				}
 				
 				if(email.equals(note.getEmailId())) {
-					return new Response(200, noteEnvironment.getProperty("COLLABORATOR_CANNOT_ADD"), noteEnvironment.getProperty("COLLABORATOR_CANNOT_ADD"));
+					return new Response(404, noteEnvironment.getProperty("COLLABORATOR_CANNOT_ADD"), HttpStatus.BAD_REQUEST);
 				}
 				
 				note.getCollaboratorList().add(email);
@@ -319,11 +320,11 @@ public class NoteService implements NoteServiceI{
 				user.getNotelist().removeIf(data -> data.getId().equals(note.getId()));
 				user.getNotelist().add(note);
 				userrepository.save(user);
-				return new Response(200, noteEnvironment.getProperty("CREATE_COLLABORATOR"), noteEnvironment.getProperty("CREATE_COLLABORATOR"));
+				return new Response(200, noteEnvironment.getProperty("Add_Collaborator"), noteEnvironment.getProperty("CREATE_COLLABORATOR"));
 			}
-			return new Response(200, noteEnvironment.getProperty("NOTE_ID_NOT_FOUND"), noteEnvironment.getProperty("NOTE_ID_NOT_FOUND"));
+			return new Response(404, noteEnvironment.getProperty("NOTE_ID_NOT_FOUND"), HttpStatus.BAD_REQUEST);
 		}
-		return new Response(200, noteEnvironment.getProperty("UNAUTHORIZED_USER_EXCEPTION"), noteEnvironment.getProperty("UNAUTHORIZED_USER_EXCEPTION"));
+		return new Response(404, noteEnvironment.getProperty("UNAUTHORIZED_USER_EXCEPTION"), HttpStatus.BAD_REQUEST);
 	}
 
 	
@@ -351,11 +352,11 @@ public class NoteService implements NoteServiceI{
 				
 				boolean isValid = note.getCollaboratorList().contains(collaboratordto.getCollaboratorEmail());
 				if(isValid) {
-					return new Response(200, noteEnvironment.getProperty("COLLABORATOR_EXISTS"), noteEnvironment.getProperty("COLLABORATOR_EXISTS"));
+					return new Response(404, noteEnvironment.getProperty("COLLABORATOR_EXISTS"), HttpStatus.BAD_REQUEST);
 				}
 				
 				if(collaboratordto.getCollaboratorEmail().equals(note.getEmailId())) {
-					return new Response(200, noteEnvironment.getProperty("COLLABORATOR_CANNOT_ADD"), noteEnvironment.getProperty("COLLABORATOR_CANNOT_ADD"));
+					return new Response(404, noteEnvironment.getProperty("COLLABORATOR_CANNOT_ADD"), HttpStatus.BAD_REQUEST);
 				}
 				
 				note.getCollaboratorList().add(collaboratordto.getCollaboratorEmail());
@@ -364,11 +365,11 @@ public class NoteService implements NoteServiceI{
 				user.getNotelist().removeIf(data -> data.getId().equals(note.getId()));
 				user.getNotelist().add(note);
 				userrepository.save(user);
-				return new Response(200, noteEnvironment.getProperty("CREATE_COLLABORATOR"), noteEnvironment.getProperty("CREATE_COLLABORATOR"));
+				return new Response(200, noteEnvironment.getProperty("Add_Collaborator"), noteEnvironment.getProperty("CREATE_COLLABORATOR"));
 			}
-			return new Response(200, noteEnvironment.getProperty("NOTE_ID_NOT_FOUND"), noteEnvironment.getProperty("NOTE_ID_NOT_FOUND"));
+			return new Response(404, noteEnvironment.getProperty("NOTE_ID_NOT_FOUND"), HttpStatus.BAD_REQUEST);
 		}
-		return new Response(200, noteEnvironment.getProperty("UNAUTHORIZED_USER_EXCEPTION"), noteEnvironment.getProperty("UNAUTHORIZED_USER_EXCEPTION"));
+		return new Response(404, noteEnvironment.getProperty("UNAUTHORIZED_USER_EXCEPTION"), HttpStatus.BAD_REQUEST);
 	}
 	
 	
@@ -385,7 +386,7 @@ public class NoteService implements NoteServiceI{
 			if(note.getId().equals(noteid)) {
 				
 				if(!note.getCollaboratorList().contains(collaboratorEmailId)) {
-					return new Response(200, noteEnvironment.getProperty("COLLABORATOR_NOT_EXISTS"), noteEnvironment.getProperty("COLLABORATOR_NOT_EXISTS"));
+					return new Response(404, noteEnvironment.getProperty("COLLABORATOR_NOT_EXISTS"), HttpStatus.BAD_REQUEST);
 				}
 				
 				note.getCollaboratorList().remove(collaboratorEmailId);
@@ -394,11 +395,11 @@ public class NoteService implements NoteServiceI{
 				user.getNotelist().removeIf(data -> data.getId().equals(note.getId()));
 				user.getNotelist().add(note);
 				userrepository.save(user);
-				return new Response(200, noteEnvironment.getProperty("REMOVE_COLLABORATOR"), noteEnvironment.getProperty("REMOVE_COLLABORATOR"));
+				return new Response(200, noteEnvironment.getProperty("Remove_Collaborator"), noteEnvironment.getProperty("REMOVE_COLLABORATOR"));
 			}
-			return new Response(200, noteEnvironment.getProperty("NOTE_ID_NOT_FOUND"), noteEnvironment.getProperty("NOTE_ID_NOT_FOUND"));
+			return new Response(404, noteEnvironment.getProperty("NOTE_ID_NOT_FOUND"), HttpStatus.BAD_REQUEST);
 		}
-		return new Response(200, noteEnvironment.getProperty("UNAUTHORIZED_USER_EXCEPTION"), noteEnvironment.getProperty("UNAUTHORIZED_USER_EXCEPTION"));
+		return new Response(404, noteEnvironment.getProperty("UNAUTHORIZED_USER_EXCEPTION"), HttpStatus.BAD_REQUEST);
 	}
 
 
@@ -421,7 +422,7 @@ public class NoteService implements NoteServiceI{
 				String date = now.format(formatter);
 				
 				if(note.getReminder().equals(date)) {
-					throw new NoteException(noteEnvironment.getProperty("REMINDER_EXISTS_EXCEPTION"));
+					return new Response(404, noteEnvironment.getProperty("REMINDER_EXISTS_EXCEPTION"), HttpStatus.BAD_REQUEST);
 				}
 				
 				if(note.getReminder() == null) {
@@ -432,12 +433,12 @@ public class NoteService implements NoteServiceI{
 					user.getNotelist().removeIf(data -> data.getId().equals(note.getId()));
 					user.getNotelist().add(note);
 					userrepository.save(user);
-					return new Response(200, noteEnvironment.getProperty("ADD_REMINDER"), noteEnvironment.getProperty("ADD_REMINDER"));
+					return new Response(200, noteEnvironment.getProperty("Remove_Collaborator"), noteEnvironment.getProperty("REMOVE_COLLABORATOR"));
 				}
 			}
-			return new Response(200, noteEnvironment.getProperty("NOTE_ID_NOT_FOUND"), noteEnvironment.getProperty("NOTE_ID_NOT_FOUND"));
+			return new Response(404, noteEnvironment.getProperty("NOTE_ID_NOT_FOUND"), HttpStatus.BAD_REQUEST);
 		}
-		return new Response(200, noteEnvironment.getProperty("UNAUTHORIZED_USER_EXCEPTION"), noteEnvironment.getProperty("UNAUTHORIZED_USER_EXCEPTION"));
+		return new Response(404, noteEnvironment.getProperty("UNAUTHORIZED_USER_EXCEPTION"), HttpStatus.BAD_REQUEST);
 		
 	}
 
@@ -461,11 +462,11 @@ public class NoteService implements NoteServiceI{
 				String existingDate = note.getReminder();
 				
 				if(existingDate == null) {
-					throw new NoteException(noteEnvironment.getProperty("REMINDER_NOT_FOUND_EXCEPTION"));
+					return new Response(404, noteEnvironment.getProperty("REMINDER_NOT_FOUND_EXCEPTION"), HttpStatus.BAD_REQUEST);
 				}
 				
 				if(note.getReminder().equals(date)) {
-					throw new NoteException(noteEnvironment.getProperty("REMINDER_EXISTS_EXCEPTION"));
+					return new Response(404, noteEnvironment.getProperty("REMINDER_EXISTS_EXCEPTION"), HttpStatus.BAD_REQUEST);
 				}
 				
 				note.setReminder(date);
@@ -474,11 +475,11 @@ public class NoteService implements NoteServiceI{
 				user.getNotelist().removeIf(data -> data.getId().equals(note.getId()));
 				user.getNotelist().add(note);
 				userrepository.save(user);
-				return new Response(200, noteEnvironment.getProperty("EDIT_REMINDER"), noteEnvironment.getProperty("EDIT_REMINDER"));
+				return new Response(200, noteEnvironment.getProperty("Edit_Reminder"), noteEnvironment.getProperty("EDIT_REMINDER"));
 			}
-			return new Response(200, noteEnvironment.getProperty("NOTE_ID_NOT_FOUND"), noteEnvironment.getProperty("NOTE_ID_NOT_FOUND"));
+			return new Response(404, noteEnvironment.getProperty("NOTE_ID_NOT_FOUND"), HttpStatus.BAD_REQUEST);
 		}
-		return new Response(200, noteEnvironment.getProperty("UNAUTHORIZED_USER_EXCEPTION"), noteEnvironment.getProperty("UNAUTHORIZED_USER_EXCEPTION"));
+		return new Response(404, noteEnvironment.getProperty("UNAUTHORIZED_USER_EXCEPTION"), HttpStatus.BAD_REQUEST);
 	}
 	
 	
@@ -496,7 +497,7 @@ public class NoteService implements NoteServiceI{
 			if(note.getId().equals(noteid)) {
 			
 				if(note.getReminder() == null) {
-					throw new NoteException(noteEnvironment.getProperty("REMINDER_REMOVE_EXCEPTION"));
+					return new Response(404, noteEnvironment.getProperty("REMINDER_REMOVE_EXCEPTION"), HttpStatus.BAD_REQUEST);
 				}
 				
 				note.setReminder(null);
@@ -505,11 +506,11 @@ public class NoteService implements NoteServiceI{
 				user.getNotelist().removeIf(data -> data.getId().equals(note.getId()));
 				user.getNotelist().add(note);
 				userrepository.save(user);
-				return new Response(200, noteEnvironment.getProperty("REMOVE_REMINDER"), noteEnvironment.getProperty("REMOVE_REMINDER"));
+				return new Response(200, noteEnvironment.getProperty("Remove_Reminder"), noteEnvironment.getProperty("REMOVE_REMINDER"));
 			}
-			return new Response(200, noteEnvironment.getProperty("NOTE_ID_NOT_FOUND"), noteEnvironment.getProperty("NOTE_ID_NOT_FOUND"));
+			return new Response(404, noteEnvironment.getProperty("NOTE_ID_NOT_FOUND"), HttpStatus.BAD_REQUEST);
 		}
-		return new Response(200, noteEnvironment.getProperty("UNAUTHORIZED_USER_EXCEPTION"), noteEnvironment.getProperty("UNAUTHORIZED_USER_EXCEPTION"));
+		return new Response(404, noteEnvironment.getProperty("UNAUTHORIZED_USER_EXCEPTION"), HttpStatus.BAD_REQUEST);
 	}
 
 }

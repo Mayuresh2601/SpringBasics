@@ -1,7 +1,6 @@
 package com.bridgelabz.fundoonotes.note.service;
 
 import java.util.List;
-import java.util.Optional;
 
 import com.bridgelabz.fundoonotes.note.dto.CollaboratorDTO;
 import com.bridgelabz.fundoonotes.note.dto.NoteDTO;
@@ -16,23 +15,23 @@ public interface NoteServiceI {
 	
 	public Response deleteNote(String noteid, String token);
 	
-	public Optional<Note> findNoteById(String noteid, String token);
+	public Response findNoteById(String noteid, String token);
 	
 	public List<Note> showNotes();
 	
-	public boolean isPin(String noteid, String token);
+	public Response isPin(String noteid, String token);
 	
-	public boolean isTrash(String noteid, String token);
+	public Response isTrash(String noteid, String token);
 	
-	public boolean isArchieve(String noteid, String token);
+	public Response isArchieve(String noteid, String token);
 	
-	public List<?> sortNoteByTitleAsc();
+	public List<Note> sortNoteByTitleAsc();
 	
-	public List<?> sortNoteByTitleDesc();
+	public List<Note> sortNoteByTitleDesc();
 	
-	public List<?> sortNoteByDateAsc();
+	public List<Note> sortNoteByDateAsc();
 	
-	public List<?> sortNoteByDateDesc();
+	public List<Note> sortNoteByDateDesc();
 	
 	public Response addCollaboratorDemo(String noteid, String token);
 	

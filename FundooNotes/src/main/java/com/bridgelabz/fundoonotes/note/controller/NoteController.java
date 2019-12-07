@@ -9,7 +9,6 @@ package com.bridgelabz.fundoonotes.note.controller;
 
 import java.io.IOException;
 import java.util.List;
-import java.util.Optional;
 
 import javax.validation.Valid;
 
@@ -84,8 +83,8 @@ public class NoteController {
 	@GetMapping("/notes")
 	public Response findNoteById(@RequestHeader String id, @RequestHeader String token) {
 		
-		Optional<Note> note = noteService.findNoteById(id, token);
-		return new Response(200, noteEnvironment.getProperty("Find_Note"), note);
+		Response response = noteService.findNoteById(id, token);
+		return response;
 	}
 	
 	
@@ -108,8 +107,8 @@ public class NoteController {
 	@PutMapping("/notes/pin")
 	public Response isPin(@RequestHeader String id, @RequestHeader String token) {
 		
-		boolean result = noteService.isPin(id, token);
-		return new Response(200, noteEnvironment.getProperty("Pin_Note"), result);
+		Response response = noteService.isPin(id, token);
+		return response;
 	}
 
 	
@@ -121,8 +120,8 @@ public class NoteController {
 	@PutMapping("/notes/trash")
 	public Response isTrash(@RequestHeader String id, @RequestHeader String token) {
 		
-		boolean result = noteService.isTrash(id, token);
-		return new Response(200, noteEnvironment.getProperty("Trash_Note"), result);
+		Response response = noteService.isTrash(id, token);
+		return response;
 	}
 
 	
@@ -134,8 +133,8 @@ public class NoteController {
 	@PutMapping("/notes/archieve")
 	public Response isArchieve(@RequestHeader String id, @RequestHeader String token) {
 		
-		boolean result = noteService.isArchieve(id, token);
-		return new Response(200, noteEnvironment.getProperty("Archieve_Note"), result);
+		Response response = noteService.isArchieve(id, token);
+		return response;
 	}
 	
 	

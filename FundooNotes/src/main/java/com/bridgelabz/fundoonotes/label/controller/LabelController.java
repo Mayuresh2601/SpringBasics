@@ -3,7 +3,6 @@ package com.bridgelabz.fundoonotes.label.controller;
 import javax.validation.Valid;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.core.env.Environment;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -21,9 +20,6 @@ public class LabelController {
 	
 	@Autowired
 	private LabelService service;
-	
-	@Autowired
-	private Environment labelEnvironment;
 	
 	
 	/**Method: To Create Label in Database
@@ -71,7 +67,8 @@ public class LabelController {
 	@GetMapping("/labels")
 	public Response findLabelById(@RequestHeader String labelid, @RequestHeader String token) {
 		
-		return new Response(200, labelEnvironment.getProperty("Find_Label"), service.findLabelById(labelid, token));
+		Response response = service.findLabelById(labelid, token);
+		return response;
 	}
 	
 	
@@ -81,7 +78,8 @@ public class LabelController {
 	@GetMapping("/showlabels")
 	public Response showLabels() {
 		
-		return new Response(200, labelEnvironment.getProperty("Show_Labels"), service.showLabels());
+		Response response = service.showLabels();
+		return response;
 	}
 	
 	

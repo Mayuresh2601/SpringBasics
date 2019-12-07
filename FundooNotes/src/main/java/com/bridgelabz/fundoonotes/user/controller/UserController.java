@@ -62,7 +62,8 @@ public class UserController {
 	@GetMapping("/users")
 	public Response findUserById(@RequestHeader String id) {
 		
-		return new Response(200, userEnvironment.getProperty("Find_User"), userService.findUserById(id));
+		Response response = userService.findUserById(id);
+		return response;
 	}
 	
 	

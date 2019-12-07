@@ -68,9 +68,9 @@ public class LabelService implements LabelServiceI{
 
 			label.setCreateDate(date);
 			labelrepository.save(label);
-			return new Response(200, labelEnvironment.getProperty("CREATE_LABEL"), HttpStatus.OK);
+			return new Response(200, labelEnvironment.getProperty("Create_Label"), labelEnvironment.getProperty("CREATE_LABEL"));
 		}
-		return new Response(200, labelEnvironment.getProperty("UNAUTHORIZED_USER"), labelEnvironment.getProperty("UNAUTHORIZED_USER"));
+		return new Response(404, labelEnvironment.getProperty("UNAUTHORIZED_USER"), HttpStatus.BAD_REQUEST);
 
 	}
 
@@ -109,13 +109,13 @@ public class LabelService implements LabelServiceI{
 					user.getNotelist().removeIf(data -> data.getId().equals(note.getId()));
 					user.getNotelist().add(note);
 					userrepository.save(user);
-					return new Response(200, labelEnvironment.getProperty("UPDATE_LABEL"), HttpStatus.OK);
+					return new Response(200, labelEnvironment.getProperty("Update_Label"), labelEnvironment.getProperty("UPDATE_LABEL"));
 				}
-				return new Response(200, labelEnvironment.getProperty("LABEL_ID_NOT_FOUND"), labelEnvironment.getProperty("LABEL_ID_NOT_FOUND"));
+				return new Response(404, labelEnvironment.getProperty("LABEL_ID_NOT_FOUND"), HttpStatus.BAD_REQUEST);
 			}
-			return new Response(200, labelEnvironment.getProperty("NOTE_ID_NOT_FOUND"), labelEnvironment.getProperty("NOTE_ID_NOT_FOUND"));
+			return new Response(404, labelEnvironment.getProperty("NOTE_ID_NOT_FOUND"), HttpStatus.BAD_REQUEST);
 		}
-		return new Response(200, labelEnvironment.getProperty("UNAUTHORIZED_USER"), labelEnvironment.getProperty("UNAUTHORIZED_USER"));
+		return new Response(404, labelEnvironment.getProperty("UNAUTHORIZED_USER"), HttpStatus.BAD_REQUEST);
 	}
 
 	
@@ -144,13 +144,13 @@ public class LabelService implements LabelServiceI{
 					user.getNotelist().removeIf(data -> data.getId().equals(note.getId()));
 					user.getNotelist().add(note);
 					userrepository.save(user);
-					return new Response(200, labelEnvironment.getProperty("DELETE_LABEL"), HttpStatus.OK);
+					return new Response(200, labelEnvironment.getProperty("Delete_Label"), labelEnvironment.getProperty("DELETE_LABEL"));
 				}
-				return new Response(200, labelEnvironment.getProperty("LABEL_ID_NOT_FOUND"), labelEnvironment.getProperty("LABEL_ID_NOT_FOUND"));
+				return new Response(404, labelEnvironment.getProperty("LABEL_ID_NOT_FOUND"), labelEnvironment.getProperty("LABEL_ID_NOT_FOUND"));
 			}
-			return new Response(200, noteEnvironment.getProperty("NOTE_ID_NOT_FOUND"), noteEnvironment.getProperty("NOTE_ID_NOT_FOUND"));
+			return new Response(404, noteEnvironment.getProperty("NOTE_ID_NOT_FOUND"), noteEnvironment.getProperty("NOTE_ID_NOT_FOUND"));
 		}
-		return new Response(200, labelEnvironment.getProperty("UNAUTHORIZED_USER"), labelEnvironment.getProperty("UNAUTHORIZED_USER"));
+		return new Response(404, labelEnvironment.getProperty("UNAUTHORIZED_USER"), labelEnvironment.getProperty("UNAUTHORIZED_USER"));
 	}
 
 	
@@ -158,10 +158,10 @@ public class LabelService implements LabelServiceI{
 	 *Method: To Show All Labels
 	 */
 	@Override
-	public List<Label> showLabels() {
+	public Response showLabels() {
 		
 		List<Label> list = labelrepository.findAll();
-		return list;
+		return new Response(200, labelEnvironment.getProperty("Delete_Label"), list);
 	}
 
 	
@@ -169,15 +169,15 @@ public class LabelService implements LabelServiceI{
 	 *Method: To Find Label By Id
 	 */
 	@Override
-	public Label findLabelById(String labelid, String token) {
+	public Response findLabelById(String labelid, String token) {
 		
 		String email = jwt.getEmailId(token);
 		Label label = labelrepository.findById(labelid).get();
 		
 		if(email.equals(label.getEmail())) {
-			return label;
+			return new Response(200, labelEnvironment.getProperty("Find_Label"), label);
 		}
-		throw new LoginException(labelEnvironment.getProperty("UNAUTHORIZED_USER"));
+		return new Response(404, labelEnvironment.getProperty("UNAUTHORIZED_USER"), HttpStatus.BAD_REQUEST);
 	}
 	
 	
@@ -206,13 +206,13 @@ public class LabelService implements LabelServiceI{
 	    			user.getNotelist().removeIf(data -> data.getId().equals(note.getId()));
 	    			user.getNotelist().add(note);
 	    			userrepository.save(user);
-	                return new Response(200, labelEnvironment.getProperty("LABEL_ADDED_TO_NOTE"), HttpStatus.OK);
+	                return new Response(200, labelEnvironment.getProperty("Add_Label_To_Note"), labelEnvironment.getProperty("LABEL_ADDED_TO_NOTE"));
             	}
-            	return new Response(200, labelEnvironment.getProperty("LABEL_ID_NOT_FOUND"), labelEnvironment.getProperty("LABEL_ID_NOT_FOUND"));
+                return new Response(404, labelEnvironment.getProperty("LABEL_ID_NOT_FOUND"), HttpStatus.BAD_REQUEST);
             }
-            return new Response(200, noteEnvironment.getProperty("NOTE_ID_NOT_FOUND"), noteEnvironment.getProperty("NOTE_ID_NOT_FOUND"));
+            return new Response(404, labelEnvironment.getProperty("NOTE_ID_NOT_FOUND"), HttpStatus.BAD_REQUEST);
         }
-        return new Response(200, labelEnvironment.getProperty("UNAUTHORIZED_USER"), labelEnvironment.getProperty("UNAUTHORIZED_USER"));
+        return new Response(404, labelEnvironment.getProperty("UNAUTHORIZED_USER"), HttpStatus.BAD_REQUEST);
 
     }
 

@@ -12,11 +12,8 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.modelmapper.ModelMapper;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.context.annotation.PropertySource;
-import org.springframework.core.env.Environment;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
-import com.bridgelabz.fundoonotes.note.dto.CollaboratorDTO;
 import com.bridgelabz.fundoonotes.note.dto.NoteDTO;
 import com.bridgelabz.fundoonotes.note.model.Note;
 import com.bridgelabz.fundoonotes.note.repository.NoteRepositoryI;
@@ -28,7 +25,6 @@ import com.bridgelabz.fundoonotes.user.utility.Jwt;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @SpringBootTest
-@PropertySource("classpath:message.properties")
 public class NoteServiceTests {
 	
 	@InjectMocks
@@ -49,11 +45,9 @@ public class NoteServiceTests {
 	@Mock
 	private ModelMapper mapper;
 	
-	@Mock
-	private Environment noteEnvironment;
-
-	private Note note = new Note();
-	private String noteId = "5dba69b03f43761e31622cbe";
+Note note = new Note();
+	//private Note note = new Note("5dea5e3b836c8f441d888497","DBz","Dragon Ball Z","mssonar26@gmail.com",null,null,false,false,false,null,null,null);
+	private String noteId = "5dea5e42836c8f441d888498";
 	private String token = "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJlbWFpbElkIjoibXNzb25hcjI2QGdtYWlsLmNvbSJ9.PnmJiMaZVOJ03T5WgZU8k0VNEK-Osgj-mCtWe2whkUQ";
 	private String emailId = "mssonar26@gmail.com";
 	private Optional<Note> databaseNote;
@@ -74,10 +68,11 @@ public class NoteServiceTests {
 		// Mock Object Defined
 		when(jwt.getEmailId(token)).thenReturn(emailId);
 		when(mapper.map(noteDTO, Note.class)).thenReturn(note);
+		when(noteRepo.findByIdAndEmailId(noteId, emailId)).thenReturn(note);
 		when(noteRepo.save(note)).thenReturn(note);
 
 		Response response = noteService.createNote(token, noteDTO);
-		assertEquals(noteEnvironment.getProperty("CREATE_NOTE"), response);
+		assertEquals(200, response.getStatus());
 	}
 	
 	
@@ -89,12 +84,18 @@ public class NoteServiceTests {
 		
 		NoteDTO noteDTO = new NoteDTO();
 		noteDTO.setTitle("Secrets Can't Share");
-		String message = "Note Successfully Updated";
+		noteDTO.setDescription("My Secrets are my secrets none of your secrets");
+		
+		note.setId(noteId);
+		note.setEmailId(emailId);
+		System.out.println("Note Value : "+note);
+		// Mock Object Defined
+		when(jwt.getEmailId(token)).thenReturn(emailId);
 		when(mapper.map(noteDTO, Note.class)).thenReturn(note);
-		when(noteEnvironment.getProperty("UPDATE_NOTE")).thenReturn(message);
+		when(noteRepo.save(note)).thenReturn(note);		
+		
 		Response response = noteService.updateNote(noteId, token, noteDTO);
-		System.out.println(response);
-		assertEquals(noteEnvironment.getProperty("UPDATE_NOTE"), "Note Successfully Updated");
+		assertEquals(200, response.getStatus());
 	}
 	
 	
@@ -104,12 +105,30 @@ public class NoteServiceTests {
 	@Test
 	public void testDeleteNote() {
 		
+		note.setId(noteId);
+		note.setEmailId(emailId);
+		
 		when(noteRepo.findById(noteId)).thenReturn(databaseNote);
-		Response note= noteService.deleteNote(noteId, token);
-		noteRepo.deleteById(noteId);
-		assertEquals(note, databaseNote);
+		when(jwt.getEmailId(token)).thenReturn(emailId);
+		System.out.println(noteRepo.findById(noteId).get());
+		Response response= noteService.deleteNote(noteId, token);
+
+		assertEquals(200, response.getStatus());
 	}
 
+	  /**
+	    * Test case to get all note
+	    */
+	@Test
+	public void testfindNoteById() {
+
+		when(jwt.getEmailId(token)).thenReturn(emailId);
+		when(noteRepo.findById(noteId)).thenReturn(databaseNote);
+
+		Response response = noteService.findNoteById(noteId, token);
+		assertEquals(200, response.getStatus());
+
+	}
 	
 	/**
 	* Method: Test Case to Show All Notes
@@ -128,55 +147,60 @@ public class NoteServiceTests {
 	@Test
 	public void TestisPin() {
 		
+		note.setId(noteId);
+		note.setEmailId(emailId);
 		note.setPin(true);
 		when(noteRepo.findByIdAndEmailId(noteId, emailId)).thenReturn(note);
 		
+		Response response = noteService.isPin(noteId, token);
 		if (note.isPin()) {
 			note.setPin(true);
 		}
 		else {
 			note.setPin(false);
 		}
-		assertEquals(true, note.isPin());
+		assertEquals(200, response.getStatus());
 	}
 
 	
-	/**
-	* Method: Test Case to Trash Note for User 
-	*/
-	@Test
-	public void testIsTrash() {
-		
-		note.setTrash(true);
-		when(noteRepo.findByIdAndEmailId(noteId, emailId)).thenReturn(note);
-	
-		if (note.isTrash()) {
-			note.setTrash(true);
-		}
-		else {
-			note.setTrash(false);
-		}
-		assertEquals(true, note.isTrash());
-	}
-
-	
-	/**
-	* Method: Test Case to Archieve Note for User 
-	*/
-	@Test
-	public void testIsArchieve() {
-		
-		note.setArchieve(true);
-		when(noteRepo.findByIdAndEmailId(noteId, emailId)).thenReturn(note);
-		
-		if (note.isArchieve()) {
-			note.setArchieve(true);
-		}
-		else {
-			note.setArchieve(false);
-		}
-		assertEquals(true, note.isArchieve());
-	}
+//	/**
+//	* Method: Test Case to Trash Note for User 
+//	*/
+//	@Test
+//	public void testIsTrash() {
+//		
+//		note.setTrash(true);
+//		when(noteRepo.findByIdAndEmailId(noteId, emailId)).thenReturn(note);
+//	
+//		Response response = noteService.isTrash(noteId, token);
+//		if (note.isTrash()) {
+//			note.setTrash(true);
+//		}
+//		else {
+//			note.setTrash(false);
+//		}
+//		assertEquals(200, response.getStatus());
+//	}
+//
+//	
+//	/**
+//	* Method: Test Case to Archieve Note for User 
+//	*/
+//	@Test
+//	public void testIsArchieve() {
+//		
+//		note.setArchieve(true);
+//		when(noteRepo.findByIdAndEmailId(noteId, emailId)).thenReturn(note);
+//		
+//		Response response = noteService.isArchieve(noteId, token);
+//		if (note.isArchieve()) {
+//			note.setArchieve(true);
+//		}
+//		else {
+//			note.setArchieve(false);
+//		}
+//		assertEquals(200, response.getStatus());
+//	}
 	
 	
 	/**
@@ -222,63 +246,64 @@ public class NoteServiceTests {
 	}
 	
 	
-	/**
-	 * Method: Test Case to Add Collaborator
-	 */
-	@Test
-	public void testAddCollaborator() {
-		
-		CollaboratorDTO collaboratordto = null;
-		Response response = noteService.addCollaborator(noteId, token, collaboratordto);
-		assertEquals(response, noteEnvironment.getProperty("CREATE_COLLABORATOR"));
-	}
+//	/**
+//	 * Method: Test Case to Add Collaborator
+//	 */
+//	@Test
+//	public void testAddCollaborator() {
+//		
+//		CollaboratorDTO collaboratordto = null;
+//		Response response = noteService.addCollaborator(noteId, token, collaboratordto);
+//		assertEquals(200, response.getStatus());
+//	}
+//
+//	
+//	/**
+//	 * Method: Test Case to Remove Collaborator
+//	 */
+//	@Test
+//	public void testRemoveCollaborator() {
+//		
+//		String collaboratorEmailId = "demo.mayuresh@gmail.com";
+//		Response response = noteService.removeCollaborator(noteId, token, collaboratorEmailId);
+//		assertEquals(200, response.getStatus());
+//	}
+//	
+//	
+//	/**
+//	 * Method: Test Case to Add Reminder
+//	 */
+//	@Test
+//	public void testAddReminder() {
+//		
+//		int year=2020,month=12,day=23,hour=12,minute=20,second=45;
+//		Response response = noteService.addReminder(token, noteId, year, month, day, hour, minute, second);
+//		assertEquals(200, response.getStatus());
+//	}
+//	
+//	
+//	/**
+//	 * Method: Test Case to Edit Reminder
+//	 */
+//	@Test
+//	public void testEditReminder() {
+//		
+//		int year=2021,month=6,day=12,hour=18,minute=17,second=57;
+//		Response response = noteService.editReminder(token, noteId, year, month, day, hour, minute, second);
+//		assertEquals(200, response.getStatus());
+//	}
+//	
+//	
+//	/**
+//	 * Method: Test Case to Remove Reminder 
+//	 */
+//	@Test
+//	public void testRemoveReminder() {
+//		
+//		String collaboratorEmailId = "demo.mayuresh@gmail.com";
+//		Response response = noteService.removeCollaborator(noteId, token, collaboratorEmailId);
+//		assertEquals(200,response.getStatus());
+//	}
 
-	
-	/**
-	 * Method: Test Case to Remove Collaborator
-	 */
-	@Test
-	public void testRemoveCollaborator() {
-		
-		String collaboratorEmailId = "demo.mayuresh@gmail.com";
-		Response response = noteService.removeCollaborator(noteId, token, collaboratorEmailId);
-		assertEquals(response, noteEnvironment.getProperty("REMOVE_COLLABORATOR"));
-	}
-	
-	
-	/**
-	 * Method: Test Case to Add Reminder
-	 */
-	@Test
-	public void testAddReminder() {
-		
-		int year=2020,month=12,day=23,hour=12,minute=20,second=45;
-		Response response = noteService.addReminder(token, noteId, year, month, day, hour, minute, second);
-		assertEquals(response, noteEnvironment.getProperty("ADD_REMINDER"));
-	}
-	
-	
-	/**
-	 * Method: Test Case to Edit Reminder
-	 */
-	@Test
-	public void testEditReminder() {
-		
-		int year=2021,month=6,day=12,hour=18,minute=17,second=57;
-		Response response = noteService.editReminder(token, noteId, year, month, day, hour, minute, second);
-		assertEquals(response, noteEnvironment.getProperty("EDIT_REMINDER"));
-	}
-	
-	
-	/**
-	 * Method: Test Case to Remove Reminder 
-	 */
-	@Test
-	public void testRemoveReminder() {
-		
-		String collaboratorEmailId = "demo.mayuresh@gmail.com";
-		Response response = noteService.removeCollaborator(noteId, token, collaboratorEmailId);
-		assertEquals(response, noteEnvironment.getProperty("EDIT_REMINDER"));
-	}
 	
 }

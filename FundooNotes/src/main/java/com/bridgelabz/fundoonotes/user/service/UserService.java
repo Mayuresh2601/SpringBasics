@@ -11,12 +11,12 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.List;
-import java.util.Optional;
 
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.PropertySource;
 import org.springframework.core.env.Environment;
+import org.springframework.http.HttpStatus;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
@@ -26,9 +26,6 @@ import com.bridgelabz.fundoonotes.user.dto.LoginDTO;
 import com.bridgelabz.fundoonotes.user.dto.RegisterDTO;
 import com.bridgelabz.fundoonotes.user.dto.ResetDTO;
 import com.bridgelabz.fundoonotes.user.dto.UpdateDTO;
-import com.bridgelabz.fundoonotes.user.exception.FileNotAcceptingException;
-import com.bridgelabz.fundoonotes.user.exception.LoginException;
-import com.bridgelabz.fundoonotes.user.exception.ProfilePictureException;
 import com.bridgelabz.fundoonotes.user.model.User;
 import com.bridgelabz.fundoonotes.user.repository.UserRepositoryI;
 import com.bridgelabz.fundoonotes.user.response.Response;
@@ -62,33 +59,28 @@ public class UserService implements UserServiceI{
 	 */
 	@Override
 	public Response createUser(RegisterDTO regdto) {
-		try {
-			User user = mapper.map(regdto, User.class);
-			
-			if(user != null) {
-				user.setFirstName(regdto.getFirstName());
-				user.setLastName(regdto.getLastName());
-				user.setEmail(regdto.getEmail());
-				user.setMobileNumber(regdto.getMobileNumber());
-				
-				boolean checker = regdto.getPassword().equals(regdto.getConfirmPassword());
-				if(checker) {
-					user.setPassword(bCryptPasswordEncoder.encode(regdto.getPassword()));
-				}
-				else {
-					throw new LoginException(userEnvironment.getProperty("PASSWORD_NOT_MATCH"));
-				}
-				
-				String token = jwt.createToken(user.getEmail());
-				jms.sendMail(user.getEmail(),token);
-				userrepository.save(user);
-				return new Response(200, userEnvironment.getProperty("ADD_USER"), userEnvironment.getProperty("Add_User"));
+	
+		User user = mapper.map(regdto, User.class);
+
+		if (user != null) {
+			user.setFirstName(regdto.getFirstName());
+			user.setLastName(regdto.getLastName());
+			user.setEmail(regdto.getEmail());
+			user.setMobileNumber(regdto.getMobileNumber());
+
+			boolean checker = regdto.getPassword().equals(regdto.getConfirmPassword());
+			if (checker) {
+				user.setPassword(bCryptPasswordEncoder.encode(regdto.getPassword()));
+			} else {
+				return new Response(404, userEnvironment.getProperty("PASSWORD_NOT_MATCH"), HttpStatus.BAD_REQUEST);
 			}
-			throw new LoginException(userEnvironment.getProperty("UNAUTHORIZED_USER"));
+
+			String token = jwt.createToken(user.getEmail());
+			jms.sendMail(user.getEmail(), token);
+			userrepository.save(user);
+			return new Response(200, userEnvironment.getProperty("Add_User"), userEnvironment.getProperty("ADD_USER"));
 		}
-		catch(NullPointerException e) {
-			return new Response(200, userEnvironment.getProperty("NULL_POINTER_EXCEPTION"), userEnvironment.getProperty("NULL_POINTER_EXCEPTION"));
-		}
+		return new Response(404, userEnvironment.getProperty("UNAUTHORIZED_USER"), HttpStatus.BAD_REQUEST);
 	}
 
 	
@@ -96,9 +88,9 @@ public class UserService implements UserServiceI{
 	 *Method: To find User By Id in Database
 	 */
 	@Override
-	public Optional<User> findUserById(String id) {
-		
-		return userrepository.findById(id); 
+	public Response findUserById(String id) {
+	
+		return new Response(200, userEnvironment.getProperty("Find_User"), userrepository.findById(id));
 	}
 
 	
@@ -119,7 +111,7 @@ public class UserService implements UserServiceI{
 	public Response deleteUserById(String id) {
 		
 		userrepository.deleteById(id);
-		return new Response(200, userEnvironment.getProperty("DELETE_USER"), userEnvironment.getProperty("Delete_User"));
+		return new Response(200, userEnvironment.getProperty("Delete_User"), userEnvironment.getProperty("DELETE_USER"));
 	}
 
 	
@@ -137,9 +129,9 @@ public class UserService implements UserServiceI{
 			user.setMobileNumber(updatedto.getMobileNumber());
 				
 			userrepository.save(user);
-			return new Response(200, userEnvironment.getProperty("UPDATE_USER"), userEnvironment.getProperty("Update_User"));
+			return new Response(200, userEnvironment.getProperty("Update_User"), userEnvironment.getProperty("UPDATE_USER"));
 		}
-		throw new LoginException(userEnvironment.getProperty("UNAUTHORIZED_USER"));
+		return new Response(404, userEnvironment.getProperty("UNAUTHORIZED_USER"), HttpStatus.BAD_REQUEST);
 	}
 	
 	
@@ -157,10 +149,10 @@ public class UserService implements UserServiceI{
 			if(isValid ) {	
 				user.setValidate(true);
 				userrepository.save(user);
-				return new Response(200, userEnvironment.getProperty("USER_LOGIN_SUCCESSFUL"), userEnvironment.getProperty("Login"));
+				return new Response(200, userEnvironment.getProperty("Login"), userEnvironment.getProperty("USER_LOGIN_SUCCESSFUL"));
 			}
 		}
-		throw new LoginException(userEnvironment.getProperty("UNAUTHORIZED_USER"));
+		return new Response(404, userEnvironment.getProperty("UNAUTHORIZED_USER"), HttpStatus.BAD_REQUEST);
 	}
 	
 	
@@ -178,9 +170,9 @@ public class UserService implements UserServiceI{
 			String token = jwt.createToken(user.getEmail());
 			System.out.println("Recieved token:::::::  "+token);
 			jms.sendMail(user.getEmail(), token);
-			return new Response(200, userEnvironment.getProperty("CHECK_YOUR_MAIL"), userEnvironment.getProperty("Forget_Password"));
+			return new Response(200, userEnvironment.getProperty("CHECK_YOUR_MAIL"), userEnvironment.getProperty("CHECK_YOUR_MAIL"));
 		}
-		throw new LoginException(userEnvironment.getProperty("UNAUTHORIZED_USER"));
+		return new Response(404, userEnvironment.getProperty("UNAUTHORIZED_USER"), HttpStatus.BAD_REQUEST);
 	}
 
 	
@@ -200,11 +192,11 @@ public class UserService implements UserServiceI{
 			{
 				user.setPassword(bCryptPasswordEncoder.encode(resetdto.getNewPassword()));
 				userrepository.save(user);
-				return new Response(200, userEnvironment.getProperty("PASSWORD_UPDATED"), userEnvironment.getProperty("Reset_Password"));
+				return new Response(200, userEnvironment.getProperty("Reset_Password"), userEnvironment.getProperty("PASSWORD_RESETED"));
 			}
-			throw new LoginException(userEnvironment.getProperty("PASSWORD_NOT_MATCHED"));
+			return new Response(404, userEnvironment.getProperty("PASSWORD_NOT_MATCHED"), HttpStatus.BAD_REQUEST);
 		}
-		throw new LoginException(userEnvironment.getProperty("UNAUTHORIZED_USER"));
+		return new Response(404, userEnvironment.getProperty("UNAUTHORIZED_USER"), HttpStatus.BAD_REQUEST);
 	}
 	
 	/**
@@ -220,9 +212,9 @@ public class UserService implements UserServiceI{
 			{
 				user.setValidate(true);
 				userrepository.save(user);
-				return new Response(200, userEnvironment.getProperty("PASSWORD_UPDATED"), userEnvironment.getProperty("PASSWORD_UPDATED"));
+				return new Response(200, userEnvironment.getProperty("Verify_User"), userEnvironment.getProperty("VERIFIED_EMAILID_PASSWORD"));
 			}
-			throw new LoginException(userEnvironment.getProperty("UNAUTHORIZED_USER"));
+			return new Response(404, userEnvironment.getProperty("UNAUTHORIZED_USER"), HttpStatus.BAD_REQUEST);
 		}
 
 
@@ -244,22 +236,22 @@ public class UserService implements UserServiceI{
 				FileOutputStream fout = new FileOutputStream(convertFile);
 				String path = "/home/admin1/Documents/" + file.getOriginalFilename();
 			
+				if(user.getProfilePicture().equals(path)) {
+					return new Response(404, userEnvironment.getProperty("PROFILE_PICTURE_EXISTED_EXCEPTION"), HttpStatus.BAD_REQUEST);
+				}
+				
 				if(user.getProfilePicture() == null) {
 					user.setProfilePicture(path);
 					userrepository.save(user);
 		
 					fout.write(file.getBytes());
 					fout.close();
-					return new Response(200, userEnvironment.getProperty("PROFILE_PICTURE_UPLOADED"), userEnvironment.getProperty("Upload_Profile_Picture"));
-				}
-				
-				if(user.getProfilePicture().equals(path)) {
-					throw new ProfilePictureException(userEnvironment.getProperty("PROFILE_PICTURE_EXISTED_EXCEPTION")) ;
+					return new Response(200, userEnvironment.getProperty("Upload_Profile_Picture"), userEnvironment.getProperty("PROFILE_PICTURE_UPLOADED"));
 				}
 			}
-			throw new FileNotAcceptingException(userEnvironment.getProperty("FILE_INVALID"));
+			return new Response(404, userEnvironment.getProperty("FILE_INVALID"), HttpStatus.BAD_REQUEST);
 		}
-		throw new LoginException(userEnvironment.getProperty("UNAUTHORIZED_USER"));
+		return new Response(404, userEnvironment.getProperty("UNAUTHORIZED_USER"), HttpStatus.BAD_REQUEST);
 	}
 
 
@@ -284,11 +276,11 @@ public class UserService implements UserServiceI{
 				String path = "/home/admin1/Documents/" + file.getOriginalFilename();
 				
 				if(photo == null) {
-					throw new ProfilePictureException(userEnvironment.getProperty("PROFILE_NOT_FOUND_EXCEPTION")) ;
+					return new Response(404, userEnvironment.getProperty("PROFILE_NOT_FOUND_EXCEPTION"), HttpStatus.BAD_REQUEST);
 				}
 				
 				if(user.getProfilePicture().equals(photo)) {
-					throw new ProfilePictureException(userEnvironment.getProperty("PROFILE_PICTURE_EXISTED_EXCEPTION"));
+					return new Response(404, userEnvironment.getProperty("PROFILE_PICTURE_EXISTED_EXCEPTION"), HttpStatus.BAD_REQUEST);
 				}
 				
 				user.setProfilePicture(path);
@@ -296,11 +288,11 @@ public class UserService implements UserServiceI{
 	
 				fout.write(file.getBytes());
 				fout.close();
-				return new Response(200, userEnvironment.getProperty("PROFILE_PICTURE_UPDATED"), userEnvironment.getProperty("Update_Profile_Picture"));
+				return new Response(200, userEnvironment.getProperty("Update_Profile_Picture"), userEnvironment.getProperty("PROFILE_PICTURE_UPDATED"));
 			}
-			throw new FileNotAcceptingException(userEnvironment.getProperty("FILE_INVALID"));
+			return new Response(404, userEnvironment.getProperty("FILE_INVALID"), HttpStatus.BAD_REQUEST);
 		}
-		throw new LoginException(userEnvironment.getProperty("UNAUTHORIZED_USER"));
+		return new Response(404, userEnvironment.getProperty("UNAUTHORIZED_USER"), HttpStatus.BAD_REQUEST);
 	}
 	
 	
@@ -316,13 +308,14 @@ public class UserService implements UserServiceI{
 		if(email.equals(user.getEmail())) {
 			
 			if(user.getProfilePicture() == null) {
-				throw new ProfilePictureException(userEnvironment.getProperty("PROFILE_PICTURE_REMOVE_EXCEPTION")) ;
+				return new Response(404, userEnvironment.getProperty("PROFILE_PICTURE_REMOVE_EXCEPTION"), HttpStatus.BAD_REQUEST);
 			}
+			
 			user.setProfilePicture(null);
 			userrepository.save(user);
-			return new Response(200, userEnvironment.getProperty("PROFILE_PICTURE_DELETED"), userEnvironment.getProperty("Remove_Profile_Picture"));
+			return new Response(200, userEnvironment.getProperty("Remove_Profile_Picture"), userEnvironment.getProperty("PROFILE_PICTURE_DELETED"));
 		}
-		throw new LoginException(userEnvironment.getProperty("UNAUTHORIZED_USER"));
+		return new Response(404, userEnvironment.getProperty("UNAUTHORIZED_USER"), HttpStatus.BAD_REQUEST);
 	}
 
 }

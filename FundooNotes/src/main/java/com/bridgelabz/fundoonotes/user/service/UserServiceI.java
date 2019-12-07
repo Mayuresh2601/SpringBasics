@@ -2,7 +2,6 @@ package com.bridgelabz.fundoonotes.user.service;
 
 import java.io.IOException;
 import java.util.List;
-import java.util.Optional;
 
 import org.springframework.web.multipart.MultipartFile;
 
@@ -18,7 +17,7 @@ public interface UserServiceI {
 	
 	public Response createUser(RegisterDTO regdto);
 	
-	public Optional<User> findUserById(String id);
+	public Response findUserById(String id);
 	
 	public List<User> showUsers();
 	
