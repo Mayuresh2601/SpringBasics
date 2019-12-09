@@ -10,6 +10,7 @@ package com.bridgelabz.fundoonotes.user.service;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 
 import org.modelmapper.ModelMapper;
@@ -63,14 +64,21 @@ public class UserService implements UserServiceI{
 		User user = mapper.map(regdto, User.class);
 
 		if (user != null) {
-			user.setFirstName(regdto.getFirstName());
-			user.setLastName(regdto.getLastName());
-			user.setEmail(regdto.getEmail());
-			user.setMobileNumber(regdto.getMobileNumber());
-
-			boolean checker = regdto.getPassword().equals(regdto.getConfirmPassword());
-			if (checker) {
+			List<User> userlist = showUsers();
+			List<String> userEmail = new ArrayList<>();
+			for (int i = 0; i < userlist.size(); i++) {
+				userEmail.add(userlist.get(i).getEmail());
+			}
+			
+			boolean isVerify = userEmail.contains(regdto.getEmail());
+			if(isVerify) {
+				return new Response(404, userEnvironment.getProperty("EMAILID_EXISTS"), HttpStatus.BAD_REQUEST);
+			}
+			
+			boolean passwordChecker = regdto.getPassword().equals(regdto.getConfirmPassword());
+			if (passwordChecker) {
 				user.setPassword(bCryptPasswordEncoder.encode(regdto.getPassword()));
+				user.setConfirmPassword(bCryptPasswordEncoder.encode(regdto.getConfirmPassword()));
 			} else {
 				return new Response(404, userEnvironment.getProperty("PASSWORD_NOT_MATCH"), HttpStatus.BAD_REQUEST);
 			}
@@ -88,9 +96,9 @@ public class UserService implements UserServiceI{
 	 *Method: To find User By Id in Database
 	 */
 	@Override
-	public Response findUserById(String id) {
-	
-		return new Response(200, userEnvironment.getProperty("Find_User"), userrepository.findById(id));
+	public Response findUser(String token) {
+		String emailId = jwt.getEmailId(token);
+		return new Response(200, userEnvironment.getProperty("Find_User"), userrepository.findByEmail(emailId));
 	}
 
 	
@@ -108,7 +116,7 @@ public class UserService implements UserServiceI{
 	 *Method: To Delete a User by its Id 
 	 */
 	@Override
-	public Response deleteUserById(String id) {
+	public Response deleteUser(String id) {
 		
 		userrepository.deleteById(id);
 		return new Response(200, userEnvironment.getProperty("Delete_User"), userEnvironment.getProperty("DELETE_USER"));
@@ -123,7 +131,7 @@ public class UserService implements UserServiceI{
 		String email = jwt.getEmailId(token);
 		User user = userrepository.findByEmail(email);
 		
-		if(email.equals(user.getEmail())){
+		if(email != null){
 			user.setFirstName(updatedto.getFirstName());
 			user.setLastName(updatedto.getLastName());
 			user.setMobileNumber(updatedto.getMobileNumber());
@@ -131,7 +139,7 @@ public class UserService implements UserServiceI{
 			userrepository.save(user);
 			return new Response(200, userEnvironment.getProperty("Update_User"), userEnvironment.getProperty("UPDATE_USER"));
 		}
-		return new Response(404, userEnvironment.getProperty("UNAUTHORIZED_USER"), HttpStatus.BAD_REQUEST);
+		return new Response(200, userEnvironment.getProperty("UNAUTHORIZED_USER"), HttpStatus.BAD_REQUEST);
 	}
 	
 	
@@ -142,7 +150,7 @@ public class UserService implements UserServiceI{
 	public Response login(LoginDTO logindto, String token) {
 		String email = jwt.getEmailId(token);
 		User user = userrepository.findByEmail(email);
-		if(logindto.getEmail().equals(user.getEmail())) {
+		if(logindto != null) {
 				
 			boolean isValid = bCryptPasswordEncoder.matches(logindto.getPassword(), user.getPassword());
 			
@@ -159,19 +167,23 @@ public class UserService implements UserServiceI{
 	/**
 	 *Method: To generate JWT token of emailId and send it on mail
 	 */
-	@SuppressWarnings("unlikely-arg-type")
+	@SuppressWarnings("unused")
 	@Override
 	public Response forgetPassword(ForgetDTO forget) {
 		
 		List<User> userlist = showUsers();
+		List<String> email = new ArrayList<>();
+		for (int i = 0; i < userlist.size(); i++) {
+			email.add(userlist.get(i).getEmail());
+		}
 		
-		if(userlist.contains(forget.getEmail())) {
+		if(email != null) {
 			User user = mapper.map(forget, User.class);
 			String token = jwt.createToken(user.getEmail());
 			System.out.println("Recieved token:::::::  "+token);
 			jms.sendMail(user.getEmail(), token);
 			return new Response(200, userEnvironment.getProperty("CHECK_YOUR_MAIL"), userEnvironment.getProperty("CHECK_YOUR_MAIL"));
-		}
+		}	
 		return new Response(404, userEnvironment.getProperty("UNAUTHORIZED_USER"), HttpStatus.BAD_REQUEST);
 	}
 
@@ -184,7 +196,7 @@ public class UserService implements UserServiceI{
 		
 		String email=jwt.getEmailId(token);
 		User user = userrepository.findByEmail(email);
-		if(email.equals(user.getEmail()))
+		if(email != null)
 		{
 			user.setPassword(resetdto.getNewPassword());
 			
@@ -208,7 +220,7 @@ public class UserService implements UserServiceI{
 			String email=jwt.getEmailId(token);
 			User user = userrepository.findByEmail(email);
 			
-			if(email.equals(user.getEmail()))
+			if(email != null)
 			{
 				user.setValidate(true);
 				userrepository.save(user);
@@ -226,19 +238,16 @@ public class UserService implements UserServiceI{
 	public Response uploadProfilePicture(String token, MultipartFile file) throws IOException {
 		String email = jwt.getEmailId(token);
 		User user = userrepository.findByEmail(email);
-		if(email.equals(user.getEmail())) {
+		if(email != null) {
 			
 			File convertFile = new File("/home/admin1/Documents/"+file.getOriginalFilename());
 			convertFile.createNewFile();
-			boolean checker = file.getOriginalFilename().contains(".jpeg") || file.getOriginalFilename().contains(".jpg") || file.getOriginalFilename().contains(".png");
-			if(!file.isEmpty() && checker) {
+			
+			boolean fileChecker = file.getOriginalFilename().contains(".jpeg") || file.getOriginalFilename().contains(".jpg") || file.getOriginalFilename().contains(".png");
+			if(!file.isEmpty() && fileChecker) {
 				
 				FileOutputStream fout = new FileOutputStream(convertFile);
 				String path = "/home/admin1/Documents/" + file.getOriginalFilename();
-			
-				if(user.getProfilePicture().equals(path)) {
-					return new Response(404, userEnvironment.getProperty("PROFILE_PICTURE_EXISTED_EXCEPTION"), HttpStatus.BAD_REQUEST);
-				}
 				
 				if(user.getProfilePicture() == null) {
 					user.setProfilePicture(path);
@@ -247,6 +256,10 @@ public class UserService implements UserServiceI{
 					fout.write(file.getBytes());
 					fout.close();
 					return new Response(200, userEnvironment.getProperty("Upload_Profile_Picture"), userEnvironment.getProperty("PROFILE_PICTURE_UPLOADED"));
+				}
+				
+				if(user.getProfilePicture().equals(path)) {
+					return new Response(404, userEnvironment.getProperty("PROFILE_PICTURE_EXISTED_EXCEPTION"), HttpStatus.BAD_REQUEST);
 				}
 			}
 			return new Response(404, userEnvironment.getProperty("FILE_INVALID"), HttpStatus.BAD_REQUEST);
@@ -279,7 +292,7 @@ public class UserService implements UserServiceI{
 					return new Response(404, userEnvironment.getProperty("PROFILE_NOT_FOUND_EXCEPTION"), HttpStatus.BAD_REQUEST);
 				}
 				
-				if(user.getProfilePicture().equals(photo)) {
+				if(user.getProfilePicture().equals(path)) {
 					return new Response(404, userEnvironment.getProperty("PROFILE_PICTURE_EXISTED_EXCEPTION"), HttpStatus.BAD_REQUEST);
 				}
 				

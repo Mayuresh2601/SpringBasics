@@ -1,8 +1,11 @@
 package com.bridgelabz.fundoonotes.notetestcase;
 
 import static org.junit.Assert.assertEquals;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -12,8 +15,11 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.modelmapper.ModelMapper;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.core.env.Environment;
+import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
+import com.bridgelabz.fundoonotes.note.dto.CollaboratorDTO;
 import com.bridgelabz.fundoonotes.note.dto.NoteDTO;
 import com.bridgelabz.fundoonotes.note.model.Note;
 import com.bridgelabz.fundoonotes.note.repository.NoteRepositoryI;
@@ -25,52 +31,52 @@ import com.bridgelabz.fundoonotes.user.utility.Jwt;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @SpringBootTest
+@TestPropertySource("classpath:message.properties")
 public class NoteServiceTests {
 	
 	@InjectMocks
-	private NoteService noteService;
+	NoteService noteService;
 	
 	@Mock
-	private NoteRepositoryI noteRepo;
+	NoteRepositoryI noteRepo;
 	
 	@Mock
-	private UserRepositoryI userRepo;
+	UserRepositoryI userRepo;
 	
 	@Mock
-	private User user;
+	User user;
 	
 	@Mock
-	private Jwt jwt;
+	Jwt jwt;
 	
 	@Mock
-	private ModelMapper mapper;
+	ModelMapper mapper;
 	
-Note note = new Note();
+	@Mock
+	Environment noteEnv;
+	
+	LocalDateTime now = LocalDateTime.now();
+	DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm:ss");
+	
+	Note note = new Note();
 	//private Note note = new Note("5dea5e3b836c8f441d888497","DBz","Dragon Ball Z","mssonar26@gmail.com",null,null,false,false,false,null,null,null);
 	private String noteId = "5dea5e42836c8f441d888498";
 	private String token = "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJlbWFpbElkIjoibXNzb25hcjI2QGdtYWlsLmNvbSJ9.PnmJiMaZVOJ03T5WgZU8k0VNEK-Osgj-mCtWe2whkUQ";
 	private String emailId = "mssonar26@gmail.com";
-	private Optional<Note> databaseNote;
-	
+	private Optional<Note> databaseNote = Optional.of(note);
+	NoteDTO noteDTO = new NoteDTO();
+	List<User> userlist= new ArrayList<>();
 	
 	/**
 	 * Method: Test Case for Create Note
 	 */
 	@Test
 	public void testCreateNote() {
-		
-		NoteDTO noteDTO = new NoteDTO();
-		noteDTO.setTitle("Title");
-		noteDTO.setDescription("Description");
-		note.setEmailId(emailId);
-		System.out.println("Creating Note in JUnitTest: " + noteDTO.getTitle() +"   "+ noteDTO.getDescription());
 
-		// Mock Object Defined
 		when(jwt.getEmailId(token)).thenReturn(emailId);
 		when(mapper.map(noteDTO, Note.class)).thenReturn(note);
-		when(noteRepo.findByIdAndEmailId(noteId, emailId)).thenReturn(note);
 		when(noteRepo.save(note)).thenReturn(note);
-
+	
 		Response response = noteService.createNote(token, noteDTO);
 		assertEquals(200, response.getStatus());
 	}
@@ -88,7 +94,7 @@ Note note = new Note();
 		
 		note.setId(noteId);
 		note.setEmailId(emailId);
-		System.out.println("Note Value : "+note);
+		
 		// Mock Object Defined
 		when(jwt.getEmailId(token)).thenReturn(emailId);
 		when(mapper.map(noteDTO, Note.class)).thenReturn(note);
@@ -108,11 +114,10 @@ Note note = new Note();
 		note.setId(noteId);
 		note.setEmailId(emailId);
 		
-		when(noteRepo.findById(noteId)).thenReturn(databaseNote);
 		when(jwt.getEmailId(token)).thenReturn(emailId);
-		System.out.println(noteRepo.findById(noteId).get());
+		when(noteRepo.findByIdAndEmailId(noteId, emailId)).thenReturn(databaseNote);
+		
 		Response response= noteService.deleteNote(noteId, token);
-
 		assertEquals(200, response.getStatus());
 	}
 
@@ -151,7 +156,7 @@ Note note = new Note();
 		note.setEmailId(emailId);
 		note.setPin(true);
 		when(noteRepo.findByIdAndEmailId(noteId, emailId)).thenReturn(note);
-		
+		when(userRepo.findByEmail(emailId)).thenReturn(user);
 		Response response = noteService.isPin(noteId, token);
 		if (note.isPin()) {
 			note.setPin(true);
@@ -245,7 +250,7 @@ Note note = new Note();
 		assertEquals(notelist, noteRepo.findAll());
 	}
 	
-	
+//	
 //	/**
 //	 * Method: Test Case to Add Collaborator
 //	 */

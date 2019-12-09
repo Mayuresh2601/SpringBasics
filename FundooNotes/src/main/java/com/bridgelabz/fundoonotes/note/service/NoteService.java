@@ -15,6 +15,7 @@ import java.util.stream.Collectors;
 
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.PropertySource;
 import org.springframework.core.env.Environment;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
@@ -29,6 +30,7 @@ import com.bridgelabz.fundoonotes.user.response.Response;
 import com.bridgelabz.fundoonotes.user.utility.Jwt;
 
 @Service
+@PropertySource("classpath:message.properties")
 public class NoteService implements NoteServiceI{
 	
 	@Autowired
@@ -54,7 +56,7 @@ public class NoteService implements NoteServiceI{
 	public Response createNote(String token, NoteDTO notedto) {
 
 		String email = jwt.getEmailId(token);
-		User user = userrepository.findByEmail(email);
+//		User user = userrepository.findByEmail(email);
 		
 		if(email != null) {
 			Note note = mapper.map(notedto, Note.class);
@@ -66,8 +68,8 @@ public class NoteService implements NoteServiceI{
 			note.setCreateDate(date);
 			noterepository.save(note);
 			
-			user.getNotelist().add(note);
-			userrepository.save(user);
+//			user.getNotelist().add(note);
+//			userrepository.save(user);
 			return new Response(200, noteEnvironment.getProperty("Create_Note"), noteEnvironment.getProperty("CREATE_NOTE"));
 		}
 		return new Response(404, noteEnvironment.getProperty("UNAUTHORIZED_USER_EXCEPTION"), HttpStatus.BAD_REQUEST);

@@ -15,7 +15,6 @@ import com.bridgelabz.fundoonotes.label.repository.LabelRepositoryI;
 import com.bridgelabz.fundoonotes.note.model.Note;
 import com.bridgelabz.fundoonotes.note.repository.NoteRepositoryI;
 import com.bridgelabz.fundoonotes.note.service.NoteService;
-import com.bridgelabz.fundoonotes.user.exception.LoginException;
 import com.bridgelabz.fundoonotes.user.model.User;
 import com.bridgelabz.fundoonotes.user.repository.UserRepositoryI;
 import com.bridgelabz.fundoonotes.user.response.Response;
@@ -85,7 +84,7 @@ public class LabelService implements LabelServiceI{
 		Label label = labelrepository.findById(labelid).get();
 		Note n = noterepository.findById(noteid).get();
 		
-		if(email.equals(label.getEmail())) {
+		if(email != null) {
 			
 			if(n.getId().equalsIgnoreCase(noteid)) {
 			

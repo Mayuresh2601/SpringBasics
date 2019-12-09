@@ -17,11 +17,11 @@ public interface UserServiceI {
 	
 	public Response createUser(RegisterDTO regdto);
 	
-	public Response findUserById(String id);
+	public Response findUser(String token);
 	
 	public List<User> showUsers();
 	
-	public Response deleteUserById(String id);
+	public Response deleteUser(String id);
 	
 	public Response updateUser(UpdateDTO updatedto, String token);
 

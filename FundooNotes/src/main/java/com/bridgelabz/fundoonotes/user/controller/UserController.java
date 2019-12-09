@@ -60,9 +60,9 @@ public class UserController {
 	 * @return Find User by Id implementation Logic
 	 */
 	@GetMapping("/users")
-	public Response findUserById(@RequestHeader String id) {
+	public Response findUserById(@RequestHeader String token) {
 		
-		Response response = userService.findUserById(id);
+		Response response = userService.findUser(token);
 		return response;
 	}
 	
@@ -87,7 +87,7 @@ public class UserController {
 	@DeleteMapping("/deleteuser")
 	public Response deleteUser(@RequestHeader String id) {
 		
-		Response response = userService.deleteUserById(id);
+		Response response = userService.deleteUser(id);
 		return response;
 	}
 	
