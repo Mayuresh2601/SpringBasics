@@ -8,12 +8,10 @@
 package com.bridgelabz.fundoonotes.user.controller;
 
 import java.io.IOException;
-import java.util.List;
 
 import javax.validation.Valid;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.core.env.Environment;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -29,7 +27,6 @@ import com.bridgelabz.fundoonotes.user.dto.LoginDTO;
 import com.bridgelabz.fundoonotes.user.dto.RegisterDTO;
 import com.bridgelabz.fundoonotes.user.dto.ResetDTO;
 import com.bridgelabz.fundoonotes.user.dto.UpdateDTO;
-import com.bridgelabz.fundoonotes.user.model.User;
 import com.bridgelabz.fundoonotes.user.response.Response;
 import com.bridgelabz.fundoonotes.user.service.UserService;
 
@@ -38,9 +35,6 @@ public class UserController {
 	
 	@Autowired
 	private UserService userService;
-	
-	@Autowired
-	private Environment userEnvironment;
 	
 	
 	/**Method: To Create User in Database
@@ -98,8 +92,8 @@ public class UserController {
 	@GetMapping("/showusers")
 	public Response showUsers() {
 
-		List<User> list = userService.showUsers();
-		return new Response(200, userEnvironment.getProperty("Show_Users"), list);
+		Response response =  userService.showUsers();
+		return response;
 	}
 	
 	

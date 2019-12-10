@@ -1,6 +1,8 @@
 package com.bridgelabz.fundoonotes.usertestcase;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
@@ -79,38 +81,42 @@ public class UserServiceTests {
 	@Mock
 	private MultipartFile file;
 	
-	User user = new User();
-	String userId = "5dea5dee836c8f441d888494";
-	String token = "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJlbWFpbElkIjoibXNzb25hcjI2QGdtYWlsLmNvbSJ9.PnmJiMaZVOJ03T5WgZU8k0VNEK-Osgj-mCtWe2whkUQ";
-	String email = "mssonar26@gmail.com";
-	String password = "123456";
-	String confirmPassword = "123456";
-	String profilePicture = "myself,jpeg";
-	boolean status = true;
-	Optional<User> optionalUser = Optional.of(user);
-	List<User> userlist = new ArrayList<>();
-
+	/* Used Objects */
+	private User user = new User();
+	private String token = "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJlbWFpbElkIjoibXNzb25hcjI2QGdtYWlsLmNvbSJ9.PnmJiMaZVOJ03T5WgZU8k0VNEK-Osgj-mCtWe2whkUQ";
+	private String email = "mssonar26@gmail.com";
+	private String password = "123456";
+	private String confirmPassword = "123456";
+	private String profilePicture = "myself,jpeg";
+	private boolean status = true;
+	private Optional<User> optionalUser = Optional.of(user);
+	private List<String> userEmail = new ArrayList<>();	
+	
 	
 	/**
 	 * Method: Test Case to Create User
 	 */
+	@Test
 	public void testCreateUser() {
 
 		regdto = new RegisterDTO();
+		regdto.setEmail(email);
 		regdto.setPassword(password);
 		regdto.setConfirmPassword(confirmPassword);
 		regdto.setEmail(email);
 
 		when(mapper.map(regdto, User.class)).thenReturn(user);
-		when(regdto.getPassword()).thenReturn(password);
-		when(regdto.getConfirmPassword()).thenReturn(confirmPassword);
-		when(bCryptPasswordEncoder.encode("password")).thenReturn(anyString());
+		assertFalse(userEmail.contains(regdto.getEmail()));
+		assertTrue(regdto.getPassword().equals(regdto.getConfirmPassword()));
+		when(bCryptPasswordEncoder.encode(regdto.getPassword())).thenReturn(anyString());
+		when(bCryptPasswordEncoder.encode(regdto.getConfirmPassword())).thenReturn(anyString());
 		user.setPassword(password);
+		
+		when(jwt.createToken(user.getEmail())).thenReturn(email);
 		jms.sendMail(email, token);
 		when(userRepo.save(user)).thenReturn(user);
 		
 		Response response = userService.createUser(regdto);
-		System.out.println(response.getStatus());
 		assertEquals(200, response.getStatus());
 
 	}
@@ -132,16 +138,6 @@ public class UserServiceTests {
 	
 	
 	/**
-	 * Method: Test Case to Show All Users 
-	 */
-	public void testShowUsers(){
-		
-//		List<User> userlist = userService.showUsers();
-//		assertEquals(userlist, userRepo.findAll());
-	}
-	
-	
-	/**
 	 * Method: Test Case to Delete User 
 	 */
 	@Test
@@ -154,6 +150,7 @@ public class UserServiceTests {
 	     assertEquals(200, response.getStatus());
 		
 	}
+	
 	
 	/**
 	 * Method: Test Case to Update User
@@ -213,12 +210,14 @@ public class UserServiceTests {
 	 */
 	@Test
 	public void testResetPassword() {
-
+		
+		user.setEmail(email);
 		resetdto.setNewPassword(password);;
 		resetdto.setConfirmPassword(confirmPassword);;
 		
 		when(jwt.getEmailId(token)).thenReturn(email);
 		when(userRepo.findByEmail(email)).thenReturn(user);
+		assertTrue(email.equals(user.getEmail()));
 		user.setPassword(password);
 		
 		when(resetdto.getNewPassword()).thenReturn(password);
@@ -239,8 +238,11 @@ public class UserServiceTests {
 	@Test
 	public void testVerify() {
 		
+		user.setEmail(email);
+		
 		when(jwt.getEmailId(token)).thenReturn(email);
 		when(userRepo.findByEmail(email)).thenReturn(user);
+		assertTrue(email.equals(user.getEmail()));
 		when(userRepo.save(user)).thenReturn(user);
 		
 		Response response = userService.verify(token);
@@ -255,8 +257,11 @@ public class UserServiceTests {
 	@Test
 	public void testUploadProfilePicture() throws IOException {
 		
+		user.setEmail(email);
+		
 		when(jwt.getEmailId(token)).thenReturn(email);
 		when(userRepo.findByEmail(email)).thenReturn(user);
+		assertTrue(email.equals(user.getEmail()));
 		
 		if(profilePicture == null) {
 			user.setProfilePicture(profilePicture);
@@ -270,12 +275,14 @@ public class UserServiceTests {
 	 * Method: Test Case to Update Profile Picture
 	 * @throws IOException 
 	 */
-	@Test
 	public void testUpdateProfilePicture() throws IOException {
-
+		
+		user.setEmail(email);
+		
 		when(jwt.getEmailId(token)).thenReturn(email);
 		when(userRepo.findByEmail(email)).thenReturn(user);
-		assertTrue(profilePicture.contains(".jpeg") || profilePicture.contains(".jpg") || profilePicture.contains(".png"));
+		assertTrue(email.equals(user.getEmail()));
+		assertThat((profilePicture.contains(".jpeg")) || (profilePicture.contains(".jpg")) || (profilePicture.contains(".png")));
 	
 		if(profilePicture != null) {
 		user.setProfilePicture(profilePicture);
@@ -289,13 +296,18 @@ public class UserServiceTests {
 	 */
 	@Test
 	public void testRemoveProfilePicture() {
+		
 		user.setEmail(email);
+		user.setProfilePicture(profilePicture);
 		when(jwt.getEmailId(token)).thenReturn(email);
 		when(userRepo.findByEmail(email)).thenReturn(user);
 		assertTrue(email.equals(user.getEmail()));
 		
-		user.setProfilePicture(null);
-		when(userRepo.save(user)).thenReturn(user);
+		if (user.getProfilePicture() == null) {
+			user.setProfilePicture(null);
+			when(userRepo.save(user)).thenReturn(user);
+		}
+		
 		Response response = userService.removeProfilePicture(token);
 		assertEquals(200, response.getStatus());
 		

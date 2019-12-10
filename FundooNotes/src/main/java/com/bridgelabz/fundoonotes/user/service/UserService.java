@@ -64,7 +64,7 @@ public class UserService implements UserServiceI{
 		User user = mapper.map(regdto, User.class);
 
 		if (user != null) {
-			List<User> userlist = showUsers();
+			List<User> userlist = userrepository.findAll();
 			List<String> userEmail = new ArrayList<>();
 			for (int i = 0; i < userlist.size(); i++) {
 				userEmail.add(userlist.get(i).getEmail());
@@ -106,9 +106,10 @@ public class UserService implements UserServiceI{
 	 *Method: Display All User Details Present in Database
 	 */
 	@Override
-	public List<User> showUsers() {
+	public Response showUsers() {
 		
-		return userrepository.findAll(); 
+		List<User> userlist = userrepository.findAll();
+		return new Response(200, userEnvironment.getProperty("Show_Users"), userlist);
 	}
 
 	
@@ -154,7 +155,7 @@ public class UserService implements UserServiceI{
 				
 			boolean isValid = bCryptPasswordEncoder.matches(logindto.getPassword(), user.getPassword());
 			
-			if(isValid ) {	
+			if(isValid) {	
 				user.setValidate(true);
 				userrepository.save(user);
 				return new Response(200, userEnvironment.getProperty("Login"), userEnvironment.getProperty("USER_LOGIN_SUCCESSFUL"));
@@ -171,7 +172,7 @@ public class UserService implements UserServiceI{
 	@Override
 	public Response forgetPassword(ForgetDTO forget) {
 		
-		List<User> userlist = showUsers();
+		List<User> userlist = userrepository.findAll();
 		List<String> email = new ArrayList<>();
 		for (int i = 0; i < userlist.size(); i++) {
 			email.add(userlist.get(i).getEmail());
@@ -196,7 +197,7 @@ public class UserService implements UserServiceI{
 		
 		String email=jwt.getEmailId(token);
 		User user = userrepository.findByEmail(email);
-		if(email != null)
+		if(email.equals(user.getEmail()))
 		{
 			user.setPassword(resetdto.getNewPassword());
 			
@@ -220,7 +221,7 @@ public class UserService implements UserServiceI{
 			String email=jwt.getEmailId(token);
 			User user = userrepository.findByEmail(email);
 			
-			if(email != null)
+			if(email.equals(user.getEmail()))
 			{
 				user.setValidate(true);
 				userrepository.save(user);
@@ -238,7 +239,7 @@ public class UserService implements UserServiceI{
 	public Response uploadProfilePicture(String token, MultipartFile file) throws IOException {
 		String email = jwt.getEmailId(token);
 		User user = userrepository.findByEmail(email);
-		if(email != null) {
+		if(email.equals(user.getEmail())) {
 			
 			File convertFile = new File("/home/admin1/Documents/"+file.getOriginalFilename());
 			convertFile.createNewFile();
@@ -321,7 +322,7 @@ public class UserService implements UserServiceI{
 		if(email.equals(user.getEmail())) {
 			
 			if(user.getProfilePicture() == null) {
-				return new Response(404, userEnvironment.getProperty("PROFILE_PICTURE_REMOVE_EXCEPTION"), HttpStatus.BAD_REQUEST);
+				return new Response(400, userEnvironment.getProperty("PROFILE_PICTURE_REMOVE_EXCEPTION"), HttpStatus.BAD_REQUEST);
 			}
 			
 			user.setProfilePicture(null);

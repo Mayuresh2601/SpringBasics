@@ -19,7 +19,7 @@ public interface UserServiceI {
 	
 	public Response findUser(String token);
 	
-	public List<User> showUsers();
+	public Response showUsers();
 	
 	public Response deleteUser(String id);
 	

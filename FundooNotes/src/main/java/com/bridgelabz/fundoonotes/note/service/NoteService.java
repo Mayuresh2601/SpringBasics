@@ -56,7 +56,6 @@ public class NoteService implements NoteServiceI{
 	public Response createNote(String token, NoteDTO notedto) {
 
 		String email = jwt.getEmailId(token);
-//		User user = userrepository.findByEmail(email);
 		
 		if(email != null) {
 			Note note = mapper.map(notedto, Note.class);
@@ -68,8 +67,9 @@ public class NoteService implements NoteServiceI{
 			note.setCreateDate(date);
 			noterepository.save(note);
 			
-//			user.getNotelist().add(note);
-//			userrepository.save(user);
+			User user = userrepository.findByEmail(email);
+			user.getNotelist().add(note);
+			userrepository.save(user);
 			return new Response(200, noteEnvironment.getProperty("Create_Note"), noteEnvironment.getProperty("CREATE_NOTE"));
 		}
 		return new Response(404, noteEnvironment.getProperty("UNAUTHORIZED_USER_EXCEPTION"), HttpStatus.BAD_REQUEST);
@@ -83,7 +83,7 @@ public class NoteService implements NoteServiceI{
 	public Response updateNote(String noteid, String token, NoteDTO notedto) {
 		
 		String email = jwt.getEmailId(token);
-		User user = userrepository.findByEmail(email);
+		
 		if(email != null) {
 		
 			Note noteupdate = noterepository.findById(noteid).get();
@@ -99,6 +99,7 @@ public class NoteService implements NoteServiceI{
 				noterepository.save(noteupdate);
 				
 				Note note = noterepository.findById(noteid).get();
+				User user = userrepository.findByEmail(email);
 				user.getNotelist().removeIf(data -> data.getId().equals(note.getId()));
 				user.getNotelist().add(noteupdate);
 				userrepository.save(user);
@@ -167,21 +168,22 @@ public class NoteService implements NoteServiceI{
 		String email = jwt.getEmailId(token);
 		List<Note> listofNote= noterepository.findByEmailId(email);
 		Note note =listofNote.stream().filter(i->i.getId().equals(noteid)).findAny().orElse(null);
-		User user = userrepository.findByEmail(email);
+		
 		if(email != null)
 		{
-			if(note.getId().equals(noteid)) 
+			if(noteid != null) 
 			{
 				note.setPin(!(note.isPin()));
 				noterepository.save(note);
 				
+				User user = userrepository.findByEmail(email);
 				Note note1 = noterepository.findById(noteid).get();
 				user.getNotelist().removeIf(data -> data.getId().equals(note1.getId()));
 				user.getNotelist().add(note);
 				userrepository.save(user);
 				return new Response(200, noteEnvironment.getProperty("UPDATE_Pin"), note.isPin());
 			}
-			return new Response(404, noteEnvironment.getProperty("NOTE_ID_NOT_FOUND"), HttpStatus.BAD_REQUEST);
+			return new Response(400, noteEnvironment.getProperty("NOTE_ID_NOT_FOUND"), HttpStatus.BAD_REQUEST);
 		}
 		return new Response(404, noteEnvironment.getProperty("UNAUTHORIZED_USER_EXCEPTION"), HttpStatus.BAD_REQUEST);
 	}
@@ -196,7 +198,7 @@ public class NoteService implements NoteServiceI{
 		String email = jwt.getEmailId(token);
 		List<Note> listofNote= noterepository.findByEmailId(email);
 		Note note =listofNote.stream().filter(i->i.getId().equals(noteid)).findAny().orElse(null);
-		User user = userrepository.findByEmail(email);
+		
 		if(email != null)
 		{
 			if(note.getId().equals(noteid)) {
@@ -204,6 +206,7 @@ public class NoteService implements NoteServiceI{
 				noterepository.save(note);
 				
 				Note note1 = noterepository.findById(noteid).get();
+				User user = userrepository.findByEmail(email);
 				user.getNotelist().removeIf(data -> data.getId().equals(note1.getId()));
 				user.getNotelist().add(note);
 				userrepository.save(user);
@@ -385,10 +388,10 @@ public class NoteService implements NoteServiceI{
 		if(email != null) {
 			
 			Note note = noterepository.findById(noteid).get();
-			if(note.getId().equals(noteid)) {
+			if(noteid != null) {
 				
 				if(!note.getCollaboratorList().contains(collaboratorEmailId)) {
-					return new Response(404, noteEnvironment.getProperty("COLLABORATOR_NOT_EXISTS"), HttpStatus.BAD_REQUEST);
+					return new Response(400, noteEnvironment.getProperty("COLLABORATOR_NOT_EXISTS"), HttpStatus.BAD_REQUEST);
 				}
 				
 				note.getCollaboratorList().remove(collaboratorEmailId);

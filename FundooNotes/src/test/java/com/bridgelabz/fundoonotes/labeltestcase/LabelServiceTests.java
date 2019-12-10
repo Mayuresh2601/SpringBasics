@@ -1,5 +1,6 @@
 package com.bridgelabz.fundoonotes.labeltestcase;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.assertTrue;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.Mockito.when;
@@ -24,6 +25,7 @@ import com.bridgelabz.fundoonotes.label.repository.LabelRepositoryI;
 import com.bridgelabz.fundoonotes.label.service.LabelService;
 import com.bridgelabz.fundoonotes.note.model.Note;
 import com.bridgelabz.fundoonotes.note.repository.NoteRepositoryI;
+import com.bridgelabz.fundoonotes.note.service.NoteService;
 import com.bridgelabz.fundoonotes.user.model.User;
 import com.bridgelabz.fundoonotes.user.repository.UserRepositoryI;
 import com.bridgelabz.fundoonotes.user.response.Response;
@@ -37,6 +39,9 @@ public class LabelServiceTests {
 	
 	@InjectMocks
 	private LabelService labelService;
+	
+	@Mock
+	private NoteService noteService;
 	
 	@Mock
 	private UserRepositoryI userRepo;
@@ -59,20 +64,19 @@ public class LabelServiceTests {
 	@Mock
 	private Environment labelEnv;
 	
-	Label label = new Label();
-	Note note = new Note();
-	User user = new User();
-	String noteId = "5dea5dee836c8f441d888494";
-	String labelId = "5dea5dee836c8f441d888494";
-	String token = "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJlbWFpbElkIjoibXNzb25hcjI2QGdtYWlsLmNvbSJ9.PnmJiMaZVOJ03T5WgZU8k0VNEK-Osgj-mCtWe2whkUQ";
-	String email = "mssonar26@gmail.com";
-	String password = "123456";
-	String confirmPassword = "123456";
-	boolean status = true;
-	Optional<Label> optionalLabel = Optional.of(label);
-	Optional<Note> optionalNote = Optional.of(note);
-	List<Label> userlist = new ArrayList<>();
-	
+	/* Used Objects */
+	private Label label = new Label();
+	private Note note = new Note();
+	private User user = new User();
+	private String noteid = "5dea5dee836c8f441d888494";
+	private String labelid = "5dea5dee836c8f441d888494";
+	private String token = "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJlbWFpbElkIjoibXNzb25hcjI2QGdtYWlsLmNvbSJ9.PnmJiMaZVOJ03T5WgZU8k0VNEK-Osgj-mCtWe2whkUQ";
+	private String email = "mssonar26@gmail.com";
+	private Optional<Label> optionalLabel = Optional.of(label);
+	private Optional<Note> optionalNote = Optional.of(note);
+	private List<Note> notelist = new ArrayList<>();
+
+
 	/**
 	 * Method: Test Case to Create Label
 	 */
@@ -94,16 +98,32 @@ public class LabelServiceTests {
 	 */
 	@Test
 	public void testUpdateLabel() {
-		note.setId(noteId);
-		label.setId(labelId);
+		
+		label.setId(labelid);
+		note.setId(noteid);
+		note.setEmailId(email);
 		when(jwt.getEmailId(token)).thenReturn(email);
-		when(labelRepo.findById(labelId)).thenReturn(optionalLabel);
-		when(noteRepo.findById(noteId)).thenReturn(optionalNote);
+		when(labelRepo.findById(labelid)).thenReturn(optionalLabel);
+		when(noteRepo.findById(noteid)).thenReturn(optionalNote);
+	
 		when(mapper.map(labeldto, Label.class)).thenReturn(label);
 
-		assertTrue(note.getId().equals(noteId));
-		assertTrue(label.getId().equals(labelId));
-		Response response = labelService.updateLabel(noteId, labelId, token, labeldto);
+		assertTrue(note.getId().equals(noteid));
+		assertTrue(label.getId().equals(labelid));
+		when(labelRepo.save(label)).thenReturn(label);
+		
+		//when(noteService.showNotes()).thenReturn(notelist);
+		//notelist.stream().filter(data -> data.getEmailId().equals(email)).findAny().orElse(null);
+		assertThat(note.getLabellist().removeIf(data -> data.getId().equals(labelid)));
+		note.getLabellist().remove(label);
+		when(noteRepo.save(note)).thenReturn(note);
+		
+		when(userRepo.findByEmail(email)).thenReturn(user);
+		assertThat(user.getNotelist().removeIf(data -> data.getId().equals(note.getId())));
+		user.getNotelist().add(note);
+		when(userRepo.save(user)).thenReturn(user);
+		
+		Response response = labelService.updateLabel(noteid, labelid, token, labeldto);
 		assertEquals(200, response.getStatus());
 		
 	}
@@ -112,15 +132,43 @@ public class LabelServiceTests {
 	/**
 	 * Method: Test Case to Delete Label
 	 */
+	@Test
 	public void testDeleteLabel() {
 		
+		note.setId(noteid);
+		label.setId(labelid);
+		note.setEmailId(email);
+
+		when(jwt.getEmailId(token)).thenReturn(email);
+		when(labelRepo.findById(labelid)).thenReturn(optionalLabel);
+		when(noteRepo.findById(noteid)).thenReturn(optionalNote);
+		
+		assertTrue(note.getId().equals(noteid));
+		assertTrue(label.getId().equals(labelid));
+		labelRepo.deleteById(labelid);
+
+		assertThat(note.getLabellist().removeIf(data -> data.getId().equals(labelid)));
+		note.getLabellist().remove(label);
+		when(noteRepo.save(note)).thenReturn(note);
+		
+		when(userRepo.findByEmail(email)).thenReturn(user);
+		assertThat(user.getNotelist().removeIf(data -> data.getId().equals(note.getId())));
+		user.getNotelist().add(note);
+		when(userRepo.save(user)).thenReturn(user);
+		
+		Response response = labelService.deleteLabel(noteid, labelid, token);
+		assertEquals(200, response.getStatus());
 	}
 	
 	
 	/**
 	 * Method: Test Case to Show All Labels
 	 */
+	@Test
 	public void showLabels() {
+		
+		Response response =  labelService.showLabels();
+		assertEquals(200, response.getStatus());
 		
 	}
 	
@@ -128,15 +176,49 @@ public class LabelServiceTests {
 	/**
 	 * Method: Test Case to Find Label By Id
 	 */
+	@Test
 	public void testFindLabelById() {
+
+		when(jwt.getEmailId(token)).thenReturn(email);
+		when(userRepo.findByEmail(email)).thenReturn(user);
+		when(labelRepo.findById(labelid)).thenReturn(optionalLabel);
 		
+		Response response = labelService.findLabelById(labelid, token);
+		assertEquals(200, response.getStatus());
 	}
 	
 	
 	/**
 	 * Method: Test Case to Add Label to Note
 	 */
+	@Test
 	public void testAddLabelToNote() {
+
+		user.setEmail(email);
+		note.setId(noteid);
+		label.setId(labelid);
+
+		when(jwt.getEmailId(token)).thenReturn(email);
+		when(userRepo.findByEmail(email)).thenReturn(user);
+		assertTrue(email.equals(user.getEmail()));
 		
+		when(noteRepo.findByEmailId(email)).thenReturn(notelist);
+		when(labelRepo.findById(labelid)).thenReturn(optionalLabel);
+		
+//		assertTrue(note.getId().equals(noteid));
+//		assertTrue(label.getId().equals(labelid));
+		
+		label.getNotelist().add(note);
+		when(labelRepo.save(label)).thenReturn(label);
+		
+		note.getLabellist().add(label);
+		when(noteRepo.save(note)).thenReturn(note);
+		
+//		assertThat(user.getNotelist().removeIf(data -> data.getId().equals(note.getId())));
+//		user.getNotelist().add(note);
+//		when(userRepo.save(user)).thenReturn(user);
+		
+		Response response = labelService.addLabelToNote(noteid, labelid, token);
+		assertEquals(200, response.getStatus());
 	}
 }

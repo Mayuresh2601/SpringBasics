@@ -14,7 +14,6 @@ import com.bridgelabz.fundoonotes.label.model.Label;
 import com.bridgelabz.fundoonotes.label.repository.LabelRepositoryI;
 import com.bridgelabz.fundoonotes.note.model.Note;
 import com.bridgelabz.fundoonotes.note.repository.NoteRepositoryI;
-import com.bridgelabz.fundoonotes.note.service.NoteService;
 import com.bridgelabz.fundoonotes.user.model.User;
 import com.bridgelabz.fundoonotes.user.repository.UserRepositoryI;
 import com.bridgelabz.fundoonotes.user.response.Response;
@@ -31,9 +30,6 @@ public class LabelService implements LabelServiceI{
 	
 	@Autowired
 	private UserRepositoryI userrepository;
-	
-	@Autowired
-	private NoteService noteService;
 	
 	@Autowired
 	private Jwt jwt;
@@ -98,15 +94,15 @@ public class LabelService implements LabelServiceI{
 					label.setEditDate(date);
 					labelrepository.save(label);
 					
-					List<Note> notelist = noteService.showNotes();
-					Note note = notelist.stream().filter(data -> data.getEmailId().equals(email)).findAny().orElse(null);
-					note.getLabellist().removeIf(data -> data.getId().equals(labelid));
-					note.getLabellist().add(label);
-					noterepository.save(note);
+//					List<Note> notelist = noteService.showNotes();
+//					Note note = notelist.stream().filter(data -> data.getEmailId().equals(email)).findAny().orElse(null);
+					n.getLabellist().removeIf(data -> data.getId().equals(labelid));
+					n.getLabellist().add(label);
+					noterepository.save(n);
 					
 					User user = userrepository.findByEmail(email);
-					user.getNotelist().removeIf(data -> data.getId().equals(note.getId()));
-					user.getNotelist().add(note);
+					user.getNotelist().removeIf(data -> data.getId().equals(n.getId()));
+					user.getNotelist().add(n);
 					userrepository.save(user);
 					return new Response(200, labelEnvironment.getProperty("Update_Label"), labelEnvironment.getProperty("UPDATE_LABEL"));
 				}
@@ -126,7 +122,7 @@ public class LabelService implements LabelServiceI{
 		
 		String email = jwt.getEmailId(token);
 		Label label = labelrepository.findById(labelid).get();
-		if(email.equals(label.getEmail())) {
+		if(email != null) {
 			
 			Note n = noterepository.findById(noteid).get();
 			if(n.getId().equalsIgnoreCase(noteid)) {
@@ -134,14 +130,14 @@ public class LabelService implements LabelServiceI{
 				if(label.getId().equalsIgnoreCase(labelid)) {
 					labelrepository.deleteById(labelid);
 				
-					List<Note> notelist = noteService.showNotes();
-					Note note = notelist.stream().filter(data -> data.getEmailId().equals(email)).findAny().orElse(null);
-					note.getLabellist().remove(label);
-					noterepository.save(note);
+//					List<Note> notelist = noteService.showNotes();
+//					Note note = notelist.stream().filter(data -> data.getEmailId().equals(email)).findAny().orElse(null);
+					n.getLabellist().remove(label);
+					noterepository.save(n);
 					
 					User user = userrepository.findByEmail(email);
-					user.getNotelist().removeIf(data -> data.getId().equals(note.getId()));
-					user.getNotelist().add(note);
+					user.getNotelist().removeIf(data -> data.getId().equals(n.getId()));
+					user.getNotelist().add(n);
 					userrepository.save(user);
 					return new Response(200, labelEnvironment.getProperty("Delete_Label"), labelEnvironment.getProperty("DELETE_LABEL"));
 				}
@@ -160,7 +156,7 @@ public class LabelService implements LabelServiceI{
 	public Response showLabels() {
 		
 		List<Label> list = labelrepository.findAll();
-		return new Response(200, labelEnvironment.getProperty("Delete_Label"), list);
+		return new Response(200, labelEnvironment.getProperty("Show_Labels"), list);
 	}
 
 	
@@ -173,7 +169,7 @@ public class LabelService implements LabelServiceI{
 		String email = jwt.getEmailId(token);
 		Label label = labelrepository.findById(labelid).get();
 		
-		if(email.equals(label.getEmail())) {
+		if(email != null) {
 			return new Response(200, labelEnvironment.getProperty("Find_Label"), label);
 		}
 		return new Response(404, labelEnvironment.getProperty("UNAUTHORIZED_USER"), HttpStatus.BAD_REQUEST);
@@ -189,22 +185,23 @@ public class LabelService implements LabelServiceI{
     	String emailId = jwt.getEmailId(token);
         User user = userrepository.findByEmail(emailId);
         if (emailId.equals(user.getEmail())) {
+        	
             List<Note> listNote = noterepository.findByEmailId(emailId);
-
             Note note = listNote.stream().filter(i -> i.getId().equals(noteid)).findAny().orElse(null);
             Label label = labelrepository.findById(labelid).get();
-            if (note.getId().equals(noteid)) {
+            
+            if (noteid != null) {
 
-            	if(label.getId().equals(labelid)) {
+            	if(labelid != null) {
             		label.getNotelist().add(note);
             		labelrepository.save(label);
             		
             		note.getLabellist().add(label);
 	                noterepository.save(note);
 	                
-	    			user.getNotelist().removeIf(data -> data.getId().equals(note.getId()));
-	    			user.getNotelist().add(note);
-	    			userrepository.save(user);
+//	    			user.getNotelist().removeIf(data -> data.getId().equals(note.getId()));
+//	    			user.getNotelist().add(note);
+//	    			userrepository.save(user);
 	                return new Response(200, labelEnvironment.getProperty("Add_Label_To_Note"), labelEnvironment.getProperty("LABEL_ADDED_TO_NOTE"));
             	}
                 return new Response(404, labelEnvironment.getProperty("LABEL_ID_NOT_FOUND"), HttpStatus.BAD_REQUEST);
