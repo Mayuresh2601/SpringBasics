@@ -35,7 +35,6 @@ import com.bridgelabz.fundoonotes.user.utility.Jwt;
 @SpringBootTest
 @TestPropertySource("classpath:message.properties")
 public class LabelServiceTests {
-
 	
 	@InjectMocks
 	private LabelService labelService;
@@ -114,16 +113,16 @@ public class LabelServiceTests {
 		
 		//when(noteService.showNotes()).thenReturn(notelist);
 		//notelist.stream().filter(data -> data.getEmailId().equals(email)).findAny().orElse(null);
-		assertThat(note.getLabellist().removeIf(data -> data.getId().equals(labelid)));
-		note.getLabellist().remove(label);
-		when(noteRepo.save(note)).thenReturn(note);
+//		assertThat(note.getLabellist().removeIf(data -> data.getId().equals(labelid)));
+//		note.getLabellist().remove(label);
+//		when(noteRepo.save(note)).thenReturn(note);
+//		
+//		when(userRepo.findByEmail(email)).thenReturn(user);
+//		assertThat(user.getNotelist().removeIf(data -> data.getId().equals(note.getId())));
+//		user.getNotelist().add(note);
+//		when(userRepo.save(user)).thenReturn(user);
 		
-		when(userRepo.findByEmail(email)).thenReturn(user);
-		assertThat(user.getNotelist().removeIf(data -> data.getId().equals(note.getId())));
-		user.getNotelist().add(note);
-		when(userRepo.save(user)).thenReturn(user);
-		
-		Response response = labelService.updateLabel(noteid, labelid, token, labeldto);
+		Response response = labelService.updateLabel(labelid, token, labeldto);
 		assertEquals(200, response.getStatus());
 		
 	}
@@ -156,7 +155,7 @@ public class LabelServiceTests {
 		user.getNotelist().add(note);
 		when(userRepo.save(user)).thenReturn(user);
 		
-		Response response = labelService.deleteLabel(noteid, labelid, token);
+		Response response = labelService.deleteLabel(labelid, token);
 		assertEquals(200, response.getStatus());
 	}
 	
@@ -191,11 +190,13 @@ public class LabelServiceTests {
 	/**
 	 * Method: Test Case to Add Label to Note
 	 */
-	@Test
+	
 	public void testAddLabelToNote() {
 
 		user.setEmail(email);
 		note.setId(noteid);
+		note.setEmailId(noteid);
+		label.setEmail(labelid);
 		label.setId(labelid);
 
 		when(jwt.getEmailId(token)).thenReturn(email);

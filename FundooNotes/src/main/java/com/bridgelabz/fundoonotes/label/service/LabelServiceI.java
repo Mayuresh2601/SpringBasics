@@ -7,9 +7,9 @@ public interface LabelServiceI {
 	
 	public Response createLabel(String token, LabelDTO labeldto);
 	
-	public Response updateLabel(String noteid, String labelid, String token, LabelDTO labeldto);
+	public Response updateLabel(String labelid, String token, LabelDTO labeldto);
 	
-	public Response deleteLabel(String noteid, String labelid, String token);
+	public Response deleteLabel(String labelid, String token);
 	
 	public Response showLabels();
 	

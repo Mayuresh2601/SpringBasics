@@ -53,8 +53,8 @@ public class UserController {
 	 * @param id
 	 * @return Find User by Id implementation Logic
 	 */
-	@GetMapping("/users")
-	public Response findUserById(@RequestHeader String token) {
+	@GetMapping("/user")
+	public Response findUser(@RequestHeader String token) {
 		
 		Response response = userService.findUser(token);
 		return response;

@@ -284,7 +284,6 @@ public class UserService implements UserServiceI{
 		{
 			String photo = user.getProfilePicture();
 			boolean checker = file.getOriginalFilename().contains(".jpeg") || file.getOriginalFilename().contains(".jpg") || file.getOriginalFilename().contains(".png");
-			
 			if(!file.isEmpty() && checker) {
 				FileOutputStream fout = new FileOutputStream(convertFile);
 				String path = "/home/admin1/Documents/" + file.getOriginalFilename();

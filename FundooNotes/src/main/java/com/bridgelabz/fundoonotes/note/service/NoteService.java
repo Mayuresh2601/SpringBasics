@@ -426,10 +426,6 @@ public class NoteService implements NoteServiceI{
 				DateTimeFormatter formatter = DateTimeFormatter.ofPattern(day+"-"+month+"-"+year+"   "+hour+":"+minute+":"+second);
 				String date = now.format(formatter);
 				
-				if(note.getReminder().equals(date)) {
-					return new Response(404, noteEnvironment.getProperty("REMINDER_EXISTS_EXCEPTION"), HttpStatus.BAD_REQUEST);
-				}
-				
 				if(note.getReminder() == null) {
 					
 					note.setReminder(date);
@@ -438,7 +434,11 @@ public class NoteService implements NoteServiceI{
 					user.getNotelist().removeIf(data -> data.getId().equals(note.getId()));
 					user.getNotelist().add(note);
 					userrepository.save(user);
-					return new Response(200, noteEnvironment.getProperty("Remove_Collaborator"), noteEnvironment.getProperty("REMOVE_COLLABORATOR"));
+					return new Response(200, noteEnvironment.getProperty("Add_Reminder"), noteEnvironment.getProperty("ADD_REMINDER"));
+				}
+				
+				if(note.getReminder().equals(date)) {
+					return new Response(404, noteEnvironment.getProperty("REMINDER_EXISTS_EXCEPTION"), HttpStatus.BAD_REQUEST);
 				}
 			}
 			return new Response(404, noteEnvironment.getProperty("NOTE_ID_NOT_FOUND"), HttpStatus.BAD_REQUEST);

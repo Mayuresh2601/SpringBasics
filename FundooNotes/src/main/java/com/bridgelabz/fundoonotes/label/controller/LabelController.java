@@ -41,9 +41,9 @@ public class LabelController {
 	 * @return Update Label implementation Logic
 	 */
 	@PutMapping("/updatelabel")
-	public Response updateLabel(@RequestHeader String noteid, @RequestHeader String labelid, @RequestHeader String token,@Valid @RequestBody LabelDTO labeldto) {
+	public Response updateLabel(@RequestHeader String labelid, @RequestHeader String token,@Valid @RequestBody LabelDTO labeldto) {
 		
-		Response response = service.updateLabel(noteid, labelid, token, labeldto);
+		Response response = service.updateLabel(labelid, token, labeldto);
 		return response;
 	}
 
@@ -53,9 +53,9 @@ public class LabelController {
 	 * @return Delete Label implementation Logic
 	 */
 	@DeleteMapping("/deletelabel")
-	public Response deleteLabel(@RequestHeader String noteid, @RequestHeader String labelid, @RequestHeader String token) {
+	public Response deleteLabel(@RequestHeader String labelid, @RequestHeader String token) {
 	
-		Response response = service.deleteLabel(noteid, labelid, token);
+		Response response = service.deleteLabel(labelid, token);
 		return response;
 	}
 	

@@ -1,9 +1,7 @@
 package com.bridgelabz.fundoonotes.usertestcase;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.*;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import static org.mockito.Mockito.*;
@@ -80,6 +78,7 @@ public class UserServiceTests {
 	
 	@Mock
 	private MultipartFile file;
+	
 	
 	/* Used Objects */
 	private User user = new User();

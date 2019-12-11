@@ -57,6 +57,7 @@ public class NoteServiceTests {
 	@Mock
 	private Environment noteEnv;
 	
+	
 	/* Used Objects */
 	private Note note = new Note();
 	private String noteId = "5dea5e42836c8f441d888498";
@@ -327,40 +328,40 @@ public class NoteServiceTests {
 	}
 	
 	
-//	/**
-//	 * Method: Test Case to Add Reminder
-//	 */
-//	@Test
-//	public void testAddReminder() {
-//		
-//		int year=2020,month=12,day=23,hour=12,minute=20,second=45;
-//		Response response = noteService.addReminder(token, noteId, year, month, day, hour, minute, second);
-//		assertEquals(200, response.getStatus());
-//	}
-//	
-//	
-//	/**
-//	 * Method: Test Case to Edit Reminder
-//	 */
-//	@Test
-//	public void testEditReminder() {
-//		
-//		int year=2021,month=6,day=12,hour=18,minute=17,second=57;
-//		Response response = noteService.editReminder(token, noteId, year, month, day, hour, minute, second);
-//		assertEquals(200, response.getStatus());
-//	}
-//	
-//	
-//	/**
-//	 * Method: Test Case to Remove Reminder 
-//	 */
-//	@Test
-//	public void testRemoveReminder() {
-//		
-//		String collaboratorEmailId = "demo.mayuresh@gmail.com";
-//		Response response = noteService.removeCollaborator(noteId, token, collaboratorEmailId);
-//		assertEquals(200,response.getStatus());
-//	}
+	/**
+	 * Method: Test Case to Add Reminder
+	 */
+	
+	public void testAddReminder() {
+		
+		int year=2020,month=12,day=23,hour=12,minute=20,second=45;
+		Response response = noteService.addReminder(token, noteId, year, month, day, hour, minute, second);
+		assertEquals(200, response.getStatus());
+	}
+	
+	
+	/**
+	 * Method: Test Case to Edit Reminder
+	 */
+	
+	public void testEditReminder() {
+		
+		int year=2021,month=6,day=12,hour=18,minute=17,second=57;
+		Response response = noteService.editReminder(token, noteId, year, month, day, hour, minute, second);
+		assertEquals(200, response.getStatus());
+	}
+	
+	
+	/**
+	 * Method: Test Case to Remove Reminder 
+	 */
+	
+	public void testRemoveReminder() {
+		
+		String collaboratorEmailId = "demo.mayuresh@gmail.com";
+		Response response = noteService.removeCollaborator(noteId, token, collaboratorEmailId);
+		assertEquals(200,response.getStatus());
+	}
 
 	
 }

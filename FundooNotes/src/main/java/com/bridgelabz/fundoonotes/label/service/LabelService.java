@@ -40,8 +40,6 @@ public class LabelService implements LabelServiceI{
 	@Autowired
 	private Environment labelEnvironment;
 	
-	@Autowired
-	private	Environment noteEnvironment;
 	
 	/**
 	 *Method: To Create Label
@@ -74,41 +72,34 @@ public class LabelService implements LabelServiceI{
 	 *Method: To Update Label
 	 */
 	@Override
-	public Response updateLabel(String noteid, String labelid, String token, LabelDTO labeldto) {
-		
+	public Response updateLabel(String labelid, String token, LabelDTO labeldto) {
+
 		String email = jwt.getEmailId(token);
 		Label label = labelrepository.findById(labelid).get();
-		Note n = noterepository.findById(noteid).get();
-		
-		if(email != null) {
-			
-			if(n.getId().equalsIgnoreCase(noteid)) {
-			
-				if(label.getId().equalsIgnoreCase(labelid)) {
-					label.setLabelTitle(labeldto.getLabelTitle());
-					
-					LocalDateTime now = LocalDateTime.now();
-					DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm:ss");
-					String date = now.format(formatter);
-					
-					label.setEditDate(date);
-					labelrepository.save(label);
-					
-//					List<Note> notelist = noteService.showNotes();
-//					Note note = notelist.stream().filter(data -> data.getEmailId().equals(email)).findAny().orElse(null);
-					n.getLabellist().removeIf(data -> data.getId().equals(labelid));
-					n.getLabellist().add(label);
-					noterepository.save(n);
-					
-					User user = userrepository.findByEmail(email);
-					user.getNotelist().removeIf(data -> data.getId().equals(n.getId()));
-					user.getNotelist().add(n);
-					userrepository.save(user);
-					return new Response(200, labelEnvironment.getProperty("Update_Label"), labelEnvironment.getProperty("UPDATE_LABEL"));
-				}
-				return new Response(404, labelEnvironment.getProperty("LABEL_ID_NOT_FOUND"), HttpStatus.BAD_REQUEST);
+
+		if (email != null) {
+
+			if (label.getId().equalsIgnoreCase(labelid)) {
+				label.setLabelTitle(labeldto.getLabelTitle());
+
+				LocalDateTime now = LocalDateTime.now();
+				DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm:ss");
+				String date = now.format(formatter);
+
+				label.setEditDate(date);
+				labelrepository.save(label);
+
+//				n.getLabellist().removeIf(data -> data.getId().equals(labelid));
+//				n.getLabellist().add(label);
+//				noterepository.save(n);
+//					
+//				User user = userrepository.findByEmail(email);
+//				user.getNotelist().removeIf(data -> data.getId().equals(n.getId()));
+//				user.getNotelist().add(n);
+//				userrepository.save(user);
+				return new Response(200, labelEnvironment.getProperty("Update_Label"), labelEnvironment.getProperty("UPDATE_LABEL"));
 			}
-			return new Response(404, labelEnvironment.getProperty("NOTE_ID_NOT_FOUND"), HttpStatus.BAD_REQUEST);
+			return new Response(404, labelEnvironment.getProperty("LABEL_ID_NOT_FOUND"), HttpStatus.BAD_REQUEST);
 		}
 		return new Response(404, labelEnvironment.getProperty("UNAUTHORIZED_USER"), HttpStatus.BAD_REQUEST);
 	}
@@ -118,32 +109,27 @@ public class LabelService implements LabelServiceI{
 	 *Method: To Delete Label
 	 */
 	@Override
-	public Response deleteLabel(String noteid, String labelid, String token) {
-		
+	public Response deleteLabel(String labelid, String token) {
+
 		String email = jwt.getEmailId(token);
 		Label label = labelrepository.findById(labelid).get();
-		if(email != null) {
-			
-			Note n = noterepository.findById(noteid).get();
-			if(n.getId().equalsIgnoreCase(noteid)) {
-			
-				if(label.getId().equalsIgnoreCase(labelid)) {
-					labelrepository.deleteById(labelid);
-				
-//					List<Note> notelist = noteService.showNotes();
-//					Note note = notelist.stream().filter(data -> data.getEmailId().equals(email)).findAny().orElse(null);
-					n.getLabellist().remove(label);
-					noterepository.save(n);
-					
-					User user = userrepository.findByEmail(email);
-					user.getNotelist().removeIf(data -> data.getId().equals(n.getId()));
-					user.getNotelist().add(n);
-					userrepository.save(user);
-					return new Response(200, labelEnvironment.getProperty("Delete_Label"), labelEnvironment.getProperty("DELETE_LABEL"));
-				}
-				return new Response(404, labelEnvironment.getProperty("LABEL_ID_NOT_FOUND"), labelEnvironment.getProperty("LABEL_ID_NOT_FOUND"));
+		if (email != null) {
+
+			if (label.getId().equalsIgnoreCase(labelid)) {
+				labelrepository.deleteById(labelid);
+
+//				List<Note> notelist = noteService.showNotes();
+//				Note note = notelist.stream().filter(data -> data.getEmailId().equals(email)).findAny().orElse(null);
+//				n.getLabellist().remove(label);
+//				noterepository.save(n);
+//
+//				User user = userrepository.findByEmail(email);
+//				user.getNotelist().removeIf(data -> data.getId().equals(n.getId()));
+//				user.getNotelist().add(n);
+//				userrepository.save(user);
+				return new Response(200, labelEnvironment.getProperty("Delete_Label"), labelEnvironment.getProperty("DELETE_LABEL"));
 			}
-			return new Response(404, noteEnvironment.getProperty("NOTE_ID_NOT_FOUND"), noteEnvironment.getProperty("NOTE_ID_NOT_FOUND"));
+			return new Response(404, labelEnvironment.getProperty("LABEL_ID_NOT_FOUND"), labelEnvironment.getProperty("LABEL_ID_NOT_FOUND"));
 		}
 		return new Response(404, labelEnvironment.getProperty("UNAUTHORIZED_USER"), labelEnvironment.getProperty("UNAUTHORIZED_USER"));
 	}
@@ -199,9 +185,9 @@ public class LabelService implements LabelServiceI{
             		note.getLabellist().add(label);
 	                noterepository.save(note);
 	                
-//	    			user.getNotelist().removeIf(data -> data.getId().equals(note.getId()));
-//	    			user.getNotelist().add(note);
-//	    			userrepository.save(user);
+	    			user.getNotelist().removeIf(data -> data.getId().equals(note.getId()));
+	    			user.getNotelist().add(note);
+	    			userrepository.save(user);
 	                return new Response(200, labelEnvironment.getProperty("Add_Label_To_Note"), labelEnvironment.getProperty("LABEL_ADDED_TO_NOTE"));
             	}
                 return new Response(404, labelEnvironment.getProperty("LABEL_ID_NOT_FOUND"), HttpStatus.BAD_REQUEST);
