@@ -15,7 +15,7 @@ public class UserServiceRestAssuredApiTest {
 	/* Used Objects */
 	private String baseURL = "http://localhost:8080";
 	private String token = "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJlbWFpbElkIjoibXNzb25hcjI2QGdtYWlsLmNvbSJ9.PnmJiMaZVOJ03T5WgZU8k0VNEK-Osgj-mCtWe2whkUQ";
-	private String noteId = "5df087f657013002a4d298cf";
+	private String userId = "5df087f657013002a4d298cf";
 	
 	
 	/**
@@ -124,7 +124,7 @@ public class UserServiceRestAssuredApiTest {
 		
         RequestSpecification httpRequest = RestAssured.given().baseUri(baseURL);
         httpRequest.header("Content-Type","application/json");
-        httpRequest.header("id", noteId);
+        httpRequest.header("id", userId);
 
         Response response = httpRequest.request(Method.DELETE, "/deleteuser");
         int code = response.getStatusCode();

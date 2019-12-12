@@ -3,11 +3,11 @@
 <suite name="Failed suite [Default suite]" guice-stage="DEVELOPMENT">
   <test thread-count="5" name="Default test(failed)">
     <classes>
-      <class name="com.bridgelabz.fundoonotes.restassuredtest.UserServiceRestAssuredApiTest">
+      <class name="com.bridgelabz.fundoonotes.restassuredtest.NoteServiceRestAssuredApiTest">
         <methods>
-          <include name="updateUserApiTest"/>
+          <include name="removeReminderApiTest"/>
         </methods>
-      </class> <!-- com.bridgelabz.fundoonotes.restassuredtest.UserServiceRestAssuredApiTest -->
+      </class> <!-- com.bridgelabz.fundoonotes.restassuredtest.NoteServiceRestAssuredApiTest -->
     </classes>
   </test> <!-- Default test(failed) -->
 </suite> <!-- Failed suite [Default suite] -->
