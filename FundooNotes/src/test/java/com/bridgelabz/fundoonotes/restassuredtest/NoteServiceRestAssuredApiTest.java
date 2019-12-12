@@ -27,6 +27,7 @@ public class NoteServiceRestAssuredApiTest {
 	 */
 	@Test
 	public void addNoteApiTest() {
+		
 		RequestSpecification httpRequest = RestAssured.given().baseUri(baseURL);
 		JSONObject notedto = new JSONObject();
 		notedto.put("title","Note Assured");
@@ -47,6 +48,7 @@ public class NoteServiceRestAssuredApiTest {
 	 */
 	@Test
 	public void updateNoteApiTest() {
+		
 		RequestSpecification httpRequest = RestAssured.given().baseUri(baseURL);
 		JSONObject notedto = new JSONObject();
 		notedto.put("title","Note Assured Api Test");
@@ -67,6 +69,7 @@ public class NoteServiceRestAssuredApiTest {
 	 */
 	@Test
 	public void deleteNoteApiTest() {
+		
 		RequestSpecification httpRequest = RestAssured.given().baseUri(baseURL);
         httpRequest.header("token", token);
       	httpRequest.header("id", deletenoteId);
@@ -154,7 +157,6 @@ public class NoteServiceRestAssuredApiTest {
 		int code = response.getStatusCode();
 		System.out.println("Get User Status Code: "+code);
 		assertEquals(200, code);
-		
 	}
 	
 	
@@ -171,7 +173,6 @@ public class NoteServiceRestAssuredApiTest {
 		int code = response.getStatusCode();
 		System.out.println("Get User Status Code: "+code);
 		assertEquals(200, code);
-		
 	}
 	
 	
@@ -188,7 +189,6 @@ public class NoteServiceRestAssuredApiTest {
 		int code = response.getStatusCode();
 		System.out.println("Get User Status Code: "+code);
 		assertEquals(200, code);
-		
 	}
 	
 	
@@ -205,7 +205,6 @@ public class NoteServiceRestAssuredApiTest {
 		int code = response.getStatusCode();
 		System.out.println("Get User Status Code: "+code);
 		assertEquals(200, code);
-		
 	}
 	
 	
@@ -222,7 +221,6 @@ public class NoteServiceRestAssuredApiTest {
 		int code = response.getStatusCode();
 		System.out.println("Get User Status Code: "+code);
 		assertEquals(200, code);
-		
 	}
 	
 	
@@ -279,7 +277,6 @@ public class NoteServiceRestAssuredApiTest {
 		
 		Response response = httpRequest.request(Method.POST, "/addreminder?year=2019&month=12&day=31&hour=24&minute=00&second=00");
 		assertEquals(response.getStatusCode(), 200);
-		
 	}
 	
 	
@@ -297,7 +294,6 @@ public class NoteServiceRestAssuredApiTest {
 		
 		Response response = httpRequest.request(Method.POST, "/addreminder?year=2019&month=12&day=31&hour=23&minute=55&second=00");
 		assertEquals(response.getStatusCode(), 200);
-		
 	}
 	
 	
