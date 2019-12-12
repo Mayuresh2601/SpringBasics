@@ -6,7 +6,6 @@ import java.util.List;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.env.Environment;
-import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
 import com.bridgelabz.fundoonotes.label.dto.LabelDTO;
@@ -61,9 +60,9 @@ public class LabelService implements LabelServiceI{
 
 			label.setCreateDate(date);
 			labelrepository.save(label);
-			return new Response(200, labelEnvironment.getProperty("Create_Label"), labelEnvironment.getProperty("CREATE_LABEL"));
+			return new Response(labelEnvironment.getProperty("Status_200"), labelEnvironment.getProperty("Create_Label"), labelEnvironment.getProperty("CREATE_LABEL"));
 		}
-		return new Response(404, labelEnvironment.getProperty("UNAUTHORIZED_USER"), HttpStatus.BAD_REQUEST);
+		return new Response(labelEnvironment.getProperty("Status_404"), labelEnvironment.getProperty("UNAUTHORIZED_USER"), null);
 
 	}
 
@@ -89,6 +88,7 @@ public class LabelService implements LabelServiceI{
 				label.setEditDate(date);
 				labelrepository.save(label);
 
+				//Extra Code 
 //				n.getLabellist().removeIf(data -> data.getId().equals(labelid));
 //				n.getLabellist().add(label);
 //				noterepository.save(n);
@@ -97,11 +97,11 @@ public class LabelService implements LabelServiceI{
 //				user.getNotelist().removeIf(data -> data.getId().equals(n.getId()));
 //				user.getNotelist().add(n);
 //				userrepository.save(user);
-				return new Response(200, labelEnvironment.getProperty("Update_Label"), labelEnvironment.getProperty("UPDATE_LABEL"));
+				return new Response(labelEnvironment.getProperty("Status_200"), labelEnvironment.getProperty("Update_Label"), labelEnvironment.getProperty("UPDATE_LABEL"));
 			}
-			return new Response(404, labelEnvironment.getProperty("LABEL_ID_NOT_FOUND"), HttpStatus.BAD_REQUEST);
+			return new Response(labelEnvironment.getProperty("Status_404"), labelEnvironment.getProperty("LABEL_ID_NOT_FOUND"), null);
 		}
-		return new Response(404, labelEnvironment.getProperty("UNAUTHORIZED_USER"), HttpStatus.BAD_REQUEST);
+		return new Response(labelEnvironment.getProperty("Status_404"), labelEnvironment.getProperty("UNAUTHORIZED_USER"), null);
 	}
 
 	
@@ -118,6 +118,7 @@ public class LabelService implements LabelServiceI{
 			if (label.getId().equalsIgnoreCase(labelid)) {
 				labelrepository.deleteById(labelid);
 
+				//Extra Code
 //				List<Note> notelist = noteService.showNotes();
 //				Note note = notelist.stream().filter(data -> data.getEmailId().equals(email)).findAny().orElse(null);
 //				n.getLabellist().remove(label);
@@ -127,11 +128,11 @@ public class LabelService implements LabelServiceI{
 //				user.getNotelist().removeIf(data -> data.getId().equals(n.getId()));
 //				user.getNotelist().add(n);
 //				userrepository.save(user);
-				return new Response(200, labelEnvironment.getProperty("Delete_Label"), labelEnvironment.getProperty("DELETE_LABEL"));
+				return new Response(labelEnvironment.getProperty("Status_200"), labelEnvironment.getProperty("Delete_Label"), labelEnvironment.getProperty("DELETE_LABEL"));
 			}
-			return new Response(404, labelEnvironment.getProperty("LABEL_ID_NOT_FOUND"), labelEnvironment.getProperty("LABEL_ID_NOT_FOUND"));
+			return new Response(labelEnvironment.getProperty("Status_404"), labelEnvironment.getProperty("LABEL_ID_NOT_FOUND"), null);
 		}
-		return new Response(404, labelEnvironment.getProperty("UNAUTHORIZED_USER"), labelEnvironment.getProperty("UNAUTHORIZED_USER"));
+		return new Response(labelEnvironment.getProperty("Status_404"), labelEnvironment.getProperty("UNAUTHORIZED_USER"), null);
 	}
 
 	
@@ -142,7 +143,7 @@ public class LabelService implements LabelServiceI{
 	public Response showLabels() {
 		
 		List<Label> list = labelrepository.findAll();
-		return new Response(200, labelEnvironment.getProperty("Show_Labels"), list);
+		return new Response(labelEnvironment.getProperty("Status_200"), labelEnvironment.getProperty("Show_Labels"), list);
 	}
 
 	
@@ -156,9 +157,9 @@ public class LabelService implements LabelServiceI{
 		Label label = labelrepository.findById(labelid).get();
 		
 		if(email != null) {
-			return new Response(200, labelEnvironment.getProperty("Find_Label"), label);
+			return new Response(labelEnvironment.getProperty("Status_200"), labelEnvironment.getProperty("Find_Label"), label);
 		}
-		return new Response(404, labelEnvironment.getProperty("UNAUTHORIZED_USER"), HttpStatus.BAD_REQUEST);
+		return new Response(labelEnvironment.getProperty("Status_404"), labelEnvironment.getProperty("UNAUTHORIZED_USER"), null);
 	}
 	
 	
@@ -188,13 +189,13 @@ public class LabelService implements LabelServiceI{
 	    			user.getNotelist().removeIf(data -> data.getId().equals(note.getId()));
 	    			user.getNotelist().add(note);
 	    			userrepository.save(user);
-	                return new Response(200, labelEnvironment.getProperty("Add_Label_To_Note"), labelEnvironment.getProperty("LABEL_ADDED_TO_NOTE"));
+	                return new Response(labelEnvironment.getProperty("Status_200"), labelEnvironment.getProperty("Add_Label_To_Note"), labelEnvironment.getProperty("LABEL_ADDED_TO_NOTE"));
             	}
-                return new Response(404, labelEnvironment.getProperty("LABEL_ID_NOT_FOUND"), HttpStatus.BAD_REQUEST);
+                return new Response(labelEnvironment.getProperty("Status_404"), labelEnvironment.getProperty("LABEL_ID_NOT_FOUND"), null);
             }
-            return new Response(404, labelEnvironment.getProperty("NOTE_ID_NOT_FOUND"), HttpStatus.BAD_REQUEST);
+            return new Response(labelEnvironment.getProperty("Status_404"), labelEnvironment.getProperty("NOTE_ID_NOT_FOUND"), null);
         }
-        return new Response(404, labelEnvironment.getProperty("UNAUTHORIZED_USER"), HttpStatus.BAD_REQUEST);
+        return new Response(labelEnvironment.getProperty("Status_404"), labelEnvironment.getProperty("UNAUTHORIZED_USER"), null);
 
     }
 
